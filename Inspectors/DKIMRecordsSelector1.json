@@ -1,0 +1,20 @@
+{
+	"FindingName": "Domains with No DKIM Selector 1 DNS Record",
+	"Description": "DKIM is a technology that uses public-key cryptography as a tool to help assure the integrity of emails as they are sent between servers. Additionally, cyber adversaries are known to sometimes generate spoofed (falsified) emails that appear to originate from your organization. DKIM can also enable recipients to distinguish spoofed email from authentic email originating from your domain, therefore increasing trust in the domain and ideally reducing the likelihood that members of your own organization or related organizations will be successfully phished by imitative attacks. The domains listed above do not have a DKIM selector1 DNS record. A selector1 record is one of two DKIM-related records necessary to successfully implement DKIM in conjunction with O365.",
+	"Remediation": "Follow the guide in the References section to learn the full significance of the DKIM selector1 record to O365 DKIM configuration. DKIM rollout can be a very involved process, for which there is a complete reference in the 'Use DKIM to validate the outbound email sent from your custom domain' guide in the References section below.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/use-dkim-to-validate-outbound-email?view=o365-worldwide",
+			"Text": "Use DKIM to validate outbound email sent from your custom domain"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/powershell/module/exchange/set-dkimsigningconfig?view=exchange-ps",
+			"Text": "Set-DkimSigningConfig Command Reference"
+		},
+		{
+			"Url": "http://dkim.org/info/dkim-faq.html",
+			"Text": "DKIM FAQ"
+		}
+	]
+}

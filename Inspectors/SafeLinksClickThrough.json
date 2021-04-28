@@ -1,0 +1,12 @@
+{
+	"FindingName": "Safe Links Click-Through is Allowed",
+	"Description": "Advanced Threat Protection Safe Links (ATP Safe Links) is an Office 365 feature that enables the detection of suspicious links used in attacks delivered via Exchange Email and Teams, such as phishing attacks. Your ATP Safe Links is configured to allow users to click through a link flagged as unsafe if they choose. It is recommended that you disable this ability, as users will often click through to potentially unsafe links if they are given the choice, partially negating the benefit of Safe Links.",
+	"Remediation": "Use the Set-SafeLinksPolicy function in the Exchange Online PowerShell module as follows: 'Set-SafeLinksPolicy -DoNotAllowClickThrough $true'.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/powershell/module/exchange/set-safelinkspolicy?view=exchange-ps",
+			"Text": "Set-SafeLinksPolicy Reference"
+		}
+	]
+}

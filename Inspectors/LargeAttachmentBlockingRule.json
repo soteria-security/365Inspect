@@ -1,0 +1,12 @@
+{
+	"FindingName": "No Transport Rules to Block Large Attachments",
+	"Description": "No Exchange Online Transport Rules are in place to block emails with overly large attachments. Emails with overly large attachments may present a security risk for several reasons. Emails your domains receive may have overly large attachments that contain malware, and adversaries sometimes use overly large files in an attempt to bypass antimalware scanners or otherwise avoid suspicion. An adversary with access to an organizational email account may also use a large attachment to exfiltrate sensitive data from your organization; for example, emailing an encrypted archive file to other adversarial infrastructure using a compromised O365 account. It is often recommended to create a rule that detects and blocks attachments over a certain size for these reasons.",
+	"Remediation": "Go to the Exchange Mail Flow rules screen and create a new rule which blocks attachments over a designated size.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/exchange/security-and-compliance/mail-flow-rules/common-attachment-blocking-scenarios",
+			"Text": "Common Attachment Blocking Scenarios"
+		}
+	]
+}

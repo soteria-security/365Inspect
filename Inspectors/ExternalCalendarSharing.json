@@ -1,0 +1,20 @@
+{
+	"FindingName": "Calendar Sharing with External Users Enabled",
+	"Description": "Due to the enabled sharing policies listed above, your organization's users are permitted to share their Office 365 Calendars with any external person. It is not recommended to allow calendar sharing to users outside your organization as the data in calendar entries may reveal sensitive information about your organization or users.",
+	"Remediation": "Modify the affected sharing policies and disable calendar sharing. This is possible from the O365 Admin Center, in the Exchange -> Organization -> Sharing screen. You can also use the Set-SharingPolicy PowerShell commandlets to perform this remediation.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/exchange/sharing/sharing-policies/modify-a-sharing-policy",
+			"Text": "Modify a sharing policy"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/exchange/sharing/sharing-policies/create-a-sharing-policy",
+			"Text": "Create a sharing policy in Exchange Online"
+		},
+		{
+			"Url": "https://www.thatlazyadmin.com/disable-anonymous-calendar-sharing-office-365-admin-center-powershell/",
+			"Text": "ThatLazyAdmin: Disabling anonymous calendar sharing"
+		}
+	]
+}

@@ -1,0 +1,20 @@
+{
+	"FindingName": "Exchange Online Mailboxes with SMTP Authentication Enabled",
+	"Description": "The Exchange Online mailboxes listed above have SMTP Authentication enabled. SMTP Authentication is a method of authenticating to an Exchange Online mailbox. Cyber adversaries have used SMTP authentication as a workaround for subtly conducting password spraying attacks or other credential-related attacks, because SMTP authentication is a form of legacy authentication generally not subject to the restraints of Multi-Factor Authentication and other modern authentication safeguards. For these reasons it is recommended that SMTP Authentication be disabled where possible.",
+	"Remediation": "SMTP can be globally disabled using Exchange Online PowerShell using the Set-TransportConfig command, such as: 'Set-TransportConfig -SmtpClientAuthenticationDisabled $true'. However, this finding refers to individual mailboxes that have SMTP enabled. For these mailboxes, SMTP authentication can be disabled using the Set-CASMailbox commandlet as follows: 'Set-CASMailbox -Identity [MailboxName] -SmtpClientAuthenticationDisabled $true' where the -Identity flag is the user's email address. A list of affected email addresses is included in this report.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/exchange/clients-and-mobile-in-exchange-online/authenticated-client-smtp-submission",
+			"Text": "Enable or disable authenticated client SMTP submission (SMTP AUTH) in Exchange Online"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/powershell/module/exchange/set-casmailbox?view=exchange-ps",
+			"Text": "Set-CASMailbox Commandlet Reference"
+		},
+		{
+			"Url": "https://www.ic3.gov/Media/Y2020/PSA200406",
+			"Text": "Federal Bureau of Investigation Business Email Compromise Mitigation Recommendations"
+		}
+	]
+}

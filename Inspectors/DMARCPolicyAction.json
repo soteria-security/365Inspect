@@ -1,0 +1,20 @@
+{
+	"FindingName": "Domains without DMARC Policy Action Configured",
+	"Description": "The domains listed above do not have a DMARC Policy Action configured. Domain-based Message Authentication, Reporting and Conformance (DMARC) is a security control that builds atop Sender Policy Framework and Domain-Keys Identified Mail to help control concerns related to the use of your domain in malicious emails (email spoofing). The DMARC policy action is one of the most important components of DMARC and represents an action that the receiver of an email from your domain should take if that email is identified as spoofed. The current policy action is \"none\", which means no action is taken against the malicious email and DMARC is in effect negated.",
+	"Remediation": "If you are confident that your DMARC configuration is correct, consider changing the DMARC policy action to a more meaningful policy action such as 'quarantine' or 'reject'. This will direct mail recipient servers to not deliver messages which are identified as spoofed, therefore gaining a security benefit from DMARC. Note that this can cause interoperability issues and may result in undelivered emails in certain edge cases, with certain automated applications, or if your DMARC settings are not correctly configured. It is recommended that you have a mechanism by which your users can report undelivered emails or other misbehaviors. Review the references on DMARC implementation below for more extensive advice to begin planning a DMARC rollout.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/use-dmarc-to-validate-email?view=o365-worldwide",
+			"Text": "Use DMARC to validate email"
+		},
+		{
+			"Url": "https://dmarc.org/overview/",
+			"Text": "DMARC Overview, Anatomy of a DMARC Record, How Senders Deploy DMARC in 5 Steps"
+		},
+		{
+			"Url": "https://mxtoolbox.com/dmarc/details/what-is-a-dmarc-record",
+			"Text": "What is a DMARC record?"
+		}
+	]
+}

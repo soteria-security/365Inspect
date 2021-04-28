@@ -1,0 +1,12 @@
+{
+	"FindingName": "Safe Links Does Not Flag Links in Real Time",
+	"Description": "Safe Links is an Office 365 feature that enables the detection of suspicious links used in attacks delivered via Exchange Email and Teams, such as phishing attacks. ATP Safe Links can be configured to flag dangerous links in email and guarantee that the email will not be delivered until the Safe Links scanning is complete. This is the ideal Safe Links setting. However, this setting is currently disabled, which means it is possible for emails to be delivered before Safe Links protections have been applied. It is also possible that this inspector finding was generated because ATP Safe Links is not enabled or your organization does not have an appropriate O365 license tier to use ATP Safe Links features, in which case the remediation described below would not apply.",
+	"Remediation": "Use the Set-SafeLinksPolicy function in the Exchange Online PowerShell module as follows: 'Set-SafeLinksPolicy -DeliverMessageAfterScan $false'.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/powershell/module/exchange/set-safelinkspolicy?view=exchange-ps",
+			"Text": "Set-SafeLinksPolicy Reference"
+		}
+	]
+}

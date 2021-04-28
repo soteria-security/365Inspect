@@ -1,0 +1,20 @@
+{
+	"FindingName": "Domains with no DMARC Records",
+	"Description": "No Domain-based Message Authentication, Reporting and Conformance (DMARC) records are present for the domains listed. DMARC is a security control that builds atop Sender Policy Framework and Domain-Keys Identified Mail to help control concerns related to the use of your domain in malicious emails (email spoofing).",
+	"Remediation": "Understand that DMARC cannot be implemented until SPF and DKIM are, as DMARC extends them. Consider reviewing your organization's implementation of SPF and DKIM. If you are ready to implement DMARC, review the references on DMARC implementation below to begin planning a DMARC rollout.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/use-dmarc-to-validate-email?view=o365-worldwide",
+			"Text": "Use DMARC to validate email"
+		},
+		{
+			"Url": "https://dmarc.org/overview/",
+			"Text": "DMARC Overview, Anatomy of a DMARC Record, How Senders Deploy DMARC in 5 Steps"
+		},
+		{
+			"Url": "https://mxtoolbox.com/dmarc/details/what-is-a-dmarc-record",
+			"Text": "What is a DMARC record?"
+		}
+	]
+}

@@ -1,0 +1,16 @@
+{
+	"FindingName": "No Custom Anti-Phishing Policy Present",
+	"Description": "It is possible to create custom anti-phishing policies in Exchange Online to provide additional protection against threats that may be received via email. No anti-phishing policy besides the Microsoft Default anti-phishing Policy was detected in your O365 tenant. Although the default anti-phishing policy can provide some protection, each organization should consider creating an anti-phishing policy that is customized to suit the nature of their day to day activities.",
+	"Remediation": "Follow the 'Anti-Phishing policies in Microsoft 365' article below to begin constructing a custom anti-phishing policy.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/set-up-anti-phishing-policies?view=o365-worldwide",
+			"Text": "Anti-phishing policies in Microsoft 365"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/configure-mdo-anti-phishing-policies?view=o365-worldwide",
+			"Text": "Configure anti-phishing policies "
+		}
+	]
+}

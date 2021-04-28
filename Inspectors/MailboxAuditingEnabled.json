@@ -1,0 +1,16 @@
+{
+	"FindingName": "Mailboxes without Mailbox Auditing Enabled",
+	"Description": "The Exchange mailboxes listed above do not have Mailbox Auditing enabled. Mailbox Auditing enables the logging of certain actions performed by mailbox owners and administrators and is a valuable source of data for the investigation and analysis of security incidents such as business email compromises. It is recommended that Mailbox Auditing be enabled for the affected mailboxes. Note that it is possible mailbox auditing is enabled globally, which would supercede these findings.",
+	"Remediation": "Mailbox auditing can be quickly enabled for a user with the Set-Mailbox commandlet as follows: 'Set-Mailbox -Identity [user_email] -AuditEnabled $true'. A list of affected email addresses for this finding is embedded in this report.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/compliance/enable-mailbox-auditing?view=o365-worldwide",
+			"Text": "Manage mailbox auditing"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/powershell/module/exchange/set-mailbox?view=exchange-ps",
+			"Text": "Set-Mailbox Commandlet Reference"
+		}
+	]
+}

@@ -1,0 +1,20 @@
+{
+	"FindingName": "SharePoint External User Resharing Permitted",
+	"Description": "SharePoint is your organization's hub for sharing files amongst each other. SharePoint can also permit your users to share content with anonymous outsiders or members of other organizations (commonly referred to as \"external users\"). Your SharePoint settings are currently configured such that, if one of your users shares a file with an external user, that external user can re-share the file arbitrarily with other external users. This is a highly permissive setting that could result in the unsafe propagation of your organization's confidential information in ways you may not fully intend.",
+	"Remediation": "Depending on your organization's use case, you may choose to disable external user resharing. This is most easily accomplished with the Set-SPOTenant PowerShell commandlet from the SharePoint Online administration module, as follows: 'Set-SPOTenant -PreventExternalUsersFromResharing $true'.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "Set-SPOTenant Reference",
+			"Text": "https://docs.microsoft.com/en-us/powershell/module/sharepoint-online/set-spotenant?view=sharepoint-ps"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/sharepoint/turn-external-sharing-on-or-off",
+			"Text": "Manage sharing settings"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/solutions/microsoft-365-limit-sharing?view=o365-worldwide",
+			"Text": "Limit sharing in M365"
+		}
+	]
+}

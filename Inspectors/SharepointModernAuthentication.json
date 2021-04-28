@@ -1,0 +1,12 @@
+{
+	"FindingName": "SharePoint Online Modern Authentication is Not Enabled",
+	"Description": "Modern Authentication is a SharePoint Online setting that allows authentication features such as MFA, smart cards, and certificate-based authentication to function. These authentication features, particularly MFA, are vital for the secure operation of an organization. It is recommended to enable SharePoint modern authentication.",
+	"Remediation": "Use the SharePoint PowerShell administration module as follows: 'Set-SPOTenant -OfficeClientADALDisabled $false'. This enables SharePoint modern authentication programatically. You should take additional steps to disable SharePoint Legacy Authentication to complement this action.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/powershell/module/sharepoint-online/set-spotenant?view=sharepoint-ps",
+			"Text": "Set-SPOTenant"
+		}
+	]
+}

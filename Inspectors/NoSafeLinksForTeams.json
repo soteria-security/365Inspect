@@ -1,0 +1,20 @@
+{
+	"FindingName": "Safe Links for Teams is Not Enabled",
+	"Description": "Safe Links is a feature of O365 that enables real-time detection of malicious links in incoming Exchange emails and other Office 365 applications. The Safe Links feature can also be enabled for links shared via Microsoft Teams. However, this setting is disabled in your 365 instance. Enabling it can decrease the risk of phishing and other attacks that might utilize malicious links sent via Teams, although it is not a panacea for these attacks. Note that this feature may not be available in every O365 tenant and is planned for mass release in April 2021.",
+	"Remediation": "Perhaps the most convenient way to enable this feature is to use the Set-SafeLinksPolicy command in PowerShell as such: 'Set-SafeLinksPolicy -IsEnabled $true -EnableSafeLinksForTeams $true'. Note that some organizations may have chosen to disable Safe Links for Teams if it interferes with day to day operations, so you should survey key stakeholders before enabling Safe Links for Teams.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/safe-links?view=o365-worldwide#safe-links-settings-for-microsoft-teams",
+			"Text": "Safe Links in Microsoft Defender for Office 365: Safe Links Settings for Microsoft Teams"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/powershell/module/exchange/set-safelinkspolicy?view=exchange-ps",
+			"Text": "Set-SafeLinksPolicy Reference"
+		},
+		{
+			"Url": "https://www.microsoft.com/en-us/microsoft-365/roadmap?rtc=2&filters=&searchterms=Safe%2CLinks%2CProtection%2Cfor%2CMicrosoft%2CTeams",
+			"Text": "Feature Roadmap for Safe Links for Microsoft Teams"
+		}
+	]
+}

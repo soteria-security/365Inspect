@@ -1,0 +1,16 @@
+{
+	"FindingName": "Outgoing Sharing Invitations are Not Monitored",
+	"Description": "SharePoint is the de-facto sharing and file management tool in the O365 suite. SharePoint provides administrators with the ability to record and monitor when their users have sent file sharing invitations to external users. This feature should be enabled, but it was detected as disabled. This feature could be vital in a detection or response capacity in cases where data was lost or shared inappropriately.",
+	"Remediation": "This setting is most easily accessible via the Set-SPOTenant function in the SharePoint Online PowerShell module. Use the Set-SPOTenant function as follows: Set-SPOTenant -BccExternalSharingInvitations $true -BccExternalSharingInvitationsList \"administrator@yourdomain\"",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/powershell/module/sharepoint-online/set-spotenant?view=sharepoint-ps",
+			"Text": "Set-SPOTenant Function Reference"
+		},
+		{
+			"Url": "https://www.sharepointdiary.com/2020/01/shareoint-online-external-sharing-alerts.html",
+			"Text": "SharePoint Diary: SharePoint Online External Sharing invitations."
+		}
+	]
+}

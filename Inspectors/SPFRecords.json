@@ -1,0 +1,16 @@
+{
+	"FindingName": "Domains with No SPF Records",
+	"Description": "The domains listed above do not have Sender Policy Framework (SPF) records. SPF records can be used by receiving mail servers to identify whether mail that purports to be from your domains is actually from your domains, or spoofed by an adversary. This helps defeat common tactics adversaries use during phishing and other offensive activities such as spoofing email addresses that mimic your domain.",
+	"Remediation": "Create an SPF TXT DNS record as described in the references below. Remember that configuring SPF may affect the deliverability of mail from that domain. An SPF rollout should be measured and gradual.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/set-up-spf-in-office-365-to-help-prevent-spoofing?view=o365-worldwide",
+			"Text": "Set Up SPF in Office 365 to Help Prevent Spoofing"
+		},
+		{
+			"Url": "https://postmarkapp.com/blog/explaining-spf",
+			"Text": "Explaining SPF Records"
+		}
+	]
+}

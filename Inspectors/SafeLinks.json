@@ -1,0 +1,16 @@
+{
+	"FindingName": "Safe Links Not Enabled",
+	"Description": "Safe Links is a feature of O365 that enables real-time detection of malicious links in incoming Exchange emails and other Office 365 applications, such as Microsoft Teams. Safe Links is not enabled in your O365 tenant. This may be because you do not have the appropriate license level to use the feature, or because you have disabled it. This lowers the amount of built-in protection O365 offers your organization against phishing and other attacks.",
+	"Remediation": "Safe Links can be configured by navigating to the Threat Management portal in the Office 365 Security and Compliance center. The first guide below is a quick introduction to enabling Safe Links while the second is a detailed reference.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/business-video/safe-links?view=o365-worldwide",
+			"Text": "Microsoft Business Videos: Safe Links"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/safe-links?view=o365-worldwide",
+			"Text": "Microsoft Safe Links reference"
+		}
+	]
+}

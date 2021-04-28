@@ -1,0 +1,16 @@
+{
+	"FindingName": "Safe Attachments Not Enabled",
+	"Description": "The Microsoft Office 365 Safe Attachments feature is not enabled. Safe Attachments is a Microsoft feature that uses behavioral analysis and detonation in a virtual environment to add another layer of defense against malware on top of existing Exchange Online anti-malware policies. It is recommended that you enable this feature. This finding may also indicate that you do not have a high enough O365 license to enable ATP features.",
+	"Remediation": "Safe Attachments can be configured by navigating to the Threat Management portal in the Office 365 Security and Compliance center. The first reference below is a detailed guide to configuring ATP Safe Attachments.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/business-video/safe-attachments?view=o365-worldwide",
+			"Text": "Quick Start Guide to Safe Attachments Policies"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/set-up-safe-attachments-policies?view=o365-worldwide",
+			"Text": "Set Up Safe Attachments Policies"
+		}
+	]
+}

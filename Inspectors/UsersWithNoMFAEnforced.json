@@ -1,0 +1,12 @@
+{
+	"FindingName": "Users with No Multi-Factor Authentication Enforced",
+	"Description": "The O365 user accounts listed above do not have multi-factor authentication enforced by an administrator. Multi-factor authentication is an essential security setting that can prevent an adversary from compromising a user account even if the adversary has their password. Multi-factor authentication is an additional obstacle to adversaries who obtained user credentials through phishing or other means. Note that this module relies on reading settings configured within Microsoft Online/Azure AD and may not account for Conditional Access Policies or the use of third-party MFA solutions.",
+	"Remediation": "There are multiple different ways to roll out MFA and several considerations to take into account before rolling out MFA to your organization. Multi-factor authentication rollout can require significant effort. Follow the detailed O365 MFA guide described below.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/admin/security-and-compliance/set-up-multi-factor-authentication?view=o365-worldwide",
+			"Text": "Set Up Multi-Factor Authentication"
+		}
+	]
+}

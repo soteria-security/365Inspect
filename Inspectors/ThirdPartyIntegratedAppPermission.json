@@ -1,0 +1,16 @@
+{
+	"FindingName": "Third-Party Applications Allowed",
+	"Description": "Third-party integrated applications are allowed to run in your organization's Office 365 environment if a user authorizes them to do so. This configuration is considered insecure because a user may grant permissions to a malicious application without fully understanding the security implications. A user who installs a malicious third-party application is in effect compromised. Additionally, there are documented cases of a malicious actor gaining access to sensitive information by enticing a user to allow a third-party integrated application to run within their O365 tenant.",
+	"Remediation": "In the Office 365 administration center, navigate to the Org Settings page, then select Services -> User Consent to Apps and turn user consent off.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/admin/misc/user-consent?view=o365-worldwide",
+			"Text": "Managing user consent to apps in Microsoft 365"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/Inspect-and-remediate-illicit-consent-grants?view=o365-worldwide",
+			"Text": "Detect and Remediate Illicit Content Grants"
+		}
+	]
+}

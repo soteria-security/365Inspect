@@ -1,0 +1,12 @@
+{
+	"FindingName": "Office Message Encryption is Not Enabled",
+	"Description": "The messages your organization sends using Exchange email may contain confidential information such as employee names, internal IT or security information, and other data vital to your organization's continued operations. If a suitably positioned adversary were to intercept or otherwise obtain your organization's email messages, they may be able to read this sensitive information as O365 emails are not cryptographically secured by default. O365 Message Encryption provides the ability to encrypt email sent through your organization's O365 instance and share encrypted email with any user you email. This significantly improves",
+	"Remediation": "Enabling Office Message Encryption can be a significant process that entails enabling the technology, determining which cryptographic key management strategy you will use, and enabling Exchange mail transport rules that will automatically encrypt your email. For many organizations, this process can be simplified by using Microsoft's default cryptographic key management scheme; however, this is a decision that can only be made by someone with contextual knowledge of your organization's constraints. Please follow the detailed guide linked in the References section for more information.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/compliance/set-up-new-message-encryption-capabilities?view=o365-worldwide",
+			"Text": "Set up new Message Encryption capabilities"
+		}
+	]
+}

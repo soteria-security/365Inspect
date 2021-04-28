@@ -1,0 +1,20 @@
+{
+	"FindingName": "SharePoint Legacy Authentication is Enabled",
+	"Description": "SharePoint legacy authentication is enabled. Cyber adversaries frequently attempt credential stuffing and other attacks against legacy authentication protocols because they are subject to less scrutiny and are typically exempt from multi-factor authentication and other modern access requirements. It is recommended to globally disable SharePoint legacy authentication.",
+	"Remediation": "Consider using the SharePoint PowerShell module to disable legacy authentication protocols as follows: 'Set-SPOTenant -LegacyAuthProtocolsEnabled $False'. Note that globally disabling legacy authentication could have an adverse effect on some users or applications that require legacy authentication to perform their functions. In such cases, it is possible to more granularly set up a Conditional Access Policy that blocks legacy authentication for only those users and applications who do not strictly require it. Documentation for both approaches is provided in the references below.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/powershell/module/sharepoint-online/set-spotenant?view=sharepoint-ps",
+			"Text": "Set-SPOTenant"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/block-legacy-authentication",
+			"Text": "How to: Block legacy authentication to Azure AD with conditional access"
+		},
+		{
+			"Url": "https://contosoedu.com/legacy-auth-and-the-risk/",
+			"Text": "Legacy Auth and the Risk"
+		}
+	]
+}

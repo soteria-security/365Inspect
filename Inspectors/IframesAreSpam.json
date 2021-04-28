@@ -1,0 +1,20 @@
+{
+	"FindingName": "Iframes Not Identified as Spam",
+	"Description": "Cyber adversaries often place HTML iframes in the body of an email as a vector for containing spam templates or other malicious content. Your organization does not have Exchange spam/content Filter policies to flag emails containing iframes as spam. It is advisable to create content filter rules to detect iframes in email as spam.",
+	"Remediation": "Navigate to the Exchange Admin Center's 'Protection' menu, then click the 'spam filter' section. Create a spam policy or modify the default spam policy such that it is activated when iframes are found in emails. You may also use the Set-HostedContentFilterPolicy commandlet to configure these settings. These settings may soon be replaced by the Advanced Spam Filter (ASF) settings in Exchange Online Protection. If you have questions, refer to the references below.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://practical365.com/first-steps-configuring-exchange-online-protection/",
+			"Text": "Configuring Exchange Online Protection, First Steps"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/advanced-spam-filtering-asf-options?view=o365-worldwide",
+			"Text": "Advanced Spam Filter (ASF) Settings in Exchange Online Protection"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/powershell/module/exchange/set-hostedcontentfilterpolicy?view=exchange-ps",
+			"Text": "Set-HostedContentFilterPolicy Commandlet Reference"
+		}
+	]
+}

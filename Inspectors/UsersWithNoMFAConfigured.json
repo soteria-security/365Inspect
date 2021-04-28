@@ -1,0 +1,12 @@
+{
+	"FindingName": "Users with No MFA Configured",
+	"Description": "The users listed above do not have at least one multi-factor authentication method (such as a phone or mobile app) configured. Note that this detector relies on reading settings configured within Microsoft Online/Azure AD and may not account for Conditional Access Policies.",
+	"Remediation": "Educate users about mandatory MFA and its purpose. Consider using an MFA enrollment option that requires users to configure at least one MFA method upon their next login. Continue to monitor the status of MFA via 365Inspect, direct PowerShell commands, the Office 365 administration portal, or other appropriate tooling to assess whether users configure MFA over time.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/admin/security-and-compliance/set-up-multi-factor-authentication?view=o365-worldwide",
+			"Text": "Set Up Multi-Factor Authentication"
+		}
+	]
+}

@@ -1,0 +1,16 @@
+{
+	"FindingName": "Exchange Modern Authentication is Not Enabled",
+	"Description": "Modern Authentication is an Exchange feature that allows authentication capabilities such as multi-factor authentication, smart cards, and certificate-based authentication to function. It is recommended that Modern Authentication be enabled for Exchange Online in order to provide these capabilities.",
+	"Remediation": "Use the Set-OrganizationConfig PowerShell commandlet as follows: 'Set-OrganizationConfig -OAuth2ClientProfileEnabled $true'. Multiple reference guides are linked in the References section below.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/exchange/clients-and-mobile-in-exchange-online/enable-or-disable-modern-authentication-in-exchange-online",
+			"Text": "Enable or disable modern authentication in Exchange Online"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/powershell/module/exchange/set-organizationconfig?view=exchange-ps",
+			"Text": "Set-OrganizationConfig Commandlet Reference"
+		}
+	]
+}

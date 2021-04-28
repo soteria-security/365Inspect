@@ -1,0 +1,16 @@
+{
+	"FindingName": "Email Security Checks are Bypassed Based on Sender IP",
+	"Description": "In the Exchange transport rules settings, it is possible to implement transport rules that bypass spam filtering and other email security capabilities (Exchange Online Protection) based on an IP address or domain (whitelisting). This makes a significant assumption of trust, that should be reviewed and reconsidered. The transport rules listed herein bypass email security based on an IP address whitelist.",
+	"Remediation": "Locate the rules 365Inspect has identified (they are listed in this report) and determine who created the rules. Pursue a dialogue or analysis of whether the whitelisting is necessary for continued operations and whether another solution is possible. If you determine the rules are not necessary, remove the rules.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/exchange/security-and-compliance/mail-flow-rules/manage-mail-flow-rules",
+			"Text": "Manage Mail Flow Rules in Exchange Online"
+		},
+		{
+			"Url": "https://docs.sophos.com/central/Customer/help/en-us/central/Customer/tasks/bypassingexchange.html",
+			"Text": "Bypassing Exchange Online Protection in Office 365"
+		}
+	]
+}

@@ -1,0 +1,12 @@
+{
+	"FindingName": "Common Malicious Attachment Extensions are Not Filtered",
+	"Description": "O365 includes a list of common malicious file attachment extensions that should be blocked/filtered from O365 emails. The file extensions listed herein are on this list of common malicious file extensions, but no O365 Malware Filter Policy is configured to filter them. Enabling common malicious attachment filtering may decrease the risk of malware spreading within your organization through phishing or lateral phishing. The common malicious attachments defined in O365 at the time this document was authored are: ace, ani, app, docm, exe, jar, reg, scr, vbe, vbs.",
+	"Remediation": "This feature is accessible in the Security & Compliance portal of the O365 Admin Center. Click through to Threat management -> Policy -> Anti-malware and toggle the Common Attachment Types Filter to 'On'. Additionally, you may quickly filter other known dangerous attachment types you may have in mind by adding them to this policy's list, although creating a new policy to do this would be a more ideal long-term solution. Before doing this, consider polling key stakeholders in your organization or using data available to you to determine whether any of these file types are commonly exchanged via email within your organization.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/business-video/anti-malware?view=o365-worldwide",
+			"Text": "Turn on malware protection for your business"
+		}
+	]
+}

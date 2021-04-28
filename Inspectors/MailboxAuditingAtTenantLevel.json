@@ -1,0 +1,16 @@
+{
+	"FindingName": "Mailbox Auditing Should be Enabled at Tenant Level",
+	"Description": "Mailbox Auditing is an Exchange mailbox feature that, when activated, generates audit logs for events related to a user's use of email. This is one of the most oft-recommended security improvements to Exchange because mailbox audit logs can contain information critical in a detection or response scenario such as triaging a business email compromise. Mailbox auditing can be globally enabled at the tenant level, which supercedes all per-mailbox settings, but it is not currently enabled.",
+	"Remediation": "You can globally enable mailbox auditing within your tenant using the Set-OrganizationConfig commandlet as follows: 'Set-OrganizationConfig -AuditDisabled $false'.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/compliance/enable-mailbox-auditing?view=o365-worldwide",
+			"Text": "Manage mailbox auditing"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/powershell/module/exchange/set-organizationconfig?view=exchange-ps",
+			"Text": "Set-OrganizationConfig Commandlet Reference"
+		}
+	]
+}

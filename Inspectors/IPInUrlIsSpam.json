@@ -1,0 +1,20 @@
+{
+	"FindingName": "No Spam Filters to Flag Emails containing IP Addresses as Spam",
+	"Description": "Your organization does not have Exchange Spam/Content Filter policies to flag emails containing IP addresses as spam. Cyber adversaries often send emails that contain the IP addresses of malicious websites or other attack infrastructure. This may occur during phishing or lateral phishing. For this reason it is advisable to create Exchange Transport Rules to detect IP addresses in email as spam.",
+	"Remediation": "Navigate to the Exchange Admin Center's 'Protection' menu, then click the 'spam filter' section. Create a spam policy or modify the default spam policy such that it is activated when numeric IP addresses are in URLs. You may also use the Set-HostedContentFilterPolicy commandlet to configure these settings. These settings may soon be replaced by the Advanced Spam Filter (ASF) settings in Exchange Online Protection.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://practical365.com/first-steps-configuring-exchange-online-protection/",
+			"Text": "Configuring Exchange Online Protection, First Steps"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/advanced-spam-filtering-asf-options?view=o365-worldwide",
+			"Text": "Advanced Spam Filter (ASF) Settings in Exchange Online Protection"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/powershell/module/exchange/set-hostedcontentfilterpolicy?view=exchange-ps",
+			"Text": "Set-HostedContentFilterPolicy Commandlet Reference"
+		}
+	]
+}

@@ -1,0 +1,16 @@
+{
+	"FindingName": "Domains with SPF Soft Fail Configured",
+	"Description": "The domains listed above have SPF records that are configured with soft failure. Soft failure tells hosts receiving email that falsely purports to be from your organization that they should flag the email as failed a sender verification check, but should still deliver the email. This means that adversaries still have significant leeway to imitate your brand and domains when sending email because many users will still see the fake email even though it failed the sender verification check.",
+	"Remediation": "Consider setting the SPF qualifier in the SPF DNS record for the affected domains to '-' (fail) rather than '~' (soft fail). This will help ensure that mail that does not truly originate from your servers will be rejected by the recipients. However, it should be noted that once this action is taken, any mail from your domain which does not pass a sender verification check may automatically be blocked by the recipient's mail servers. This can lead to dropped emails in cases where your own SPF record is not set up properly and has not been adequately tested, causing sender verification failures. For this reason soft failure is often recommended as an intermediate step to test the benefits and configuration of SPF  Always proceed with appropriate caution during SPF rollouts and ensure that you understand the difference between soft and hard failure before implementing either.",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://postmarkapp.com/blog/explaining-spf",
+			"Text": "Explaining SPF Records"
+		},
+		{
+			"Url": "https://serverfault.com/questions/355511/is-using-softfail-over-fail-in-the-spf-record-considered-best-practice",
+			"Text": "Server Fault: Soft Fail over Fail best practices?"
+		}
+	]
+}
