@@ -30,10 +30,6 @@
   PS> .\365Inspect.ps1
 #>
 
-#Requires -Module MSOnline
-#Requires -Module AzureAD
-#Requires -Module ExchangeOnlineManagement
-#Requires -Module Microsoft.Online.SharePoint.PowerShell
 
 param (
 	[Parameter(Mandatory = $true,
@@ -56,44 +52,106 @@ $org_name = $OrgName
 $out_path = $OutPath
 $selected_inspectors = $SelectedInspectors
 
-# Log into every service prior to the analysis.
-If ($auth -EQ "MFA") {
-	Connect-MsolService
-	Connect-AzureAD
-	Connect-ExchangeOnline -ShowBanner:$false
-	Connect-SPOService -Url "https://$org_name-admin.sharepoint.com"
+
+Function Connect-Services{
+    # Log into every service prior to the analysis.
+    If ($auth -EQ "MFA") {
+        Connect-MsolService
+        Connect-AzureAD
+        Connect-ExchangeOnline -ShowBanner:$false
+        Connect-SPOService -Url "https://$org_name-admin.sharepoint.com"
+	Connect-MgGraph -Scopes "AuditLog.Read.All","Policy.Read.All","Directory.Read.All","IdentityProvider.Read.All","Organization.Read.All","Securityevents.Read.All","ThreatIndicators.Read.All","SecurityActions.Read.All","User.Read.All","UserAuthenticationMethod.Read.All","MailboxSettings.Read"
+    }
+
+    If ($auth -EQ "CMDLINE") {
+        If ($null -eq $password) {
+            Write-Output "Please pass the username parameter if using the CMDLINE auth option."
+            return
+        }
+        
+        If ($null -eq $username) {
+            Write-Output "Please pass the password parameter if using the CMDLINE auth option."
+            return
+        }
+        
+        $password = ConvertTo-SecureString -String $password -AsPlainText -Force
+        $credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $username, $password
+        
+        Connect-MsolService -Credential $credential
+        Connect-AzureAD -Credential $credential | Out-Null
+        Connect-ExchangeOnline -Credential $credential -ShowBanner:$false
+        Connect-SPOService -Url "https://$org_name-admin.sharepoint.com" -Credential $credential
+    }
 }
 
-If ($auth -EQ "CMDLINE") {
-	If ($null -eq $password) {
-		Write-Output "Please pass the username parameter if using the CMDLINE auth option."
-		return
-	}
-	
-	If ($null -eq $username) {
-		Write-Output "Please pass the password parameter if using the CMDLINE auth option."
-		return
-	}
-	
-	$password = ConvertTo-SecureString -String $password -AsPlainText -Force
-	$credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $username, $password
-	
-	Connect-MsolService -Credential $credential
-	Connect-AzureAD -Credential $credential | Out-Null
-	Connect-ExchangeOnline -Credential $credential -ShowBanner:$false
-	Connect-SPOService -Url "https://$org_name-admin.sharepoint.com" -Credential $credential
+Function Colorize($ForeGroundColor){
+    $color = $Host.UI.RawUI.ForegroundColor
+    $Host.UI.RawUI.ForegroundColor = $ForeGroundColor
+  
+    if ($args){
+      Write-Output $args
+    }
+  
+    $Host.UI.RawUI.ForegroundColor = $color
+  }
+
+#Function to chnage color of text on errors for specific messages
+Function Confirm-Close{
+    Read-Host "Press Enter to Exit"
+    Exit
 }
+
+Function Confirm-InstalledModules{
+    #Check for required Modules and prompt for install if missing
+    $modules = @("MSOnline","AzureAD","ExchangeOnlineManagement","Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph")
+    $count = 0
+    $installed = Get-InstalledModule | Select-Object Name
+
+    foreach ($module in $modules){
+        if ($installed.Name -notcontains $module){
+            $message = Write-Output "`n$module is not installed."
+            $message1 = Write-Output "The module may be installed by running 'Install-Module $module -Force -Scope CurrentUser -Confirm:$false' in an elevated PowerShell window."
+            Colorize Red ($message)
+            Colorize Yellow ($message1)
+            $install = Read-Host -Prompt "Would you like to attempt installation now? (Y|N)"
+            If ($install -eq 'y') {
+                Install-Module $module -Scope CurrentUser -Force -Confirm:$false
+                $count ++
+            }
+        }
+        Else {
+            Write-Output "$module is installed."
+            $count ++
+        }
+    }
+
+    If ($count -lt 5){
+        Write-Output ""
+        Write-Output ""
+        $message = Write-Output "Dependency checks failed. Please install all missing modules before running this script."
+        Colorize Red ($message)
+        Confirm-Close
+    }
+    Else {
+        Connect-Services
+    }
+
+}
+
+
+#Start Script
+Confirm-InstalledModules
+
 
 # Get a list of every available detection module by parsing the PowerShell
 # scripts present in the .\inspectors folder. 
-$inspectors = (Get-ChildItem .\inspectors\ | Where-Object -FilterScript { $_.Name -Match ".ps1" }).Name | % { ($_ -split ".ps1")[0] }
+$inspectors = (Get-ChildItem .\inspectors\ | Where-Object -FilterScript { $_.Name -Match ".ps1" }).Name | ForEach-Object { ($_ -split ".ps1")[0] }
 
 If ($selected_inspectors -AND $selected_inspectors.Count) {
 	"The following O365 inspectors were selected for use: $selected_inspectors"
 }
 Else {
 	"Using all O365 inspectors."
-	$all_used = $true
 	$selected_inspectors = $inspectors
 }
 
