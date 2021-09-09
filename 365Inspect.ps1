@@ -60,7 +60,7 @@ Function Connect-Services{
         Connect-AzureAD
         Connect-ExchangeOnline -ShowBanner:$false
         Connect-SPOService -Url "https://$org_name-admin.sharepoint.com"
-		Connect-MgGraph -Scopes "AuditLog.Read.All","Policy.Read.All","Directory.Read.All","IdentityProvider.Read.All","Organization.Read.All","Securityevents.Read.All","ThreatIndicators.Read.All","SecurityActions.Read.All","User.Read.All","UserAuthenticationMethod.Read.All","MailboxSettings.Read"
+	Connect-MgGraph -Scopes "AuditLog.Read.All","Policy.Read.All","Directory.Read.All","IdentityProvider.Read.All","Organization.Read.All","Securityevents.Read.All","ThreatIndicators.Read.All","SecurityActions.Read.All","User.Read.All","UserAuthenticationMethod.Read.All","MailboxSettings.Read"
     }
 
     If ($auth -EQ "CMDLINE") {
