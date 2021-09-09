@@ -6,7 +6,9 @@ Further the state of O365 security by authoring a PowerShell script that automat
 
 365Inspect requires the administrative PowerShell modules for Microsoft Online, Azure AD, Exchange administration, and Sharepoint administration. 
 
-If you do not have these modules installed, you should be able to install them with the following commands in an administrative PowerShell prompt, or by following the instructions at the references below:
+The 365Inspect.ps1 PowerShell script will validate the installed modules.
+
+If you do not have these modules installed, you will be prompted to install them, and with your approval, the script will attempt installation. Otherwise, you should be able to install them with the following commands in an administrative PowerShell prompt, or by following the instructions at the references below:
 
 	Install-Module -Name MSOnline
 
@@ -16,6 +18,8 @@ If you do not have these modules installed, you should be able to install them w
 
 	Install-Module -Name Microsoft.Online.SharePoint.PowerShell
 
+	Install-Module -Name Microsoft.Graph
+
 [Install MSOnline PowerShell](https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-msonlinev1?view=azureadps-1.0)
 
 [Install Azure AD PowerShell](https://docs.microsoft.com/en-us/powershell/module/azuread/?view=azureadps-2.0)
@@ -23,6 +27,8 @@ If you do not have these modules installed, you should be able to install them w
 [Install Exchange Online PowerShell](https://docs.microsoft.com/en-us/powershell/exchange/exchange-online-powershell-v2?view=exchange-ps)
 
 [Install SharePoint](https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-online/connect-sharepoint-online?view=sharepoint-ps)
+
+[Install Microsoft Graph SDK](https://docs.microsoft.com/en-us/graph/powershell/installation)
 
 Once the above are installed, download the 365Inspect source code folder from Github using your browser or by using *git clone*.
 
@@ -84,6 +90,7 @@ As 365Inspect executes, it will steadily print status updates indicating which i
 * Security Reader
 * SharePoint Admin
 * An Exchange role with View-Only access to everything
+* MS Graph Application Read Only Access to Security, Directory, and Policy objects
 
 An extremely permissive role such as Global Admin will also work, but this isn't an appropriate long-term solution if you intend to use 365Inspect regularly or as part of an automated process.
 
