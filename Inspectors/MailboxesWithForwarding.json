@@ -2,6 +2,7 @@
 	"FindingName": "Exchange Mailboxes with Forwarding Rules Enabled",
 	"Description": "The Exchange Online mailboxes listed above have Forwarding rules configured enabled. Attackers commonly create hidden forwarding rules in compromised mailboxes. These rules may be exfiltrating data with or without the users knowledge.",
 	"Remediation": "This finding refers to individual mailboxes that have forwarding rules enabled. For these mailboxes, verify that the forwarding rules do not violate company policy, are expected and allowed. Remediation can be accomplished by running 'Remove-InboxRule -Mailbox <email address> -Identity '<Rule name>'' A list of affected email addresses is included in this report.",
+	"Severity": "High",
 	"AffectedObjects": "",
 	"References": [
 		{

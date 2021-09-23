@@ -2,6 +2,7 @@
 	"FindingName": "Improper Number of Company/Global Administrators",
 	"Description": "It is recommended that 2 to 4 users be granted company or global administrative privileges. More than this amount may represent an unsafe distribution of privileges and increases the odds that an administrative account will be compromised by an adversary or otherwise misused. All of the users above have administrative privileges, which is outside the bounds of the recommendation.",
 	"Remediation": "Use the Security and Compliance Center to review the administrative privileges granted to the users listed and determine if each user truly requires their administrative privileges. In many cases a more granular set of permissions may be appropriate. Reduce the privileges of each user as appropriate.",
+	"Severity": "High",
 	"AffectedObjects": "",
 	"References": [
 		{
