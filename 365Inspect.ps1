@@ -103,7 +103,7 @@ Function Confirm-Close{
 
 Function Confirm-InstalledModules{
     #Check for required Modules and prompt for install if missing
-    $modules = @("MSOnline","AzureAD","ExchangeOnlineManagement","Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph")
+    $modules = @("MSOnline","AzureAD","AzureADPreview","ExchangeOnlineManagement","Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph")
     $count = 0
     $installed = Get-InstalledModule | Select-Object Name
 
