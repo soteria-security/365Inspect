@@ -3,7 +3,7 @@ function Inspect-AutoForwarding {
 	$flag = $False
 
 	ForEach ($rule in $rules) {
-		If (($rule.IfMessageTypeMatches -eq "AutoForward") -AND ($rule.DeleteMessage -OR $rule.RejectMessage)) {
+		If (($rule.MessageTypeMatches -eq "AutoForward") -AND ($rule.DeleteMessage -OR $rule.RejectMessageReasonText)) {
 			$flag = $True
 		}
 	}
