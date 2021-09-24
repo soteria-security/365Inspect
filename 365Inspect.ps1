@@ -213,7 +213,9 @@ $long_findings_html = ''
 
 $findings_count = 0
 
-ForEach ($finding in $findings) {
+$sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Severity){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}}}
+
+ForEach ($finding in $sortedFindings) {
 	# If the result from the inspector was not $null,
 	# it identified a real finding that we must process.
 	If ($null -NE $finding.AffectedObjects) {
@@ -229,6 +231,9 @@ ForEach ($finding in $findings) {
 		$short_finding_html = $short_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
 		$long_finding_html = $long_finding_html.Replace("{{FINDING_NAME}}", $finding.FindingName)
 		$long_finding_html = $long_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
+		
+		# Finding Severity
+		$long_finding_html = $long_finding_html.Replace("{{SEVERITY}}", $finding.Severity)
 		
 		# Finding description
 		$long_finding_html = $long_finding_html.Replace("{{DESCRIPTION}}", $finding.Description)
