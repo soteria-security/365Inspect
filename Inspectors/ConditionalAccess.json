@@ -1,0 +1,17 @@
+{
+	"FindingName": "Conditional Access Policies",
+	"Description": "Conditional Access Policy review. If False was returned, no Conditional Access policies were found and Secure Defaults have been disabled. This leaves the tenant extremely vulnerable to various attacks.",
+	"Remediation": "If False was returned, consider creating Conditional Access policies or re-enabling Secure Defaults.",
+	"Severity": "Critical",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/overview",
+			"Text": "What is Conditional Access in Azure Active Directory?"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/concept-conditional-access-policy-common",
+			"Text": "Common Conditional Access Policies"
+		}
+	]
+}
