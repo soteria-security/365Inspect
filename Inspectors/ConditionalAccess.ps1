@@ -2,7 +2,7 @@ function Inspect-CAPolicies {
     $secureDefault = Get-MgPolicyIdentitySecurityDefaultEnforcementPolicy -Property IsEnabled | Select-Object IsEnabled
     $conditionalAccess = Get-AzureADMSConditionalAccessPolicy
 
-	If (-NOT (($secureDefault.IsEnabled -eq $true) -and ($conditionalAccess.count -gt 0))) {
+	If (($secureDefault.IsEnabled -eq $true) -and ($conditionalAccess.count -eq 0)) {
 		return $false
 	}
     else {
@@ -37,8 +37,6 @@ function Inspect-CAPolicies {
             return $true
         }
     }
-	
-	return $null
 }
 
 return Inspect-CAPolicies
