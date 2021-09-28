@@ -56,11 +56,16 @@ $selected_inspectors = $SelectedInspectors
 Function Connect-Services{
     # Log into every service prior to the analysis.
     If ($auth -EQ "MFA") {
+		Write-Output "Connecting to MSOnline Service"
         Connect-MsolService
+		Write-Output "Connecting to Azure Active Directory"
         Connect-AzureAD
+		Write-Output "Connecting to Exchange Online"
         Connect-ExchangeOnline -ShowBanner:$false
+		Write-Output "Connecting to SharePoint Service"
         Connect-SPOService -Url "https://$org_name-admin.sharepoint.com"
-	Connect-MgGraph -Scopes "AuditLog.Read.All","Policy.Read.All","Directory.Read.All","IdentityProvider.Read.All","Organization.Read.All","Securityevents.Read.All","ThreatIndicators.Read.All","SecurityActions.Read.All","User.Read.All","UserAuthenticationMethod.Read.All","MailboxSettings.Read"
+		Write-Output "Connecting to Microsoft Graph"
+		Connect-MgGraph -Scopes "AuditLog.Read.All","Policy.Read.All","Directory.Read.All","IdentityProvider.Read.All","Organization.Read.All","Securityevents.Read.All","ThreatIndicators.Read.All","SecurityActions.Read.All","User.Read.All","UserAuthenticationMethod.Read.All","MailboxSettings.Read"
     }
 
     If ($auth -EQ "CMDLINE") {
