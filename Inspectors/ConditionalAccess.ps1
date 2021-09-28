@@ -2,13 +2,10 @@ function Inspect-CAPolicies {
     $secureDefault = Get-MgPolicyIdentitySecurityDefaultEnforcementPolicy -Property IsEnabled | Select-Object IsEnabled
     $conditionalAccess = Get-AzureADMSConditionalAccessPolicy
 
-    $flag = $false
-
 	If (-NOT (($secureDefault.IsEnabled -eq $true) -and ($conditionalAccess.count -gt 0))) {
-		return $flag
+		return $false
 	}
     else {
-        $flag = $true
         Foreach ($policy in $conditionalAccess) {
             $result = New-Object psobject
             $result | Add-Member -MemberType NoteProperty -name Name -Value $policy.DisplayName -ErrorAction SilentlyContinue
@@ -37,7 +34,7 @@ function Inspect-CAPolicies {
 
             $result | Out-File "$($policy.name)_ConditionalAccessPolicies.txt"
 
-            return $flag
+            return $true
         }
     }
 	
