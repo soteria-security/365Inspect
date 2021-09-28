@@ -1,6 +1,6 @@
 {
 	"FindingName": "Conditional Access Policies",
-	"Description": "Conditional Access Policy review. If False was returned, no Conditional Access policies were found and Secure Defaults have been disabled. This leaves the tenant extremely vulnerable to various attacks.",
+	"Description": "Conditional Access Policy review. If False was returned, no Conditional Access policies were found and Secure Defaults have been disabled. This leaves the tenant extremely vulnerable to various attacks. If True was returned, existing Conditional Access Policies will be exported for review.",
 	"Remediation": "If False was returned, consider creating Conditional Access policies or re-enabling Secure Defaults.",
 	"Severity": "Critical",
 	"AffectedObjects": "",
