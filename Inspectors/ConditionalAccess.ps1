@@ -32,10 +32,9 @@ function Inspect-CAPolicies {
             $result | Add-Member -MemberType NoteProperty -name SessionLifetime -Value $policy.sessioncontrols.signinfrequency -ErrorAction SilentlyContinue
             $result | Add-Member -MemberType NoteProperty -name PersistentBrowser -Value $policy.sessioncontrols.PersistentBrowser -ErrorAction SilentlyContinue
 
-            $result | Out-File "ConditionalAccessPolicies.txt" -Append
-
-            return $true
+            $result | Out-File "$($result.Name)_Policy.txt"
         }
+        Return $true
     }
 }
 
