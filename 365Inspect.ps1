@@ -238,6 +238,7 @@ ForEach ($finding in $sortedFindings) {
 		$long_finding_html = $long_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
 		
 		# Finding Severity
+		$short_finding_html = $short_finding_html.Replace("{{SEVERITY}}", $finding.Severity)
 		$long_finding_html = $long_finding_html.Replace("{{SEVERITY}}", $finding.Severity)
 		
 		# Finding description
