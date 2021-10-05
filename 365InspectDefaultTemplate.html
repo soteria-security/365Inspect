@@ -10210,7 +10210,7 @@
 
             .c5 {
                 color: #000000;
-                font-weight: 300;
+                font-weight: 200;
                 text-decoration: none;
                 vertical-align: baseline;
                 font-size: 11pt;
@@ -10220,7 +10220,7 @@
 
             .c31 {
                 color: #d9d9d9;
-                font-weight: 300;
+                font-weight: 200;
                 text-decoration: none;
                 vertical-align: baseline;
                 font-size: 11pt;
@@ -10230,7 +10230,7 @@
 
             .c14 {
                 color: #4290eb;
-                font-weight: 300;
+                font-weight: 200;
                 text-decoration: none;
                 vertical-align: baseline;
                 font-size: 30pt;
@@ -10280,7 +10280,7 @@
 
             .c34 {
                 color: #000000;
-                font-weight: 300;
+                font-weight: 200;
                 text-decoration: none;
                 vertical-align: baseline;
                 font-size: 6pt;
@@ -10382,7 +10382,7 @@
             .title {
                 padding-top: 0pt;
                 color: #4290eb;
-                font-weight: 300;
+                font-weight: 200;
                 font-size: 40pt;
                 padding-bottom: 0pt;
                 font-family: "Source Sans Pro";
@@ -10396,7 +10396,7 @@
             .subtitle {
                 padding-top: 0pt;
                 color: #4290eb;
-                font-weight: 300;
+                font-weight: 200;
                 font-size: 12pt;
                 padding-bottom: 0pt;
                 font-family: "Source Sans Pro";
@@ -10410,7 +10410,7 @@
 
             li {
                 color: #000000;
-                font-weight: 300;
+                font-weight: 200;
                 font-size: 11pt;
                 font-family: "Source Sans Pro"
             }
@@ -10418,7 +10418,7 @@
             p {
                 margin: 0;
                 color: #000000;
-                font-weight: 300;
+                font-weight: 200;
                 font-size: 11pt;
                 font-family: "Source Sans Pro"
             }
@@ -10426,7 +10426,7 @@
             h1 {
                 padding-top: 16pt;
                 color: #4290eb;
-                font-weight: 300;
+                font-weight: 200;
                 font-size: 24pt;
                 padding-bottom: 4pt;
                 font-family: "Source Sans Pro";
@@ -10440,7 +10440,7 @@
             h2 {
                 padding-top: 16pt;
                 color: #4290eb;
-                font-weight: 300;
+                font-weight: 200;
                 font-size: 18pt;
                 padding-bottom: 4pt;
                 font-family: "Source Sans Pro";
@@ -10454,7 +10454,7 @@
             h3 {
                 padding-top: 0pt;
                 color: #4290eb;
-                font-weight: 300;
+                font-weight: 200;
                 font-size: 18pt;
                 padding-bottom: 0pt;
                 font-family: "Source Sans Pro";
@@ -10468,7 +10468,7 @@
             h4 {
                 padding-top: 0pt;
                 color: #4290eb;
-                font-weight: 300;
+                font-weight: 200;
                 font-size: 12pt;
                 padding-bottom: 0pt;
                 font-family: "Source Sans Pro";
@@ -10483,7 +10483,7 @@
             h5 {
                 padding-top: 12pt;
                 color: #666666;
-                font-weight: 300;
+                font-weight: 200;
                 font-size: 11pt;
                 padding-bottom: 4pt;
                 font-family: "Source Sans Pro";
@@ -10497,7 +10497,7 @@
             h6 {
                 padding-top: 12pt;
                 color: #666666;
-                font-weight: 300;
+                font-weight: 200;
                 font-size: 11pt;
                 padding-bottom: 4pt;
                 font-family: "Source Sans Pro";
@@ -10551,6 +10551,11 @@
                     </td>
                     <td class="c33" colspan="1" rowspan="1">
                         <p class="c8">
+                            <span class="c23">Severity</span>
+                        </p>
+                    </td>
+                    <td class="c33" colspan="1" rowspan="1">
+                        <p class="c8">
                             <span class="c23">Finding Name</span>
                         </p>
                     </td>
@@ -10572,6 +10577,10 @@
                         <span class="c8 c13">
                             <span class="c5">{{FINDING_NUMBER}}</span>
                         </span>
+                    </td>
+                    <td class="c11" colspan="1" rowspan="1" style="">
+                            <span class="c5">{{SEVERITY}}</span>
+                        </a>
                     </td>
                     <td class="c11" colspan="1" rowspan="1" style="">
                         <a class="c0" href="#finding_{{FINDING_NUMBER}}">
@@ -10634,6 +10643,17 @@
         </p>
         <p class="c1">
             <span class="c7"></span>
+        </p>
+        <p class="c20">
+            <span class="c16">Severity:</span>
+            <span class="c5">&nbsp;</span>
+        </p>
+        <p class="c20">
+            <span>{{SEVERITY}}</span>
+        </p>
+        </p>
+        <p class="c1">
+            <span class="c5"></span>
         </p>
         <p class="c20">
             <span class="c16">Remediation:</span>

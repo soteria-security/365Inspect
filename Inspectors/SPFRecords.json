@@ -2,6 +2,7 @@
 	"FindingName": "Domains with No SPF Records",
 	"Description": "The domains listed above do not have Sender Policy Framework (SPF) records. SPF records can be used by receiving mail servers to identify whether mail that purports to be from your domains is actually from your domains, or spoofed by an adversary. This helps defeat common tactics adversaries use during phishing and other offensive activities such as spoofing email addresses that mimic your domain.",
 	"Remediation": "Create an SPF TXT DNS record as described in the references below. Remember that configuring SPF may affect the deliverability of mail from that domain. An SPF rollout should be measured and gradual.",
+	"Severity": "High",
 	"AffectedObjects": "",
 	"References": [
 		{

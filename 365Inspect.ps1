@@ -56,11 +56,16 @@ $selected_inspectors = $SelectedInspectors
 Function Connect-Services{
     # Log into every service prior to the analysis.
     If ($auth -EQ "MFA") {
+		Write-Output "Connecting to MSOnline Service"
         Connect-MsolService
+		Write-Output "Connecting to Azure Active Directory"
         Connect-AzureAD
+		Write-Output "Connecting to Exchange Online"
         Connect-ExchangeOnline -ShowBanner:$false
+		Write-Output "Connecting to SharePoint Service"
         Connect-SPOService -Url "https://$org_name-admin.sharepoint.com"
-	Connect-MgGraph -Scopes "AuditLog.Read.All","Policy.Read.All","Directory.Read.All","IdentityProvider.Read.All","Organization.Read.All","Securityevents.Read.All","ThreatIndicators.Read.All","SecurityActions.Read.All","User.Read.All","UserAuthenticationMethod.Read.All","MailboxSettings.Read"
+		Write-Output "Connecting to Microsoft Graph"
+		Connect-MgGraph -Scopes "AuditLog.Read.All","Policy.Read.All","Directory.Read.All","IdentityProvider.Read.All","Organization.Read.All","Securityevents.Read.All","ThreatIndicators.Read.All","SecurityActions.Read.All","User.Read.All","UserAuthenticationMethod.Read.All","MailboxSettings.Read"
     }
 
     If ($auth -EQ "CMDLINE") {
@@ -103,7 +108,7 @@ Function Confirm-Close{
 
 Function Confirm-InstalledModules{
     #Check for required Modules and prompt for install if missing
-    $modules = @("MSOnline","AzureAD","ExchangeOnlineManagement","Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph")
+    $modules = @("MSOnline","AzureAD","AzureADPreview","ExchangeOnlineManagement","Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph")
     $count = 0
     $installed = Get-InstalledModule | Select-Object Name
 
@@ -213,7 +218,9 @@ $long_findings_html = ''
 
 $findings_count = 0
 
-ForEach ($finding in $findings) {
+$sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Severity){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}}}
+
+ForEach ($finding in $sortedFindings) {
 	# If the result from the inspector was not $null,
 	# it identified a real finding that we must process.
 	If ($null -NE $finding.AffectedObjects) {
@@ -229,6 +236,10 @@ ForEach ($finding in $findings) {
 		$short_finding_html = $short_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
 		$long_finding_html = $long_finding_html.Replace("{{FINDING_NAME}}", $finding.FindingName)
 		$long_finding_html = $long_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
+		
+		# Finding Severity
+		$short_finding_html = $short_finding_html.Replace("{{SEVERITY}}", $finding.Severity)
+		$long_finding_html = $long_finding_html.Replace("{{SEVERITY}}", $finding.Severity)
 		
 		# Finding description
 		$long_finding_html = $long_finding_html.Replace("{{DESCRIPTION}}", $finding.Description)
