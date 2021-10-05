@@ -10195,7 +10195,7 @@
                 page-break-after: avoid;
                 orphans: 2;
                 widows: 2;
-                text-align: center
+                text-align: left
             }
 
             .c21 {
@@ -10544,24 +10544,24 @@
         <table class="c26" style="">
             <tbody>
                 <tr class="c9">
-                    <td class="c30" colspan="1" rowspan="1">
+                    <td class="c3" colspan="1" rowspan="1">
                         <p class="c8">
                             <span class="c23">ID</span>
                         </p>
                     </td>
-                    <td class="c33" colspan="1" rowspan="1">
-                        <p class="c8">
-                            <span class="c23">Severity</span>
-                        </p>
-                    </td>
-                    <td class="c33" colspan="1" rowspan="1">
+                    <td class="c11" colspan="1" rowspan="1">
                         <p class="c8">
                             <span class="c23">Finding Name</span>
                         </p>
                     </td>
-                    <td class="c18" colspan="1" rowspan="1">
+                    <td class="c4" colspan="1" rowspan="1">
                         <p class="c8">
                             <span class="c23">Remediation</span>
+                        </p>
+                    </td>
+                    <td class="c11" colspan="1" rowspan="1">
+                        <p class="c8">
+                            <span class="c23">Severity</span>
                         </p>
                     </td>
 					<!--
@@ -10579,10 +10579,6 @@
                         </span>
                     </td>
                     <td class="c11" colspan="1" rowspan="1" style="">
-                            <span class="c5">{{SEVERITY}}</span>
-                        </a>
-                    </td>
-                    <td class="c11" colspan="1" rowspan="1" style="">
                         <a class="c0" href="#finding_{{FINDING_NUMBER}}">
                             <span class="c5">{{FINDING_NAME}}</span>
                         </a>
@@ -10592,7 +10588,11 @@
                             <span class="c5">{{REMEDIATION}}</span>
                         </p>
                     </td>
-					<!--
+                    <td class="c11" colspan="1" rowspan="1" style="">
+                        <span class="c5">{{SEVERITY}}</span>
+                    </a>
+                </td>
+                <!--
                     <td class="c15" colspan="1" rowspan="1">
                         <p class="c0">
                             <span class="c5">{{FINDING_STATUS}}</span>
@@ -10632,39 +10632,30 @@
             </li>
 <!--END_AFFECTED_OBJECTS_REPEATER-->
         </ul>
-        <p class="c1">
-            <span class="c7"></span>
-        </p>
+        <br>
         <p class="c20">
             <span class="c16">Finding: </span>
         </p>
         <p class="c20">
-            <span>{{DESCRIPTION}}</span>
+            <span class="c5">{{DESCRIPTION}}</span>
         </p>
-        <p class="c1">
-            <span class="c7"></span>
-        </p>
+        <br>
         <p class="c20">
             <span class="c16">Severity:</span>
             <span class="c5">&nbsp;</span>
         </p>
         <p class="c20">
-            <span>{{SEVERITY}}</span>
+            <span class="c5">{{SEVERITY}}</span>
         </p>
-        </p>
-        <p class="c1">
-            <span class="c5"></span>
-        </p>
+        <br>
         <p class="c20">
             <span class="c16">Remediation:</span>
             <span class="c5">&nbsp;</span>
         </p>
         <p class="c20">
-            <span>{{REMEDIATION}}</span>
+            <span class="c5">{{REMEDIATION}}</span>
         </p>
-        <p class="c1">
-            <span class="c5"></span>
-        </p>
+        <br>
         <p class="c20">
             <span class="c16">References:</span>
             <span class="c5">&nbsp;</span>
