@@ -108,9 +108,17 @@ Function Confirm-Close{
 
 Function Confirm-InstalledModules{
     #Check for required Modules and prompt for install if missing
-    $modules = @("MSOnline","AzureAD","AzureADPreview","ExchangeOnlineManagement","Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph")
+	
+	#A little trickery to get Azure AD Module version
+	If ($null -eq ($AAD = Get-InstalledModule | Where-Object {$_.name -like "AzureAd*"} | Select-Object Name)){
+		$AAD = "AzureADPreview"
+		} Else {
+		$AAD = $AAD.Name
+		}
+		
+    $modules = @("MSOnline",$AAD,"ExchangeOnlineManagement","Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph")
     $count = 0
-    $installed = Get-InstalledModule | Select-Object Name
+    $installed = Get-InstalledModule
 
     foreach ($module in $modules){
         if ($installed.Name -notcontains $module){
@@ -146,7 +154,6 @@ Function Confirm-InstalledModules{
 
 #Start Script
 Confirm-InstalledModules
-
 
 # Get a list of every available detection module by parsing the PowerShell
 # scripts present in the .\inspectors folder. 
