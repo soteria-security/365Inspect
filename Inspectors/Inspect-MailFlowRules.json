@@ -1,0 +1,13 @@
+{
+	"FindingName": "Tenant Transport Rules",
+	"Description": "Tenant Exchange Transport Rules",
+	"Remediation": "Review Mail Flow rules and validate that all results are expected and no conflicting rules are in place.",
+	"Severity": "Informational",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/exchange/security-and-compliance/mail-flow-rules/manage-mail-flow-rules",
+			"Text": "Manage Mail Flow Rules in Exchange Online"
+		}
+	]
+}
