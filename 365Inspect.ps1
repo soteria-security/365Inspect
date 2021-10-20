@@ -307,4 +307,11 @@ $output = $output.Replace($templates.ExecsumTemplate, $templates.ExecsumTemplate
 
 $output | Out-File -FilePath $out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss").html
 
+$compress = @{
+	Path = $out_path
+	CompressionLevel = "Fastest"
+	DestinationPath = "$out_path\$($org_name)_Report.zip"
+  }
+  Compress-Archive @compress
+
 return
