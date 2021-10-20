@@ -1,8 +1,10 @@
-function Inspect-MailFlowRules {
+$path = @($out_path)
+
+Function Inspect-MailFlowRules {
 	$rules = Get-TransportRule
 
 	ForEach ($rule in $rules) {
-		$rule | Format-List | Out-File "$($rule.Name)_Mail-Flow-Rule.txt"
+		$rule | Format-List | Out-File -FilePath "$($path)\$($rule.Name)_Mail-Flow-Rule.txt"
 	}
 }
 
