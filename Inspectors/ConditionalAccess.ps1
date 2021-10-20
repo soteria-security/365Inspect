@@ -1,3 +1,4 @@
+$path = @($out_path)
 function Inspect-CAPolicies {
     $secureDefault = Get-MgPolicyIdentitySecurityDefaultEnforcementPolicy -Property IsEnabled | Select-Object IsEnabled
     $conditionalAccess = Get-AzureADMSConditionalAccessPolicy
@@ -32,7 +33,7 @@ function Inspect-CAPolicies {
             $result | Add-Member -MemberType NoteProperty -name SessionLifetime -Value $policy.sessioncontrols.signinfrequency -ErrorAction SilentlyContinue
             $result | Add-Member -MemberType NoteProperty -name PersistentBrowser -Value $policy.sessioncontrols.PersistentBrowser -ErrorAction SilentlyContinue
 
-            $result | Out-File "$($result.Name)_Policy.txt"
+            $result | Out-File -FilePath "$($path)\$($result.Name)_Policy.txt"
         }
         Return $true
     }
