@@ -7,7 +7,7 @@
 	"References": [
 		{
 			"Url": "https://geekshangout.com/office-365-powershell-list-email-forwarding-rules-mailboxes/",
-			"Text": "Office 365 – List all email forwarding rules (PowerShell)"
+			"Text": "Office 365 - List all email forwarding rules (PowerShell)"
 		},
 		{
 			"Url": "https://docs.microsoft.com/en-us/powershell/module/exchange/get-mailbox?view=exchange-ps",
