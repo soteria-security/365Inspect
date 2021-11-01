@@ -1,12 +1,18 @@
 $path = @($out_path)
 
 Function Get-MailboxForwarding{
-    $mailboxes = Get-EXOMailbox -Filter {(DeliverToMailboxAndForward -ne $false) -or (ForwardingAddress -ne $null) -or (ForwardingSmtpAddress -ne $null)} -ResultSize Unlimited
+    $mailboxes = Get-Mailbox -ResultSize Unlimited
     
+    $rulesEnabled = @()
+
     foreach ($mailbox in $mailboxes){
-        $mailbox | Select-Object displayname, windowsemailaddress, delivertomailboxandforward, forwardingaddress, forwardingsmtpaddress | Export-Csv -Path "$($path)\$(Get-Date -Format yyyy-MM-dd)_Mailboxes_with_forwarding.csv" -NoTypeInformation -Append
+        $rulesEnabled += Get-InboxRule -Mailbox $mailbox.UserPrincipalName | Where-Object {($null -ne $_.ForwardTo) -or ($null -ne $_.ForwardAsAttachmentTo)} | Select-Object MailboxOwnerId, RuleIdentity, Name, ForwardTo
     }
-    Return $mailboxes.alias
+    if ($rulesEnabled.Count -gt 0) {
+        $rulesEnabled | Out-File -FilePath "$($path)\ExchangeMailboxeswithForwardingRules.txt" -Append
+        Return $rulesenabled.MailboxOwnerID
+    }
+    Return $null
 }
 
 Get-MailboxForwarding
