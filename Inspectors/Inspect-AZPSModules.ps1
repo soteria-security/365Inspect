@@ -15,7 +15,7 @@
 Function Inspect-AZPSModules {
     $appIds = @("1b730954-1685-4b74-9bfd-dac224a7b894","14d82eec-204b-4c2f-b7e8-296a70dab67e")
 
-    $void = "No Service Prinicpals Found!"
+    $void = "No Service Principals Found!"
 
     $aad = $false
 
