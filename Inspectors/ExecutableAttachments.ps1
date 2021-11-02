@@ -1,9 +1,10 @@
 function Inspect-ExecutableAttachments {
 	$rules = Get-TransportRule
-	$flag = $False
+	$action = @("Microsoft.Exchange.MessagingPolicies.Rules.Tasks.DeleteMessageAction","Microsoft.Exchange.MessagingPolicies.Rules.Tasks.RejectMessageAction")
+    $flag = $False
 
 	ForEach ($rule in $rules) {
-		If (($rule.MessageTypeMatches -eq "AutoForward") -AND ($rule.DeleteMessage -OR $rule.AttachmentHasExecutableContent)) {
+		If (($rule.AttachmentHasExecutableContent -eq $true) -and ($action -contains $rule.Actions)) {
 			$flag = $True
 		}
 	}
