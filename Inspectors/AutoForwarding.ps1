@@ -1,7 +1,7 @@
 function Inspect-AutoForwarding {
-	$externalForwarding = Get-HostedOutboundSpamFilterPolicy | Select-Object autoforwardingmode
+	$externalForwarding = Get-HostedOutboundSpamFilterPolicy
 
-    If ($externalForwarding -eq "On") {
+    If ($externalForwarding.AutoForwardingMode -eq "On") {
 		$rules = Get-TransportRule
 		$flag = $False
 
