@@ -1,8 +1,8 @@
 function Inspect-SPFSoftFail {
-	$domains = (Get-MsolDomain).Name
+	$domains = Get-MsolDomain | Where-Object {$_.name -notlike "*.onmicrosoft.com"}
     $domains_with_soft_fail = @()
 	
-    ForEach($domain in $domains) {
+    ForEach($domain in $domains.name) {
         ($spf_record = ((nslookup -querytype=txt $domain 2>&1 | Select-String "spf1") -replace "`t", "")) | Out-Null
 		
         If ( -NOT ( $spf_record -Match "-all" ) ) {

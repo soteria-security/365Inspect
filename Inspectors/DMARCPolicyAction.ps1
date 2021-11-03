@@ -1,8 +1,8 @@
 function Inspect-DMARCPolicyAction {
-	$domains = (Get-MsolDomain).Name
+	$domains = Get-MsolDomain | Where-Object {$_.name -notlike "*.onmicrosoft.com"}
 	$domains_without_actions = @()
 	
-	ForEach($domain in $domains) {
+	ForEach($domain in $domains.Name) {
 		($dmarc_record = ((nslookup -querytype=txt _dmarc.$domain 2>&1 | Select-String "DMARC1") -replace "`t", "")) | Out-Null
 		
 		If ($dmarc_record -Match "p=none;") {
