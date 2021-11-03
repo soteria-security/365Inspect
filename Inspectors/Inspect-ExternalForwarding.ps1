@@ -1,10 +1,10 @@
 function Inspect-ExternalForwarding {
-    $externalForwarding = Get-HostedOutboundSpamFilterPolicy | Select-Object autoforwardingmode
+    $externalForwarding = Get-HostedOutboundSpamFilterPolicy
 
-    If (!$externalForwarding -eq "On") {
-        Return $null
+    If ($externalForwarding.AutoForwardingMode -eq "On") {
+        Return @($org_name)
         }
-	Return @($org_name)
+	Return $null
     }
 
 return Inspect-ExternalForwarding
