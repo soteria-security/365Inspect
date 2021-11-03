@@ -1,8 +1,8 @@
 {
 	"FindingName": "Dangerous Default Permissions",
 	"Description": "Dangerous default configuration settings were found in the tenant. By default, Azure tenants allow all users to access the Azure Active Directory blade, to read all other users accounts, create groups, and invite guests. These default settings extend to guest accounts as well, allowing guests to perform these same actions. Other default configurations allow for Self-Service creation of accounts from accepted mail domains.",
-	"Remediation": "The excessive user permissions can be mitigated by running 'Set-MsolCompanySettings -UsersPermissionToReadOtherUsersEnabled $false' and 'Set-MsolCompanySettings -UsersPermissionToCreateGroupsEnabled $false' respectively, as a Global Admin. User access to the Azure AD blade can be restricted by navigating to the Azure Active Directory blade > User Settings, and toggling the 'Restrict access to Azure AD administration portal' to Yes. Guest invites may be restricted by navigating to the Azure Active Directory blade > External Identities > External Collaboration Settings, and toggling 'Members can invite' and 'Guests can invite' to No. Self-Service account creation can be mitigated by running the following PowerShell command 'Set-MsolCompanySettings -AllowEmailVerifiedUsersToJoinOrganization $false'",
-	"Severity": "Critical",
+	"Remediation": "The excessive user permissions can be mitigated by running 'Set-MsolCompanySettings -UsersPermissionToReadOtherUsersEnabled $false' and 'Set-MsolCompanySettings -UsersPermissionToCreateGroupsEnabled $false' respectively, as a Global Admin. User access to the Azure AD blade can be restricted by navigating to the Azure Active Directory blade > User Settings, and toggling the 'Restrict access to Azure AD administration portal' to Yes. Guest invites may be restricted by navigating to the Azure Active Directory blade > External Identities > External Collaboration Settings, and toggling 'Members can invite' and 'Guests can invite' to No. Self-Service account creation can be mitigated by running the following PowerShell command 'Set-AzureADMSAuthorizationPolicy -id (Get-AzureADMSAuthorizationPolicy).id -AllowEmailVerifiedUsersToJoinOrganization $false'",
+	"Impact": "Critical",
 	"AffectedObjects": "",
 	"References": [
 		{
@@ -16,6 +16,10 @@
 		{
 			"Url": "https://www.pentestpartners.com/security-blog/azure-ad-attack-of-the-default-config/",
 			"Text": "Azure AD - Attack of the Default Config"
+		},
+		{
+			"Url": "https://medium.com/soteria-security/azure-ad-default-configuration-blunders-c7abddeae56",
+			"Text": "Azure AD Default Configuration Blunders"
 		}
 	]
 }
