@@ -1,0 +1,25 @@
+{
+	"FindingName": "Basic Authentication is Enabled",
+	"Description": "Basic Authentication protocols send usernames and passwords in requests, usually with very simple Base64 encoding, making it trivial to capture and decode user credentials. Basic Authentication may be necessary for some legacy software, but is unable to enforce MFA and Microsoft has replaced it with Modern Authentication in their offerings.",
+	"Remediation": "Disabling Basic Authentication and enforcing Modern Authentication is the only way to remediate this finding. Microsoft plans to forcefully disable Basic Auth on all tenants on October 1, 2022 - regardless of the protcols use.",
+	"Impact": "Critical",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://techcommunity.microsoft.com/t5/exchange-team-blog/upcoming-changes-to-exchange-web-services-ews-api-for-office-365/ba-p/608055",
+			"Text": "Upcoming changes to Exchange Web Services (EWS) API for Office 365"
+		},
+		{
+			"Url": "https://techcommunity.microsoft.com/t5/exchange-team-blog/basic-authentication-and-exchange-online-september-2021-update/ba-p/2772210",
+			"Text": "Basic Authentication and Exchange Online – September 2021 Update"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/exchange/clients-and-mobile-in-exchange-online/enable-or-disable-modern-authentication-in-exchange-online",
+			"Text": "Enable or disable modern authentication for Outlook in Exchange Online"
+		},
+		{
+			"Url": "https://social.technet.microsoft.com/wiki/contents/articles/36101.office-365-enable-modern-authentication.aspx",
+			"Text": "Office 365: Enable Modern Authentication"
+		}
+	]
+}
