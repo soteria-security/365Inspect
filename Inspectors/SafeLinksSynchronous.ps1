@@ -1,6 +1,6 @@
 function Inspect-SafeLinksSynchronous {
 	Try {
-		$synchronous = Get-SafeLinksPolicy | Where { $_.IsEnabled -AND $_.DeliverMessageAfterScan }		
+		$synchronous = Get-SafeLinksPolicy | Where-Object { $_.IsEnabled -AND $_.DeliverMessageAfterScan }		
 		If ($synchronous.Count -eq 0) {
 			return @($org_name)
 		}
