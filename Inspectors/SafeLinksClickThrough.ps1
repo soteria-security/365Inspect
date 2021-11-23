@@ -1,6 +1,6 @@
 function Inspect-SafeLinksClickThrough {
 	Try {
-		$click_through_policies = Get-SafeLinksPolicy | Where { !$_.DoNotAllowClickThrough }
+		$click_through_policies = Get-SafeLinksPolicy | Where-Object { !$_.DoNotAllowClickThrough }
 		If ($click_through_policies.Count -ne 0) {
 			return @($org_name)
 		}
