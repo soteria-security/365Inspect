@@ -64,6 +64,8 @@ Function Connect-Services{
         Connect-ExchangeOnline -ShowBanner:$false
 		Write-Output "Connecting to SharePoint Service"
         Connect-SPOService -Url "https://$org_name-admin.sharepoint.com"
+		Write-Output "Connecting to Microsoft Teams"
+		Connect-MicrosoftTeams
 		Write-Output "Connecting to Microsoft Graph"
 		Connect-MgGraph -Scopes "AuditLog.Read.All","Policy.Read.All","Directory.Read.All","IdentityProvider.Read.All","Organization.Read.All","Securityevents.Read.All","ThreatIndicators.Read.All","SecurityActions.Read.All","User.Read.All","UserAuthenticationMethod.Read.All","MailboxSettings.Read"
     }
@@ -109,21 +111,21 @@ Function Confirm-Close{
 Function Confirm-InstalledModules{
     #Check for required Modules and prompt for install if missing
 	
-	#A little trickery to get Azure AD Module version
+	#A little trickery to get the Azure AD Module version installed
 	If ($null -eq ($AAD = Get-InstalledModule | Where-Object {$_.name -like "AzureAd*"} | Select-Object Name)){
 		$AAD = "AzureADPreview"
 		} Else {
 		$AAD = $AAD.Name
 		}
-		
-    $modules = @("MSOnline",$AAD,"ExchangeOnlineManagement","Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph")
+
+    $modules = @("MSOnline",$AAD,"ExchangeOnlineManagement","Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph","MicrosoftTeams", "Microsoft.Graph.Intune")
     $count = 0
     $installed = Get-InstalledModule
 
     foreach ($module in $modules){
         if ($installed.Name -notcontains $module){
             $message = Write-Output "`n$module is not installed."
-            $message1 = Write-Output "The module may be installed by running 'Install-Module $module -Force -Scope CurrentUser -Confirm:$false' in an elevated PowerShell window."
+            $message1 = Write-Output 'The module may be installed by running "Install-Module $module -Force -Scope CurrentUser -Confirm:$false" in an elevated PowerShell window.'
             Colorize Red ($message)
             Colorize Yellow ($message1)
             $install = Read-Host -Prompt "Would you like to attempt installation now? (Y|N)"
@@ -138,7 +140,7 @@ Function Confirm-InstalledModules{
         }
     }
 
-    If ($count -lt 5){
+    If ($count -lt 7){
         Write-Output ""
         Write-Output ""
         $message = Write-Output "Dependency checks failed. Please install all missing modules before running this script."
