@@ -1,0 +1,17 @@
+{
+	"FindingName": "Microsoft Teams Consumer Communication Policies",
+	"Description": "Microsoft Teams External Access Policies allow communication with Teams users not managed by an organization.",
+	"Remediation": "Review Microsoft Teams External Access Policies and validate that all results are expected and no conflicting rules are in place.",
+	"Impact": "High",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoftteams/manage-external-access",
+			"Text": "Manage external access (federation) - Microsoft Teams"
+		},
+        {
+            "Url": "https://docs.microsoft.com/en-us/microsoftteams/communicate-with-users-from-other-organizations",
+            "Text": "Use guest and external access to collaborate with people outside your organization"
+        }
+	]
+}
