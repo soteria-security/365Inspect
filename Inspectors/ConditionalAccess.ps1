@@ -23,7 +23,7 @@ function Inspect-CAPolicies {
             $name = $name -replace $pattern, '-'
 
             $result = New-Object psobject
-            $result | Add-Member -MemberType NoteProperty -name Name -Value $policy.Name -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name Name -Value $policy.DisplayName -ErrorAction SilentlyContinue
             $result | Add-Member -MemberType NoteProperty -name State -Value $policy.State -ErrorAction SilentlyContinue
             $result | Add-Member -MemberType NoteProperty -name IncludedApps -Value $policy.conditions.applications.includeapplications -ErrorAction SilentlyContinue
             $result | Add-Member -MemberType NoteProperty -name ExcludedApps -Value $policy.conditions.applications.excludeapplications -ErrorAction SilentlyContinue
