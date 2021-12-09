@@ -1,15 +1,29 @@
 $path = @($out_path)
+
 function Inspect-CAPolicies {
     $secureDefault = Get-MgPolicyIdentitySecurityDefaultEnforcementPolicy -Property IsEnabled | Select-Object IsEnabled
     $conditionalAccess = Get-AzureADMSConditionalAccessPolicy
 
-	If (($secureDefault.IsEnabled -eq $false) -and ($conditionalAccess.count -eq 0)) {
+	If ($secureDefault.IsEnabled -eq $true) {
+        Return $null
+    }
+    ElseIf (($secureDefault.IsEnabled -eq $false) -and ($conditionalAccess.count -eq 0)) {
+        
 		return $false
 	}
     else {
+        $path = New-Item -ItemType Directory -Force -Path "$($path)\ConditionalAccess"
+        
         Foreach ($policy in $conditionalAccess) {
+
+            $name = $policy.DisplayName
+
+            $pattern = '[\\/]'
+
+            $name = $name -replace $pattern, '-'
+
             $result = New-Object psobject
-            $result | Add-Member -MemberType NoteProperty -name Name -Value $policy.DisplayName -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name Name -Value $policy.Name -ErrorAction SilentlyContinue
             $result | Add-Member -MemberType NoteProperty -name State -Value $policy.State -ErrorAction SilentlyContinue
             $result | Add-Member -MemberType NoteProperty -name IncludedApps -Value $policy.conditions.applications.includeapplications -ErrorAction SilentlyContinue
             $result | Add-Member -MemberType NoteProperty -name ExcludedApps -Value $policy.conditions.applications.excludeapplications -ErrorAction SilentlyContinue
@@ -33,7 +47,8 @@ function Inspect-CAPolicies {
             $result | Add-Member -MemberType NoteProperty -name SessionLifetime -Value $policy.sessioncontrols.signinfrequency -ErrorAction SilentlyContinue
             $result | Add-Member -MemberType NoteProperty -name PersistentBrowser -Value $policy.sessioncontrols.PersistentBrowser -ErrorAction SilentlyContinue
 
-            $result | Out-File -FilePath "$($path)\$($result.Name)_Policy.txt"
+
+            $result | Out-File -FilePath "$($path)\$($name)_Policy.txt"
         }
         Return $true
     }
