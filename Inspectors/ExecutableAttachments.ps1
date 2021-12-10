@@ -1,10 +1,11 @@
 function Inspect-ExecutableAttachments {
 	$rules = Get-TransportRule
-	$action = @("Microsoft.Exchange.MessagingPolicies.Rules.Tasks.DeleteMessageAction","Microsoft.Exchange.MessagingPolicies.Rules.Tasks.RejectMessageAction")
+	$action1 = "Microsoft.Exchange.MessagingPolicies.Rules.Tasks.DeleteMessageAction"
+	$action2 = "Microsoft.Exchange.MessagingPolicies.Rules.Tasks.RejectMessageAction"
     $flag = $False
 
 	ForEach ($rule in $rules) {
-		If (($rule.AttachmentHasExecutableContent -eq $true) -and ($action -contains $rule.Actions)) {
+		If (($rule.AttachmentHasExecutableContent -eq $true) -and (($rule.Actions -contains $action1) -or ($rule.Actions -contains $action2) -or ($rule.DeleteMessage -eq $true))) {
 			$flag = $True
 		}
 	}

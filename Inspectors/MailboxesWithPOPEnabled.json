@@ -2,7 +2,7 @@
 	"FindingName": "Exchange Mailboxes with POP Enabled",
 	"Description": "The Exchange Online mailboxes listed above have POP enabled. POP is a method of accessing an Exchange Online mailbox. Cyber adversaries have used POP as a workaround for subtly conducting password spraying attacks or other credential-related attacks, because POP is a form of legacy authentication generally not subject to the restraints of Multi-Factor Authentication and other modern authentication safeguards. For these reasons it is recommended that POP be disabled where possible.",
 	"Remediation": "SMTP authentication can be disabled using the Set-CASMailbox commandlet as follows: 'Set-CASMailbox -Identity [MailboxName] -PopEnabled $false' where the -Identity flag is the user's email address. A list of affected email addresses is included in this report. You may wish to poll key stakeholders beforehand, as there is a chance POP is used within your organization for legacy applications or service accounts.",
-	"Severity": "Critical",
+	"Impact": "Critical",
 	"AffectedObjects": "",
 	"References": [
 		{

@@ -2,7 +2,7 @@
 	"FindingName": "Calendar Sharing with External Users Enabled",
 	"Description": "Due to the enabled sharing policies listed above, your organization's users are permitted to share their Office 365 Calendars with any external person. It is not recommended to allow calendar sharing to users outside your organization as the data in calendar entries may reveal sensitive information about your organization or users.",
 	"Remediation": "Modify the affected sharing policies and disable calendar sharing. This is possible from the O365 Admin Center, in the Exchange -> Organization -> Sharing screen. You can also use the Set-SharingPolicy PowerShell commandlets to perform this remediation.",
-	"Severity": "Medium",
+	"Impact": "Medium",
 	"AffectedObjects": "",
 	"References": [
 		{

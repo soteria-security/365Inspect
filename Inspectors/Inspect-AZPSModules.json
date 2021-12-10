@@ -1,5 +1,5 @@
 {
-	"FindingName": "Azure PowerShell Service Principal Configuration Missing!",
+	"FindingName": "Azure PowerShell Service Principal Configuration Missing",
 	"Description": "Dangerous default configuration settings were found in the tenant. By default, Azure tenants allow all users to access the Azure Active Directory and Microsoft Graph PowerShell Modules. This allows any authenticated user or guest the ability to abuse Dangerous Default Permissions, as well as enumerate the entire tenant.",
 	"Remediation": "These permissions can be mitigated by creating and assigning Service Principals for the applications using the instructions in the linked blog post.",
 	"Impact": "Critical",

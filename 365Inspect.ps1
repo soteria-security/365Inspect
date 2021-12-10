@@ -43,12 +43,15 @@ param (
 	[ValidateSet('ALREADY_AUTHED', 'MFA',
 		IgnoreCase = $false)]
 	[string] $Auth,
-	[string[]] $SelectedInspectors = @()
+	$Username,
+	[string[]] $SelectedInspectors = @(),
+	[string[]] $ExcludedInspectors = @()
 )
 
 $org_name = $OrgName
 $out_path = $OutPath
 $selected_inspectors = $SelectedInspectors
+$excluded_inspectors = $ExcludedInspectors
 
 
 Function Connect-Services{
@@ -70,9 +73,9 @@ Function Connect-Services{
 		Write-Output "Connecting to Microsoft Graph"
 		Connect-MgGraph -Scopes "AuditLog.Read.All","Policy.Read.All","Directory.Read.All","IdentityProvider.Read.All","Organization.Read.All","Securityevents.Read.All","ThreatIndicators.Read.All","SecurityActions.Read.All","User.Read.All","UserAuthenticationMethod.Read.All","MailboxSettings.Read"
     }
-
 }
 
+#Function to change color of text on errors for specific messages
 Function Colorize($ForeGroundColor){
     $color = $Host.UI.RawUI.ForegroundColor
     $Host.UI.RawUI.ForegroundColor = $ForeGroundColor
@@ -84,7 +87,7 @@ Function Colorize($ForeGroundColor){
     $Host.UI.RawUI.ForegroundColor = $color
   }
 
-#Function to chnage color of text on errors for specific messages
+
 Function Confirm-Close{
     Read-Host "Press Enter to Exit"
     Exit
@@ -139,19 +142,49 @@ Function Confirm-InstalledModules{
 #Start Script
 Confirm-InstalledModules
 
+
 # Get a list of every available detection module by parsing the PowerShell
 # scripts present in the .\inspectors folder. 
-$inspectors = (Get-ChildItem .\inspectors\ | Where-Object -FilterScript { $_.Name -Match ".ps1" }).Name | ForEach-Object { ($_ -split ".ps1")[0] }
+#Exclude specified Inspectors
+If ($excluded_inspectors -and $excluded_inspectors.Count){
+	$excluded_inspectors = foreach ($inspector in $excluded_inspectors){"$inspector.ps1"}
+	$inspectors = (Get-ChildItem .\inspectors\*.ps1 -exclude $excluded_inspectors).Name | ForEach-Object { ($_ -split ".ps1")[0] }
+}
+else {
+	$inspectors = (Get-ChildItem .\inspectors\*.ps1).Name | ForEach-Object { ($_ -split ".ps1")[0] }
+}
 
+#Use Selected Inspectors
 If ($selected_inspectors -AND $selected_inspectors.Count) {
-	"The following O365 inspectors were selected for use: $selected_inspectors"
+	"The following inspectors were selected for use: "
+	Foreach ($inspector in $selected_inspectors){
+		Write-Output $inspector
+	}
+}
+elseif ($excluded_Inspectors -and $excluded_inspectors.Count) {
+	$selected_inspectors = $inspectors
+	Write-Output "Using inspectors:`n"
+	Foreach ($inspector in $inspectors){
+		Write-Output $inspector
+	}
 }
 Else {
-	"Using all O365 inspectors."
+	"Using all inspectors."
 	$selected_inspectors = $inspectors
 }
 
-New-Item -ItemType Directory -Force -Path $out_path | Out-Null
+#Create Output Directory if required
+Try {
+	New-Item -ItemType Directory -Force -Path $out_path | Out-Null
+	If ((Test-Path $out_path) -eq $true){
+		$path = Resolve-Path $out_path
+		Write-Output "$($path.Path) created successfully."
+	}
+}
+Catch {
+	Write-Error "Directory not created. Please check permissions."
+	Confirm-Close
+}
 
 # Maintain a list of all findings, beginning with an empty list.
 $findings = @()
@@ -209,8 +242,8 @@ $long_findings_html = ''
 
 $findings_count = 0
 
-$sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Severity){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}}}
-
+#$sortedFindings1 = $findings | Sort-Object {$_.FindingName}
+$sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Impact){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}};$_.FindingName} 
 ForEach ($finding in $sortedFindings) {
 	# If the result from the inspector was not $null,
 	# it identified a real finding that we must process.
@@ -228,9 +261,9 @@ ForEach ($finding in $sortedFindings) {
 		$long_finding_html = $long_finding_html.Replace("{{FINDING_NAME}}", $finding.FindingName)
 		$long_finding_html = $long_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
 		
-		# Finding Severity
-		$short_finding_html = $short_finding_html.Replace("{{SEVERITY}}", $finding.Severity)
-		$long_finding_html = $long_finding_html.Replace("{{SEVERITY}}", $finding.Severity)
+		# Finding Impact
+		$short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $finding.Impact)
+		$long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $finding.Impact)
 		
 		# Finding description
 		$long_finding_html = $long_finding_html.Replace("{{DESCRIPTION}}", $finding.Description)
