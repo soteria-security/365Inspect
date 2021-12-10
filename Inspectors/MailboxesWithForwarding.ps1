@@ -6,7 +6,7 @@ Function Get-MailboxForwarding{
     $rulesEnabled = @()
 
     foreach ($mailbox in $mailboxes){
-        $rulesEnabled += Get-InboxRule -Mailbox $mailbox.UserPrincipalName | Where-Object {($null -ne $_.ForwardTo) -or ($null -ne $_.ForwardAsAttachmentTo)} | Select-Object MailboxOwnerId, RuleIdentity, Name, ForwardTo
+        $rulesEnabled += Get-InboxRule -Mailbox $mailbox.UserPrincipalName | Where-Object {($null -ne $_.ForwardTo) -or ($null -ne $_.ForwardAsAttachmentTo) -or ($null -ne $_.RedirectTo)} | Select-Object MailboxOwnerId, RuleIdentity, Name, ForwardTo, RedirectTo
     }
     if ($rulesEnabled.Count -gt 0) {
         $rulesEnabled | Out-File -FilePath "$($path)\ExchangeMailboxeswithForwardingRules.txt" -Append

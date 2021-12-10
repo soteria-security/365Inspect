@@ -2,7 +2,7 @@
 	"FindingName": "Exchange Mailboxes with IMAP Enabled",
 	"Description": "The Exchange Online mailboxes listed above have IMAP Authentication enabled. IMAP Authentication is a method of authenticating to an Exchange Online mailbox. Cyber adversaries have used IMAP authentication as a workaround for subtly conducting password spraying attacks or other credential-related attacks, because IMAP authentication is a form of legacy authentication generally not subject to the restraints of Multi-Factor Authentication and other modern authentication safeguards. For these reasons it is recommended that IMAP Authentication be disabled where possible.",
 	"Remediation": "This finding refers to individual mailboxes that have IMAP enabled. For these mailboxes, IMAP can be disabled using the Set-CASMailbox commandlet as follows: 'Set-CASMailbox -Identity [MailboxName] -IMAPEnabled $false' where the -Identity flag is the user's email address. A list of affected email addresses is included in this report.",
-	"Severity": "Critical",
+	"Impact": "Critical",
 	"AffectedObjects": "",
 	"References": [
 		{

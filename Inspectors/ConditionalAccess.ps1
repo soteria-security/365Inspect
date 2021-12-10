@@ -8,7 +8,7 @@ function Inspect-CAPolicies {
         Return $null
     }
     ElseIf (($secureDefault.IsEnabled -eq $false) -and ($conditionalAccess.count -eq 0)) {
-        return $false
+		return $false
 	}
     else {
         $path = New-Item -ItemType Directory -Force -Path "$($path)\ConditionalAccess"

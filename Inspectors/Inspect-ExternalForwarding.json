@@ -1,5 +1,5 @@
 {
-	"FindingName": "Outbound Forwarding Enabled at Tenant!",
+	"FindingName": "Outbound Forwarding Enabled at Tenant",
 	"Description": "Email forwarding can be useful, but can also pose a security risk due to the potential disclosure of information. Attackers might use this information to attack your organization or partners. Outbound spam filter policies can be configured to block forwarding to external parties at the Tenant (global) level.",
 	"Remediation": "Review the configuration and ensure that it is appropriate for your organization.",
 	"Impact": "High",

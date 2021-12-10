@@ -3,7 +3,7 @@ function Inspect-LargeAttachmentBlockingRule {
 	$flag = $False
 
 	ForEach ($rule in $rules) {
-		if ($rule.AttachmentSizeOver -AND ($rule.DeleteMessage -OR $rule.RejectMessage)) {
+		if (($rule.AttachmentSizeOver -like "*") -AND (($rule.DeleteMessage -ne $false) -OR ($null -ne $rule.RejectMessageReasonText))) {
 			$flag = $True
 		}
 	}
