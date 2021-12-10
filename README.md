@@ -4,7 +4,7 @@ Further the state of O365 security by authoring a PowerShell script that automat
 
 # Setup
 
-365Inspect requires the administrative PowerShell modules for Microsoft Online, Azure AD, Exchange administration, and Sharepoint administration. 
+365Inspect requires the administrative PowerShell modules for Microsoft Online, Azure AD (We recommend installing the AzureADPreview module), Exchange administration, Microsoft Graph, Microsoft Intune, Microsoft Teams, and Sharepoint administration. 
 
 The 365Inspect.ps1 PowerShell script will validate the installed modules.
 
@@ -12,13 +12,17 @@ If you do not have these modules installed, you will be prompted to install them
 
 	Install-Module -Name MSOnline
 
-	Install-Module -Name AzureAD
+	Install-Module -Name AzureADPreview
 
 	Install-Module -Name ExchangeOnlineManagement
 
 	Install-Module -Name Microsoft.Online.SharePoint.PowerShell
 
 	Install-Module -Name Microsoft.Graph
+
+	Install-Module -Name MicrosoftTeams
+
+	Install-Module -Name Microsoft.Graph.Intune
 
 [Install MSOnline PowerShell](https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-msonlinev1?view=azureadps-1.0)
 
@@ -30,13 +34,17 @@ If you do not have these modules installed, you will be prompted to install them
 
 [Install Microsoft Graph SDK](https://docs.microsoft.com/en-us/graph/powershell/installation)
 
+[Install Microsoft Teams PowerShell Module](https://docs.microsoft.com/en-us/microsoftteams/teams-powershell-install)
+
+[Install Microsoft Intune PowerShell SDK](https://github.com/microsoft/Intune-PowerShell-SDK)
+
 Once the above are installed, download the 365Inspect source code folder from Github using your browser or by using *git clone*.
 
 As you will run 365Inspect with administrative privileges, you should place it in a logical location and make sure the contents of the folder are readable and writable only by the administrative user. This is especially important if you intend to install 365Inspect in a location where it will be executed frequently or used as part of an automated process.
 
 # Usage
 
-To run 365Inspect, open a PowerShell console with local administrator privileges and navigate to the folder you downloaded 365Inspect into:
+To run 365Inspect, open a PowerShell console and navigate to the folder you downloaded 365Inspect into:
 
 	cd 365Inspect
 
@@ -46,15 +54,21 @@ All 365Inspect requires to inspect your O365 tenant is access via an O365 accoun
 
 Execution of 365Inspect looks like this:
 
-	.\365Inspect.ps1 -OrgName <value> -OutPath <value> -Auth <MFA|CMDLINE|ALREADY_AUTHED>
+	.\365Inspect.ps1 -OrgName <value> -OutPath <value> -Auth <MFA|ALREADY_AUTHED>
 
 For example, to log in by entering your credentials in a browser with MFA support:
 
 	.\365Inspect.ps1 -OrgName mycompany -OutPath ..\365_report -Auth MFA
 
-Or, with credentials passed on the command line:
+365Inspect can be run with only specified Inspector modules, or conversely, by excluding specified modules.
 
-	.\365Inspect.ps1 -OrgName mycompany -OutPath ..\365_report -Auth CMDLINE -Username "first.last@mycompany.com" -Password "rlygoodpassword528"
+For example, to log in by entering your credentials in a browser with MFA support:
+
+	.\365Inspect.ps1 -OrgName mycompany -OutPath ..\365_report -Auth MFA -SelectedInspectors inspector1, inspector2
+
+or
+
+	.\365Inspect.ps1 -OrgName mycompany -OutPath ..\365_report -Auth MFA -ExcludedInspectors inspector1, inspector2, inspector3
 
 To break down the parameters further:
 
@@ -64,9 +78,9 @@ To break down the parameters further:
 * *Auth* is a selector that should be one of the literal values "MFA", "CMDLINE", or "ALREADY_AUTHED". 
 	* *Auth* controls how 365Inspect will authenticate to all of the Office 365 services. 
 	* *Auth MFA* will produce a graphical popup in which you can type your credentials and even enter an MFA code for MFA-enabled accounts. 
-	* *Auth CMDLINE* indicates that you intend to use a non-MFA-enabled account and pass the username and password on the command line, which may be preferable for automation integration or other tasks where headless execution is desired.
-		* If you use *auth CMDLINE*, make sure to also pass the *username* and *password* parameters so 365Inspect can log into your account without producing a popup window, as depicted in the 2nd example above.. 
 	* *Auth ALREADY_AUTHED* instructs 365Inspect not to authenticate before scanning. This may be preferable if you are executing 365Inspect from a PowerShell prompt where you already have valid sessions for all of the described services, such as one where you have already executed 365Inspect.
+* *SelectedInspectors* is the name or names of the inspector or inspectors you wish to run with 365Inspect. If multiple inspectors are selected they must be comma separated. Only the named inspectors will be run.
+* *ExcludedInspectors*  is the name or names of the inspector or inspectors you wish to prevent from running with 365Inspect. If multiple inspectors are selected they must be comma separated. All modules other included modules will be run.
 
 When you execute 365Inspect with *-Auth MFA*, it may produce several graphical login prompts that you must sequentially log into. This is normal behavior as Exchange, SharePoint etc. have separate administration modules and each requires a different login session. If you simply log in the requested number of times, 365Inspect should begin to execute. This is the opposite of fun and we're seeking a workaround, but needless to say we feel the results are worth the minute spent looking at MFA codes.
 
@@ -86,13 +100,10 @@ As 365Inspect executes, it will steadily print status updates indicating which i
 
 365Inspect can't run properly unless the O365 account you authenticate with has appropriate privileges. 365Inspect requires, at minimum, the following:
 
-* Global Reader
-* Security Reader
-* SharePoint Admin
-* An Exchange role with View-Only access to everything
-* MS Graph Application Read Only Access to Security, Directory, and Policy objects
+* Global Administrator
+* SharePoint Administrator
 
-An extremely permissive role such as Global Admin will also work, but this isn't an appropriate long-term solution if you intend to use 365Inspect regularly or as part of an automated process.
+We realize that these are extremely permissive roles, unfortunately due to the use of Microsoft Graph, we are restricted from using lesser prileges by Microsoft. Application and Cloud Application Administrator roles (used to grant delegated and application permissions) are restricted from granting permissions for Microsoft Graph or Azure AD PowerShell modules. [https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-administrator](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-administrator) 
 
 # Developing Inspector Modules
 
