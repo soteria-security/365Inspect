@@ -3,13 +3,12 @@ $path = @($out_path)
 function Inspect-CAPolicies {
     $secureDefault = Get-MgPolicyIdentitySecurityDefaultEnforcementPolicy -Property IsEnabled | Select-Object IsEnabled
     $conditionalAccess = Get-AzureADMSConditionalAccessPolicy
-
-	If ($secureDefault.IsEnabled -eq $true) {
+    
+    If ($secureDefault.IsEnabled -eq $true) {
         Return $null
     }
     ElseIf (($secureDefault.IsEnabled -eq $false) -and ($conditionalAccess.count -eq 0)) {
-        
-		return $false
+        return $false
 	}
     else {
         $path = New-Item -ItemType Directory -Force -Path "$($path)\ConditionalAccess"
