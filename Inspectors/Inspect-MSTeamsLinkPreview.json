@@ -1,0 +1,17 @@
+{
+	"FindingName": "Microsoft Teams Users Allowed to Preview Links in Messages",
+	"Description": "Microsoft Teams by default enables and allows users to preview links in messages. Some organizations may wish to disable this functionality. Changing these settings may have unintended consequences. Speak with shareholders and understand what functionality may be affected before disabling this access.",
+	"Remediation": "This can be mitigated by navigating to the Teams admin center and turning off 'Allow URL Previews' under Messaging settings. This disables link previews globally. Alternatively, specific users and groups can be targeted by creating a new Messaging Policy and issuing this command in PowerShell: Set-CsTeamsMessagingPolicy -Identity 'Policy Name' -AllowUrlPreviews $false",
+	"Impact": "Low",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://document360.com/blog/how-to-turn-off-url-previews-in-microsoft-teams/",
+			"Text": "How to turn off URL previews in Microsoft Teams?"
+		},
+        {
+            "Url": "https://positive.security/blog/ms-teams-1-feature-4-vulns",
+            "Text": "MS Teams: 1 feature, 4 vulnerabilities"
+        }
+	]
+}
