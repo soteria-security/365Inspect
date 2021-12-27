@@ -1,11 +1,11 @@
-Function Inspect-MSTeamsAnonPolicyMembers{
+Function Inspect-MSTeamsLinkPreview{
     Try{
-        $teamsPolicies = Get-CsTeamsMeetingPolicy
+        $teamsPolicies = Get-CsTeamsMessagingPolicy
         $policies = @()
         $results = Get-CsOnlineUser | Where-Object {$null -eq $_.TeamsMeetingPolicy}
 
         Foreach ($policy in $teamsPolicies) {
-            If ($policy.AllowAnonymousUsersToJoinMeeting -eq $true){
+            If ($policy.AllowUrlPreviews -eq $true){
                 $policies += $policy.Identity
             }
         }
@@ -22,4 +22,4 @@ Function Inspect-MSTeamsAnonPolicyMembers{
     Return $null
 }
 
-Return Inspect-MSTeamsAnonPolicyMembers
+Return Inspect-MSTeamsLinkPreview
