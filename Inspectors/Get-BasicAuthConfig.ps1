@@ -3,12 +3,17 @@ Function Get-BasicAuthConfig {
 
     $authPolicy =  Get-AuthenticationPolicy
 
+    $methods = @()
     foreach ($method in $authMethods){
         If ($authPolicy.$method -eq $true){
-            Return $method
+            $methods += $method
         }
     }
+    If (!$methods){
     Return $null
+    }
+
+    Return $methods
 }
 
 Return Get-BasicAuthConfig
