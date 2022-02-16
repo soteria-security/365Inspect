@@ -1,0 +1,13 @@
+{
+	"FindingName": "ADFS Configuration Found",
+	"Description": "Active Directory Federation Services (ADFS) configured on this Tenant. ADFS Claims Rules may act as replacements for some features in Azure, hence rendering certain findings a \"False Positive\".",
+	"Remediation": "Review ADFS configuration for claims rules that may replace or negate findings in this report (eg, Forced MFA when outside of corporate networks).",
+	"Impact": "Informational",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/windows-server/identity/active-directory-federation-services",
+			"Text": "Active Directory Federation Services"
+		}
+	]
+}

@@ -1,0 +1,13 @@
+{
+	"FindingName": "Exchange Mailboxes with SendAs Delegates Found",
+	"Description": "The Exchange Online mailboxes listed above have delegated SendAs permissions to another account.",
+	"Remediation": "This finding refers to individual mailboxes that have SendAs delegated permissions. For these mailboxes, verify that the delegate access is expected, appropriate, and do not violate company policy. Remediation can be accomplished by running Remove-RecipientPermission -Identity <mailbox> -AccessRights SendAs -Confirm:$false -Trustee <member>. A list of affected email addresses is included in this report.",
+	"Impact": "High",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/powershell/module/exchange/remove-recipientpermission?view=exchange-ps",
+			"Text": "Remove-RecipientPermission Commandlet Reference"
+		}
+	]
+}
