@@ -1,0 +1,25 @@
+{
+	"FindingName": "No Custom DLP Sensitive Information Types Defined",
+	"Description": "Organizations have sensitive information under their control such as financial data, proprietary data, credit card numbers, health records, or social security numbers. Default configurations may not meet the business needs, or compliance requirements of the organization. Custom defined information types may be configured to mitigate any gaps that default settings do not address.",
+	"Remediation": "Determine if there is a need for custom DLP Sensitive Information types and add as needed.",
+	"Impact": "Low",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/compliance/dlp-learn-about-dlp?view=o365-worldwide",
+			"Text": "Learn about data loss prevention"
+		},
+        {
+            "Url": "https://docs.microsoft.com/en-us/microsoft-365/compliance/sensitive-information-type-learn-about?view=o365-worldwide",
+            "Text": "Learn about sensitive information types"
+        },
+        {
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/compliance/create-a-custom-sensitive-information-type?view=o365-worldwide",
+			"Text": "Create custom sensitive information types in the Compliance center"
+		},
+        {
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/compliance/create-a-custom-sensitive-information-type-in-scc-powershell?view=o365-worldwide",
+			"Text": "Create a custom sensitive information type using PowerShell"
+		}
+	]
+}
