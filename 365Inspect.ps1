@@ -14,6 +14,9 @@
   .PARAMETER Auth
   Switch that should be one of the literal values "MFA", "CMDLINE", or "ALREADY_AUTHED".
 
+  .PARAMETER Scripts Directory
+  Optional: You could define the directory of the Inspector plugins. Default if you do not specify the directory must be in the same directory. The directory must be called 'inspectors'
+
   .PARAMETER Username
   Username of O365 account.
 
@@ -24,7 +27,7 @@
   None. You cannot pipe objects to 365Inspect.ps1.
 
   .OUTPUTS
-  None. 365Inspect.ps1 does not generate any output.
+  None. 365Inspect.ps1 does not display error messages where necessary on the console.
 
   .EXAMPLE
   PS> .\365Inspect.ps1
@@ -35,6 +38,9 @@ param (
 	[Parameter(Mandatory = $true,
 		HelpMessage = 'Organization name')]
 	[string] $OrgName,
+	[Parameter(Mandatory = $false,
+		HelpMessage = 'Custom Location of Inspectors Folder')]
+	[string] $ScriptLocation,
 	[Parameter(Mandatory = $true,
 		HelpMessage = 'Output path for report')]
 	[string] $OutPath,
@@ -54,87 +60,90 @@ $selected_inspectors = $SelectedInspectors
 $excluded_inspectors = $ExcludedInspectors
 
 
-Function Connect-Services{
-    # Log into every service prior to the analysis.
-    If ($auth -EQ "MFA") {
+Function Connect-Services {
+	# Log into every service prior to the analysis.
+	If ($auth -EQ "MFA") {
 		Write-Output "Connecting to MSOnline Service"
-        Connect-MsolService
+		Connect-MsolService
 		Write-Output "Connecting to Azure Active Directory"
-        Connect-AzureAD #-AccountId $Username
+		Connect-AzureAD #-AccountId $Username
 		Write-Output "Connecting to Exchange Online"
-        Connect-ExchangeOnline #-UserPrincipalName $Username -ShowBanner:$false
+		Connect-ExchangeOnline #-UserPrincipalName $Username -ShowBanner:$false
 		Write-Output "Connecting to SharePoint Service"
-        Connect-SPOService -Url "https://$org_name-admin.sharepoint.com"
+		Connect-SPOService -Url https://$org_name-admin.sharepoint.com
 		Write-Output "Connecting to Microsoft Teams"
 		Connect-MicrosoftTeams #-AccountId $Username
 		Write-Output "Connecting and consenting to Microsoft Intune"
 		Connect-MSGraph -AdminConsent
 		Connect-MSGraph
 		Write-Output "Connecting to Microsoft Graph"
-		Connect-MgGraph -Scopes "AuditLog.Read.All","Policy.Read.All","Directory.Read.All","IdentityProvider.Read.All","Organization.Read.All","Securityevents.Read.All","ThreatIndicators.Read.All","SecurityActions.Read.All","User.Read.All","UserAuthenticationMethod.Read.All","MailboxSettings.Read"
-    }
+		Connect-MgGraph -Scopes "AuditLog.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "MailboxSettings.Read"
+		Write-Output "Connecting to IPPSSession..."
+		Connect-IPPSSession
+	}
 }
 
 #Function to change color of text on errors for specific messages
-Function Colorize($ForeGroundColor){
-    $color = $Host.UI.RawUI.ForegroundColor
-    $Host.UI.RawUI.ForegroundColor = $ForeGroundColor
+Function Colorize($ForeGroundColor) {
+	$color = $Host.UI.RawUI.ForegroundColor
+	$Host.UI.RawUI.ForegroundColor = $ForeGroundColor
   
-    if ($args){
-      Write-Output $args
-    }
+	if ($args) {
+		Write-Output $args
+	}
   
-    $Host.UI.RawUI.ForegroundColor = $color
-  }
-
-
-Function Confirm-Close{
-    Read-Host "Press Enter to Exit"
-    Exit
+	$Host.UI.RawUI.ForegroundColor = $color
 }
 
-Function Confirm-InstalledModules{
-    #Check for required Modules and prompt for install if missing
+
+Function Confirm-Close {
+	Read-Host "Press Enter to Exit"
+	Exit
+}
+
+Function Confirm-InstalledModules {
+	#Check for required Modules and prompt for install if missing
 	
 	#A little trickery to get the Azure AD Module version installed
-	If ($null -eq ($AAD = Get-InstalledModule | Where-Object {$_.name -like "AzureAd*"} | Select-Object Name)){
+	If ($null -eq ($AAD = Get-InstalledModule | Where-Object { $_.name -like "AzureAd*" } | Select-Object Name)) {
 		$AAD = "AzureADPreview"
-		} Else {
+	}
+ Else {
 		$AAD = $AAD.Name
+	}
+
+	$modules = @("MSOnline", $AAD, "ExchangeOnlineManagement", "Microsoft.Online.Sharepoint.PowerShell", "Microsoft.Graph", "MicrosoftTeams", "Microsoft.Graph.Intune")
+	$count = 0
+	$installed = Get-InstalledModule
+
+	foreach ($module in $modules) {
+		if ($installed.Name -notcontains $module) {
+			$message = Write-Output "`n$module is not installed."
+			$message1 = Write-Output 'The module may be installed by running "Install-Module $module -Force -Scope CurrentUser -Confirm:$false" in an elevated PowerShell window.'
+			Colorize Red ($message)
+			Colorize Yellow ($message1)
+			$install = Read-Host -Prompt "Would you like to attempt installation now? (Y|N)"
+			If ($install -eq 'y') {
+				Install-Module $module -Scope CurrentUser -Force -Confirm:$false
+				$count ++
+			}
 		}
+		Else {
+			Write-Output "$module is installed."
+			$count ++
+		}
+	}
 
-    $modules = @("MSOnline",$AAD,"ExchangeOnlineManagement","Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph","MicrosoftTeams", "Microsoft.Graph.Intune")
-    $count = 0
-    $installed = Get-InstalledModule
-
-    foreach ($module in $modules){
-        if ($installed.Name -notcontains $module){
-            $message = Write-Output "`n$module is not installed."
-            $message1 = Write-Output 'The module may be installed by running "Install-Module $module -Force -Scope CurrentUser -Confirm:$false" in an elevated PowerShell window.'
-            Colorize Red ($message)
-            Colorize Yellow ($message1)
-            $install = Read-Host -Prompt "Would you like to attempt installation now? (Y|N)"
-            If ($install -eq 'y') {
-                Install-Module $module -Scope CurrentUser -Force -Confirm:$false
-                $count ++
-            }
-        }
-        Else {
-            Write-Output "$module is installed."
-            $count ++
-        }
-    }
-
-    If ($count -lt 7){
-        Write-Output ""
-        Write-Output ""
-        $message = Write-Output "Dependency checks failed. Please install all missing modules before running this script."
-        Colorize Red ($message)
-        Confirm-Close
-    }
-    Else {
-        Connect-Services
-    }
+	If ($count -lt 7) {
+		Write-Output ""
+		Write-Output ""
+		$message = Write-Output "Dependency checks failed. Please install all missing modules before running this script."
+		Colorize Red ($message)
+		Confirm-Close
+	}
+	Else {
+		Connect-Services
+	}
 
 }
 
@@ -146,25 +155,51 @@ Confirm-InstalledModules
 # Get a list of every available detection module by parsing the PowerShell
 # scripts present in the .\inspectors folder. 
 #Exclude specified Inspectors
-If ($excluded_inspectors -and $excluded_inspectors.Count){
-	$excluded_inspectors = foreach ($inspector in $excluded_inspectors){"$inspector.ps1"}
-	$inspectors = (Get-ChildItem .\inspectors\*.ps1 -exclude $excluded_inspectors).Name | ForEach-Object { ($_ -split ".ps1")[0] }
+
+#NEW ADDON SCRIPT THAT CAN ALSO NOW INCLUDE CUSTOM LOCATION DETERMINED BY USER-INPUT
+
+if ($ScriptLocation -eq '') {
+	try {
+		If ($excluded_inspectors -and $excluded_inspectors.Count) {
+			$excluded_inspectors = foreach ($inspector in $excluded_inspectors) { "$inspector.ps1" }
+			$inspectors = (Get-ChildItem .\inspectors\*.ps1 -exclude $excluded_inspectors).Name | ForEach-Object { ($_ -split ".ps1")[0] }
+		}
+		else {
+			$inspectors = (Get-ChildItem .\inspectors\*.ps1).Name | ForEach-Object { ($_ -split ".ps1")[0] }
+		}
+	}
+	catch {
+		'An Error Occured trying to find the Inspectors in $inspectors'
+	}
 }
 else {
-	$inspectors = (Get-ChildItem .\inspectors\*.ps1).Name | ForEach-Object { ($_ -split ".ps1")[0] }
+	try {
+		If ($excluded_inspectors -and $excluded_inspectors.Count) {
+			$excluded_inspectors = foreach ($inspector in $excluded_inspectors) { "$inspector.ps1" }
+			$inspectors = (Get-ChildItem -Path $ScriptLocation -exclude $excluded_inspectors).Name | ForEach-Object { ($_ -split ".ps1")[0] }
+		}
+		else {
+			$inspectors = (Get-ChildItem $ScriptLocation\*.ps1).Name | ForEach-Object { ($_ -split ".ps1")[0] }
+		}
+	}
+	catch [MethodException] {
+		'An Error Occured trying to find the Inspectors in $inspectors'
+	}
 }
+
+
 
 #Use Selected Inspectors
 If ($selected_inspectors -AND $selected_inspectors.Count) {
 	"The following inspectors were selected for use: "
-	Foreach ($inspector in $selected_inspectors){
+	Foreach ($inspector in $selected_inspectors) {
 		Write-Output $inspector
 	}
 }
 elseif ($excluded_Inspectors -and $excluded_inspectors.Count) {
 	$selected_inspectors = $inspectors
 	Write-Output "Using inspectors:`n"
-	Foreach ($inspector in $inspectors){
+	Foreach ($inspector in $inspectors) {
 		Write-Output $inspector
 	}
 }
@@ -176,7 +211,7 @@ Else {
 #Create Output Directory if required
 Try {
 	New-Item -ItemType Directory -Force -Path $out_path | Out-Null
-	If ((Test-Path $out_path) -eq $true){
+	If ((Test-Path $out_path) -eq $true) {
 		$path = Resolve-Path $out_path
 		Write-Output "$($path.Path) created successfully."
 	}
@@ -194,12 +229,26 @@ ForEach ($selected_inspector in $selected_inspectors) {
 	# ...if the user selected a valid inspector...
 	If ($inspectors.Contains($selected_inspector)) {
 		Write-Output "Invoking Inspector: $selected_inspector"
+		if ($ScriptLocation -eq '') {
+			try {
+				# Get the static data (finding description, remediation etc.) associated with that inspector module.
+				$finding = Get-Content .\inspectors\$selected_inspector.json | Out-String | ConvertFrom-Json
 		
-		# Get the static data (finding description, remediation etc.) associated with that inspector module.
-		$finding = Get-Content .\inspectors\$selected_inspector.json | Out-String | ConvertFrom-Json
-		
-		# Invoke the actual inspector module and store the resulting list of insecure objects.
-		$finding.AffectedObjects = Invoke-Expression ".\inspectors\$selected_inspector.ps1"
+				# Invoke the actual inspector module and store the resulting list of insecure objects.
+				$finding.AffectedObjects = Invoke-Expression ".\inspectors\$selected_inspector.ps1"
+			}
+			catch {
+				'An Error Occured trying to open the .json files in $finding'
+			}
+		}
+		else {
+			try {
+				$finding = Get-Content $ScriptLocation\$selected_inpsector.json | Out-String | ConvertFrom-Json
+
+				$finding.AffectedObjects = Invoke-Expression "$ScriptLocation\$selected_inspector.ps1"
+			}
+			catch { 'An Error Occured trying to find the affected objects $finding' }
+		}
 		
 		# Add the finding to the list of all findings.
 		$findings += $finding
@@ -243,7 +292,7 @@ $long_findings_html = ''
 $findings_count = 0
 
 #$sortedFindings1 = $findings | Sort-Object {$_.FindingName}
-$sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Impact){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}};$_.FindingName} 
+$sortedFindings = $findings | Sort-Object { Switch -Regex ($_.Impact) { 'Critical' { 1 }	'High' { 2 }	'Medium' { 3 }	'Low' { 4 }	'Informational' { 5 } }; $_.FindingName } 
 ForEach ($finding in $sortedFindings) {
 	# If the result from the inspector was not $null,
 	# it identified a real finding that we must process.
@@ -278,6 +327,7 @@ ForEach ($finding in $sortedFindings) {
 		
 		$short_finding_html = $short_finding_html.Replace("{{REMEDIATION}}", $short_finding_text)
 		$long_finding_html = $long_finding_html.Replace("{{REMEDIATION}}", $finding.Remediation)
+
 		
 		# Affected Objects
 		If ($finding.AffectedObjects.Count -GT 15) {
@@ -295,8 +345,43 @@ ForEach ($finding in $sortedFindings) {
 			}
 		}
 		
-		$long_finding_html = $long_finding_html.Replace($templates.AffectedObjectsTemplate, $affected_object_html)
-		
+		try {
+			$long_finding_html = $long_finding_html.Replace($templates.AffectedObjectsTemplate, $affected_object_html)
+		}
+		catch { 'An Error has Occured!' }
+
+		#Finding Default Value
+        $defaultval_html = ''
+		ForEach ($DefaultValue in $finding.DefaultValue) {
+			if ($finding.DefaultValue -eq '' -or $null) {
+            $short_finding_html = $short_finding_html.Replace("{{DEFAULTVALUE}}", $null)
+			}
+			else {
+				$short_finding_html = $short_finding_html.Replace("{{DEFAULTVALUE}}", $finding.DefaultValue)
+			}
+			if ($finding.DefaultValue -eq '' -or $null) {
+            $long_finding_html = $long_finding_html.Replace("{{DEFAULTVALUE}}", $null)
+			}
+			else {
+				$long_finding_html = $long_finding_html.Replace("{{DEFAULTVALUE}}", $finding.DefaultValue)
+			}
+		}
+        
+		#Finding Expected Value
+        $expectedval_html = ''
+		ForEach ($ExpectedValue in $finding.ExpectedValue) {
+            if ($finding.ExpectedValue -eq '' -or $null){
+			$short_finding_html = $short_finding_html.Replace("{{EXPECTEDVALUE}}", '')
+            }else{
+            $short_finding_html = $short_finding_html.Replace("{{EXPECTEDVALUE}}", $finding.ExpectedValue)
+            }
+            if ($finding.ExpectedValue -eq '' -or $null){
+			$long_finding_html = $long_finding_html.Replace("{{EXPECTEDVALUE}}", '')
+            }else{
+            $long_finding_html = $long_finding_html.Replace("{{EXPECTEDVALUE}}", $finding.ExpectedValue)
+            }
+		}		
+
 		# References
 		$reference_html = ''
 		ForEach ($reference in $finding.References) {
@@ -324,11 +409,17 @@ $output = $output.Replace($templates.ExecsumTemplate, $templates.ExecsumTemplate
 
 $output | Out-File -FilePath $out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss").html
 
-$compress = @{
-	Path = $out_path
-	CompressionLevel = "Fastest"
-	DestinationPath = "$out_path\$($org_name)_Report.zip"
-  }
-  Compress-Archive @compress
+#Checks if file already exists by executing a try. 
+try {
+	$compress = @{
+		Path             = $out_path
+		CompressionLevel = "Fastest"
+		DestinationPath  = "$out_path\$($org_name)_Report.zip"
+	}
+	Compress-Archive @compress
+}
+catch {
+	'File Already Exists!'
+}
 
 return
