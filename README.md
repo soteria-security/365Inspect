@@ -169,7 +169,7 @@ You have just created the BypassingSafeAttachments Inspector module. That's all!
 
 365Inspect will throw a pretty loud and ugly error if something in your module doesn't work or doesn't follow 365Inspect conventions, so monitor the command line output.
 
-# About Security
+# About 365Inspect
 
 365Inspect is a script harness that runs other inspector script modules stored in the .\inspectors folder. As with any other script you may run with elevated privileges, you should observe certain security hygiene practices:
 
