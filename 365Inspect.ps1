@@ -53,6 +53,7 @@ $out_path = $OutPath
 $selected_inspectors = $SelectedInspectors
 $excluded_inspectors = $ExcludedInspectors
 
+. .\Write-ErrorLog.ps1
 
 Function Connect-Services{
     # Log into every service prior to the analysis.
