@@ -30,7 +30,7 @@ Function Write-ErrorLog {
     )
     BEGIN {
         $logfolder = "$path\log"
-        $errorlog = "$logfolder\ErrorLog.log"
+        $errorlog = "$logfolder\ErrorLog_$(Get-Date -f yyyy-MM-dd_hh-mm-ss).log"
         
         if  ( !( Test-Path -Path $logfolder -PathType "Container" ) ) {
             Write-Verbose "Creating log folder in: $path"
