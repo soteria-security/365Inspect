@@ -1,0 +1,13 @@
+{
+	"FindingName": "[VULNERABLE] - Number of Global Administrators does not correspond with CIS standard: Not More than 4 Global Admins",
+	"Description": "If there is only one global tenant administrator, he or she can perform malicious activity without the possibility of being discovered by another admin. If there are numerous global tenant administrators, the more likely it is that one of their accounts will be successfully breached by an external attacker.",
+	"Remediation": "1. Connect to M365 using Connect-MSOLService > 2. Store the variables with the following PShell: $dispName={displayname} $roleName='Company Administrator' > 3. Run the following PShell command to create a new admin: Add-MsolRoleMember -RoleMemberEmailAddress (Get-MsolUser -All | Where DisplayName -eq $dispName).UserPrincipalName -RoleName $roleName > 4. Run the following PShell command to remove Global Admins: Remove-MsolRoleMember -RoleMemberEmailAddress (Get-MsolUser -All | Where DisplayName -eq $dispName).UserPrincipalName -RoleName $roleName ",
+	"Impact": "Medium",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/enterprise/assign-roles-to-user-accounts-with-microsoft-365-powershell?view=o365-worldwide",
+			"Text": "Assign admin roles to Microsoft 365 user accounts with PowerShell"
+		}
+	]
+}

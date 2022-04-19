@@ -1,0 +1,23 @@
+{
+	"FindingName": "ExchangeMailTips: one of the settings is not properly configured",
+	"Description": "MailTips assist end users with identifying strange patterns to emails they send",
+	"Remediation": "1. Connect using Connect-ExchangeOnline. > 2. RUN: Set-OrganizationConfig -MailTipsAllTipsEnabled $true -MailTipsExternalRecipientsTipsEnabled $true -MailTipsGroupMetricsEnabled $true -MailTipsLargeAudienceThreshold '25'",
+	"Impact": "Low",
+	"DefaultValue": "MailTipsAllTipsEnabled: False <br/> MailTipsExternalRecipientsTipsEnabled: False <br/> MailTipsGroupMetricsEnabled: False <br/> MailTipsLargeAudienceThreshold: 25",
+	"ExpectedValue": "MailTipsAllTipsEnabled: True <br/> MailTipsExternalRecipientsTipsEnabled: True <br/> MailTipsGroupMetricsEnabled: True <br/> MailTipsLargeAudienceThreshold: >25",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "14.1 Establish and Maintain a Security Awareness Program"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "7 Email and Web Browser Protections"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "13 Data Protection"
+		}
+	]
+}

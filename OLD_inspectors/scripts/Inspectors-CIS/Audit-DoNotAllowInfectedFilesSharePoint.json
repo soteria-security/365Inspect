@@ -1,0 +1,17 @@
+{
+	"FindingName": "[VULNERABLE] - Infected Files can be Downloaded. Please Turn on this feature to disallow this!",
+	"Description": "SharePoint online allows files that Defender for Office 365 has detected as infected to be downloaded. This could lead to damage to your organization",
+	"Remediation": "1. Connect using Connect-SPOService, you will need to enter the URL for your Sharepoint Online admin page https://*-admin.sharepoint.com as well as a Global Admin account. > 2. Run the following Powershell command to set the value to True: Set-SPOTenant –DisallowInfectedFileDownload $true ",
+	"Impact": "Critical",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/turn-on-mdo-for-spo-odb-and-teams?view=o365-worldwide",
+			"Text": "Turn on Safe Attachments for SharePoint, OneDrive, and Microsoft Teams"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/virus-detection-in-spo?view=o365-worldwide",
+			"Text": "Built-in virus protection in SharePoint Online, OneDrive, and Microsoft Teams"
+		}
+	]
+}

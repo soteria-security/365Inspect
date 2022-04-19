@@ -1,0 +1,19 @@
+{
+	"FindingName": "Mailbox auditing for all users is Disabled",
+	"Description": "By turning on mailbox auditing, Microsoft 365 back office teams can track logons to a mailbox as well as what actions are taken while the user is logged on.",
+	"Remediation": "Refer to referenced and the CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf Paragraph 5.2 for the PowerShell instructions.",
+	"Impact": "Low",
+	"DefaultValue": "False",
+	"ExpectedValue": "True",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/compliance/enable-mailbox-auditing?view=o365-worldwide",
+			"Text": "Manage mailbox auditing"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "Paragraph: 5.2 - Ensure mailbox auditing for all users is Enabled (Automated)"
+		}
+	]
+}

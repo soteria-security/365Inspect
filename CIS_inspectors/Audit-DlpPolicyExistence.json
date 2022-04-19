@@ -1,0 +1,15 @@
+{
+	"FindingName": "No DLP Policy Configured!",
+	"Description": "Enabling Data Loss Prevention (DLP) policies allows Exchange Online and SharePoint Online content to be scanned for specific types of data like social security numbers, credit card numbers, or passwords.",
+	"Remediation": "Please Consult the Reference to create a new DLP Policy via PowerShell or use the M365 Admin Center: 1. Under Admin centers Select Compliance to open Microsoft 365 compliance center. > 2. Under Solutions select Data loss prevention then Policies. > 3. Click Create policy. ",
+	"Impact": "High",
+	"DefaultValue": "NULL",
+	"ExpectedValue": "A Policy",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/powershell/module/exchange/new-dlppolicy?view=exchange-ps",
+			"Text": "New-DlpPolicy"
+		}
+	]
+}

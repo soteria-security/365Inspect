@@ -1,0 +1,19 @@
+{
+	"FindingName": "[VULNERABLE] - Whitelisted Domains Detected",
+	"Description": "Whitelisting domains in transport rules bypasses regular malware and phishing scanning, which can enable an attacker to launch attacks against your users from a safe haven domain.",
+	"Remediation": "1. Connect-ExchangeOnline > 2. Remove-TransportRule {RuleName} > 3. Get-TransportRule | Where-Object {($_.setscl -eq -1 -and $_.SenderDomainIs -ne $null)} | ft Name,SenderDomainIs ",
+	"Impact": "Critical",
+	"DefaultValue": "N/A",
+	"ExpectedValue": "Null",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "9.7 Deploy and Maintain Email Server Anti-Malware Protections"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "7 Email and Web Browser Protections"
+		}
+	]
+}

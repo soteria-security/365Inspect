@@ -1,0 +1,13 @@
+{
+	"FindingName": "No Label Policy Set! Data Classification not Available!",
+	"Description": "You should set up and use SharePoint Online data classification policies on data stored in your SharePoint Online sites.",
+	"Remediation": "Please Consult the Reference to create a new Data Classification Policy: https://docs.microsoft.com/en-us/powershell/module/exchange/new-labelpolicy?view=exchange-ps",
+	"Impact": "Medium",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/powershell/module/exchange/new-labelpolicy?view=exchange-ps",
+			"Text": "New-LabelPolicy"
+		}
+	]
+}

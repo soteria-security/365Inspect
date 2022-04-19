@@ -1,0 +1,19 @@
+{
+	"FindingName": "VULNERABLE - NO POLICY HAS BEEN SET FOR MULTIPLE ACCOUNTS, BASIC AUTHENTICATION IS STILL ACTIVATED! OR NO DEFAULT POLICY HAS BEEN CREATED, BASIC AUTHENTICATION IS STILL ACTIVATED!",
+	"Description": "NLegacy authentication protocols do not support multi-factor authentication. These protocols are often used by attackers because of this deficiency.",
+	"Remediation": "1. Login to Azure Active Directory portal.azure.com > 2. Select Azure Active Directory > Security > Conditional Access > 3. Create a New Policy > 4. Set the following conditions: Client apps: Exchange ActiveSync clients and other clients > Access Controls: Grant -> Block Aceess > Assignments: All users > Assignments: Users and groeps: exclude to be at least one low risk account or directory role.",
+	"Impact": "Medium",
+	"DefaultValue": "NULL",
+	"ExpectedValue": "A policy",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "6.3 - Require MFA for Externally-Exposed Applications"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf > Page 30",
+			"Text": "9.2 - Ensure Only Approved Ports, Protocols and Services Are Running"
+		}
+	]
+}

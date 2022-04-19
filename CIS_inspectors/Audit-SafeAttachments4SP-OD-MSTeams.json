@@ -1,0 +1,27 @@
+{
+	"FindingName": "[VULNERABLE] - Safe Attachments is not Correctly Configured!",
+	"Description": "Safe Attachments for SharePoint, OneDrive, and Microsoft Teams protects your organization from inadvertently sharing malicious files. If this is not enabled your organization might be at risk with malicious files are executed!",
+	"Remediation": "1. Connect using Connect-ExchangeOnline. > 2. Run the following PowerShell command: Set-AtpPolicyForO365 -EnableATPForSPOTeamsODB $True ",
+	"Impact": "High",
+	"DefaultValue": "False",
+	"ExpectedValue": "True",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "10.6 Centrally Manage Anti-Malware Software"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "10.7 Use Behavior-Based Anti-Malware Software"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "7.10 Sandbox All Email Attachments"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "8.1 Utilize Centrally Managed Anti-malware Software"
+		}
+	]
+}

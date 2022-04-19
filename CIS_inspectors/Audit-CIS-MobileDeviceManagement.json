@@ -1,0 +1,107 @@
+{
+	"FindingName": "CIS - 7.2 - 7.10 [VULNERABILITIES] - Mobile Device Audit Returned Incorrect Results",
+	"Description": "This means that Mobile Device Audit Settings are not configured regarding the CIS Benchmark. This could lead to the following risks: Information Leaking, Information Disclosure, Data Exfiltration, Credential Theft, Weakend Security, Malware Installation}",
+	"Remediation": "Please change the affected Objects to the Values that are Expected! Set-MobileDebiceMailboxPolicy will help with this.",
+	"Impact": "Critical",
+	"DefaultValue": "AlphanumericPasswordRequired: False <br /> PasswordEnabled: False <br /> PasswordRecoveryEnabled: False <br /> AllowSimplePassword: True <br /> MinPasswordLength: NULL <br /> MaxPasswordFailedAttempts: Unlimited <br /> PasswordExpiration: Unlimited <br /> PasswordHistory: 0 <br /> MinPasswordComplexCharacters: 1 <br /> MaxInactivityTimeLock: Unlimited <br /> DeviceEncryptionEnabled: False",
+	"ExpectedValue": "AlphanumericPasswordRequired: True <br /> PasswordEnabled: True <br /> PasswordRecoveryEnabled: True <br /> AllowSimplePassword: False <br /> MinPasswordLength: >5 <br /> MaxPasswordFailedAttempts: <10 <br /> PasswordExpiration: Unlimited <br /> PasswordHistory: >4 <br /> MinPasswordComplexCharacters: 1 <br /> MaxInactivityTimeLock: <5 <br /> DeviceEncryptionEnabled: True",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "5.1 Establish Secure Configurations"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "5.2 Use Unique Passwords"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "4.4 Use Unique Passwords"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "16 Account Monitoring and Control"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "2.2 Ensure Authorized Software is Currently Supported"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "2.3 Address Unauthorized Software"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "18.3 Verify That Acquired Software is Still Supported"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "18.4 Only Use Up-to-date And Trusted Third-Party Components"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "6.2 Establish an Access Revoking Process"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "5.1 Establish Secure Configurations"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "16.7 Establish Process for Revoking Access"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "5 Secure Configuration for Hardware and Software on Mobile Devices, Laptops, Workstations and Servers"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "16.11 Lock Workstation Sessions After Inactivity"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "4.3 Configure Automatic Session Locking on Enterprise Assets"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "3.6 Encrypt Data on End-User Devices"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "13.6 Encrypt the Hard Drive of All Mobile Devices."
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "10.6 Centrally Manage Anti-Malware Software"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "4.4 Implement and Manage a Firewall on Servers"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "8.1 Utilize Centrally Managed Anti-malware Software"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "8.2 Ensure Anti-Malware Software and Signatures are Updated"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "9.4 Apply Host-based Firewalls or Port Filtering"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "9.1 Ensure Use of Only Fully Supported Browsers and Email Clients"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "7 Email and Web Browser Protections"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "7.1 Ensure Use of Only Fully Supported Browsers and Email Clients"
+		}
+	]
+}

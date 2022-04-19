@@ -1,0 +1,13 @@
+{
+	"FindingName": "[VULNERABLE] - Tenant contains users without MFA. Considering enabling MFA for all users.",
+	"Description": "No Exchange Online Transport Rules are in place to block email auto-forwarding. Cyber adversaries often configure compromised Office 365 accounts to forward emails to external persons. It is therefore advisable to configure an Exchange transport rule that blocks auto forwarded emails.",
+	"Remediation": "Navigate to portal.azure.com > Azure Active Directory > Enterprise Applications > Security > Conditional Access > New Policy > 2. Cloud apps or action > All cloud apps (and don't exclude any apps) > 3. Assignments > Users and groups > Include > select All users (and do not exclude any user) > 4. Access Controls > Grant > Require multi-factor authentication (and nothing else) > Conditions > Client Apps > Configure (Yes) > Explicitly select Browser, Mobile apps and desktop clients, Modern authentication clients, Exchange ActiveSync clients, and Other clients. > 5. Leave all other conditions blank and make sure the policy is enabled and proceed creating the policy. ",
+	"Impact": "High",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "(L2) Ensure multifactor authentication is enabled for all users in all roles (Manual)"
+		}
+	]
+}

@@ -1,0 +1,17 @@
+{
+	"FindingName": "Audit Log Search Function not Enabled",
+	"Description": "With the function disabled it is harder to find the audit logs you need. Consider enabling it.",
+	"Remediation": "1. Log in as an administrator.> 2. Navigate to the Office 365 security & compliance center by going to https://protection.office.com > 3. In the Security & Compliance Center, expand Search then select Audit log search. > 4. Click Start recording user and admin activities next to the information warning at the top. > 5. Click Yes on the dialog box to confirm.",
+	"Impact": "Informational",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/office365/securitycompliance/turn-audit-log-search-on-or-off",
+			"Text": "Turn auditing on or off"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/exchange/security-and-compliance/mail-flow-rules/manage-mail-flow-rules",
+			"Text": "Set-AdminAuditLogConfig"
+		}
+	]
+}

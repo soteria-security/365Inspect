@@ -1,0 +1,15 @@
+{
+	"FindingName": "[VULNERABLE] - Multiple CIS Unapproved File Sharing Options are Enabled",
+	"Description": "Microsoft Teams enables collaboration via file sharing. This file sharing is conducted within Teams, using SharePoint Online, by default; however, third-party cloud services are allowed as well. ",
+	"Remediation": "1. Connect-MicrosoftTeams > 2. RUN Command: Set-CsTeamsClientConfiguration -AllowGoogleDrive $false -AllowShareFile $false -AllowBox $false -AllowDropBox $false -AllowEgnyte $false.",
+	"Impact": "High",
+	"DefaultValue": "All: True",
+	"ExpectedValue": "All: False",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/skypeforbusiness/set-up-skype-for-business-online/set-up-skype-for-business-online",
+			"Text": "Set up Skype for Business Online"
+		}
+	]
+}

@@ -1,0 +1,25 @@
+{
+	"FindingName": "VULNERABLE - CustomerLockbox Feature is disabled and could lead to data spillage and exfiltration!",
+	"Description": "You should enable the Customer Lockbox feature. It requires Microsoft to get your approval for any datacenter operation that grants a Microsoft support engineer or other employee direct access to any of your data.",
+	"Remediation": "1. Connect using Connect-ExchangeOnline. > 2. Run: Set-OrganizationConfig -CustomerLockBoxEnabled $true ",
+	"Impact": "High",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "3.1 Establish and Maintain a Data Management Process"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "3.13 Deploy a Data Loss Prevention Solution"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "13 Data Protection"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "13.3 Monitor and Block Unauthorized Network Traffic"
+		}
+	]
+}
