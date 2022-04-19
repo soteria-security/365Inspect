@@ -1,0 +1,17 @@
+{
+	"FindingName": "DLP Policies Not Enabled and Enforced",
+	"Description": "Policies were found in a state other than 'Enable'. The state of the policy determines what, if any, actions are taken when the policy is triggered. Reasons that a policy may be in a state other than 'Enable' include testing, policy deprecation, and auditing as well as potentially nefarious reasons. Policy state definitions are: \n- Enable: The policy is enabled for actions and notifications. This is the default value.\n- Disable: The policy is disabled.\n- TestWithNotifications: No actions are taken, but notifications are sent.\n- TestWithoutNotifications: An audit mode where no actions are taken, and no notifications are sent.",
+	"Remediation": "Validate that the current state of the policies returned are expected and remediate as necessary.",
+	"Impact": "Low",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/compliance/dlp-learn-about-dlp?view=o365-worldwide",
+			"Text": "Learn about data loss prevention"
+		},
+        {
+            "Url": "https://docs.microsoft.com/en-us/microsoft-365/compliance/create-test-tune-dlp-policy?view=o365-worldwide",
+            "Text": "Create, test, and tune a DLP policy"
+        }
+	]
+}
