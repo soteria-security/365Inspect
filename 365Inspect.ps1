@@ -5,6 +5,9 @@
   .DESCRIPTION
   Automate the security assessment of Microsoft Office 365 environments.
 
+  .PARAMETER ScriptLocation
+  Custom Script Location when your scripts are at a different directory than the parent.
+
   .PARAMETER OrgName
   The name of the core organization or "company" of your O365 instance, which will be inspected.
 
@@ -13,9 +16,6 @@
 
   .PARAMETER Auth
   Switch that should be one of the literal values "MFA", "CMDLINE", or "ALREADY_AUTHED".
-
-  .PARAMETER Scripts Directory
-  Optional: You could define the directory of the Inspector plugins. Default if you do not specify the directory must be in the same directory. The directory must be called 'inspectors'
 
   .PARAMETER Username
   Username of O365 account.
@@ -27,7 +27,7 @@
   None. You cannot pipe objects to 365Inspect.ps1.
 
   .OUTPUTS
-  None. 365Inspect.ps1 does not display error messages where necessary on the console.
+  None. 365Inspect.ps1 does not generate any output.
 
   .EXAMPLE
   PS> .\365Inspect.ps1
@@ -38,12 +38,12 @@ param (
 	[Parameter(Mandatory = $true,
 		HelpMessage = 'Organization name')]
 	[string] $OrgName,
-	[Parameter(Mandatory = $false,
-		HelpMessage = 'Custom Location of Inspectors Folder')]
-	[string] $ScriptLocation,
 	[Parameter(Mandatory = $true,
 		HelpMessage = 'Output path for report')]
 	[string] $OutPath,
+    [Parameter(Mandatory = $false,
+		HelpMessage = 'Custom Location of Inspectors Folder')]
+	[string] $ScriptLocation,
 	[Parameter(Mandatory = $true,
 		HelpMessage = 'Auth type')]
 	[ValidateSet('ALREADY_AUTHED', 'MFA',
@@ -59,90 +59,122 @@ $out_path = $OutPath
 $selected_inspectors = $SelectedInspectors
 $excluded_inspectors = $ExcludedInspectors
 
+. .\Write-ErrorLog.ps1
 
-Function Connect-Services {
-	# Log into every service prior to the analysis.
-	If ($auth -EQ "MFA") {
-		Write-Output "Connecting to MSOnline Service"
-		Connect-MsolService
-		Write-Output "Connecting to Azure Active Directory"
-		Connect-AzureAD #-AccountId $Username
-		Write-Output "Connecting to Exchange Online"
-		Connect-ExchangeOnline #-UserPrincipalName $Username -ShowBanner:$false
-		Write-Output "Connecting to SharePoint Service"
-		Connect-SPOService -Url https://$org_name-admin.sharepoint.com
-		Write-Output "Connecting to Microsoft Teams"
-		Connect-MicrosoftTeams #-AccountId $Username
-		Write-Output "Connecting and consenting to Microsoft Intune"
-		Connect-MSGraph -AdminConsent
-		Connect-MSGraph
-		Write-Output "Connecting to Microsoft Graph"
-		Connect-MgGraph -Scopes "AuditLog.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "MailboxSettings.Read"
-		Write-Output "Connecting to IPPSSession..."
-		Connect-IPPSSession
+Function Connect-Services{
+	Try {
+		# Log into every service prior to the analysis.
+		If ($auth -EQ "MFA") {
+			Write-Output "Connecting to MSOnline Service"
+			Connect-MsolService
+			Write-Output "Connecting to Azure Active Directory"
+			Connect-AzureAD #-AccountId $Username
+			Write-Output "Connecting to Exchange Online"
+			Connect-ExchangeOnline #-UserPrincipalName $Username -ShowBanner:$false
+			Write-Output "Connecting to SharePoint Service"
+			Connect-SPOService -Url "https://$org_name-admin.sharepoint.com"
+			Write-Output "Connecting to Microsoft Teams"
+			Connect-MicrosoftTeams #-AccountId $Username
+			Write-Output "Connecting and consenting to Microsoft Intune"
+			Connect-MSGraph -AdminConsent
+			Connect-MSGraph
+			Write-Output "Connecting to Microsoft Graph"
+			Connect-MgGraph -Scopes "AuditLog.Read.All","Policy.Read.All","Directory.Read.All","IdentityProvider.Read.All","Organization.Read.All","Securityevents.Read.All","ThreatIndicators.Read.All","SecurityActions.Read.All","User.Read.All","UserAuthenticationMethod.Read.All","MailboxSettings.Read"
+				Write-Output "Connecting to IPPSSession..."
+			Connect-IPPSSession
+		}
+	}
+	Catch {
+	Write-Warning "Error message: $_"
+	$message = $_.ToString()
+	$exception = $_.Exception
+	$strace = $_.ScriptStackTrace
+	$failingline = $_.InvocationInfo.Line
+	$positionmsg = $_.InvocationInfo.PositionMessage
+	$pscommandpath = $_.InvocationInfo.PSCommandPath
+	$failinglinenumber = $_.InvocationInfo.ScriptLineNumber
+	$scriptname = $_.InvocationInfo.ScriptName
+	Write-Verbose "Write to log"
+	Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
+	Write-Verbose "Errors written to log"
 	}
 }
 
 #Function to change color of text on errors for specific messages
-Function Colorize($ForeGroundColor) {
-	$color = $Host.UI.RawUI.ForegroundColor
-	$Host.UI.RawUI.ForegroundColor = $ForeGroundColor
+Function Colorize($ForeGroundColor){
+    $color = $Host.UI.RawUI.ForegroundColor
+    $Host.UI.RawUI.ForegroundColor = $ForeGroundColor
   
-	if ($args) {
-		Write-Output $args
-	}
+    if ($args){
+      Write-Output $args
+    }
   
-	$Host.UI.RawUI.ForegroundColor = $color
+    $Host.UI.RawUI.ForegroundColor = $color
+  }
+
+
+Function Confirm-Close{
+    Read-Host "Press Enter to Exit"
+    Exit
 }
 
+Function Confirm-InstalledModules{
+	Try {
+		#Check for required Modules and prompt for install if missing
+		
+		#A little trickery to get the Azure AD Module version installed
+		If ($null -eq ($AAD = Get-InstalledModule | Where-Object {$_.name -like "AzureAd*"} | Select-Object Name)){
+			$AAD = "AzureADPreview"
+			} Else {
+			$AAD = $AAD.Name
+			}
 
-Function Confirm-Close {
-	Read-Host "Press Enter to Exit"
-	Exit
-}
+		$modules = @("MSOnline",$AAD,"ExchangeOnlineManagement","Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph","MicrosoftTeams", "Microsoft.Graph.Intune")
+		$count = 0
+		$installed = Get-InstalledModule
 
-Function Confirm-InstalledModules {
-	#Check for required Modules and prompt for install if missing
-	
-	#A little trickery to get the Azure AD Module version installed
-	If ($null -eq ($AAD = Get-InstalledModule | Where-Object { $_.name -like "AzureAd*" } | Select-Object Name)) {
-		$AAD = "AzureADPreview"
-	}
- Else {
-		$AAD = $AAD.Name
-	}
-
-	$modules = @("MSOnline", $AAD, "ExchangeOnlineManagement", "Microsoft.Online.Sharepoint.PowerShell", "Microsoft.Graph", "MicrosoftTeams", "Microsoft.Graph.Intune")
-	$count = 0
-	$installed = Get-InstalledModule
-
-	foreach ($module in $modules) {
-		if ($installed.Name -notcontains $module) {
-			$message = Write-Output "`n$module is not installed."
-			$message1 = Write-Output 'The module may be installed by running "Install-Module $module -Force -Scope CurrentUser -Confirm:$false" in an elevated PowerShell window.'
-			Colorize Red ($message)
-			Colorize Yellow ($message1)
-			$install = Read-Host -Prompt "Would you like to attempt installation now? (Y|N)"
-			If ($install -eq 'y') {
-				Install-Module $module -Scope CurrentUser -Force -Confirm:$false
+		foreach ($module in $modules){
+			if ($installed.Name -notcontains $module){
+				$message = Write-Output "`n$module is not installed."
+				$message1 = Write-Output 'The module may be installed by running "Install-Module $module -Force -Scope CurrentUser -Confirm:$false" in an elevated PowerShell window.'
+				Colorize Red ($message)
+				Colorize Yellow ($message1)
+				$install = Read-Host -Prompt "Would you like to attempt installation now? (Y|N)"
+				If ($install -eq 'y') {
+					Install-Module $module -Scope CurrentUser -Force -Confirm:$false
+					$count ++
+				}
+			}
+			Else {
+				Write-Output "$module is installed."
 				$count ++
 			}
 		}
+
+		If ($count -lt 7){
+			Write-Output ""
+			Write-Output ""
+			$message = Write-Output "Dependency checks failed. Please install all missing modules before running this script."
+			Colorize Red ($message)
+			Confirm-Close
+		}
 		Else {
-			Write-Output "$module is installed."
-			$count ++
+			Connect-Services
 		}
 	}
-
-	If ($count -lt 7) {
-		Write-Output ""
-		Write-Output ""
-		$message = Write-Output "Dependency checks failed. Please install all missing modules before running this script."
-		Colorize Red ($message)
-		Confirm-Close
-	}
-	Else {
-		Connect-Services
+	Catch {
+	Write-Warning "Error message: $_"
+	$message = $_.ToString()
+	$exception = $_.Exception
+	$strace = $_.ScriptStackTrace
+	$failingline = $_.InvocationInfo.Line
+	$positionmsg = $_.InvocationInfo.PositionMessage
+	$pscommandpath = $_.InvocationInfo.PSCommandPath
+	$failinglinenumber = $_.InvocationInfo.ScriptLineNumber
+	$scriptname = $_.InvocationInfo.ScriptName
+	Write-Verbose "Write to log"
+	Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
+	Write-Verbose "Errors written to log"
 	}
 
 }
@@ -155,51 +187,25 @@ Confirm-InstalledModules
 # Get a list of every available detection module by parsing the PowerShell
 # scripts present in the .\inspectors folder. 
 #Exclude specified Inspectors
-
-#NEW ADDON SCRIPT THAT CAN ALSO NOW INCLUDE CUSTOM LOCATION DETERMINED BY USER-INPUT
-
-if ($ScriptLocation -eq '') {
-	try {
-		If ($excluded_inspectors -and $excluded_inspectors.Count) {
-			$excluded_inspectors = foreach ($inspector in $excluded_inspectors) { "$inspector.ps1" }
-			$inspectors = (Get-ChildItem .\inspectors\*.ps1 -exclude $excluded_inspectors).Name | ForEach-Object { ($_ -split ".ps1")[0] }
-		}
-		else {
-			$inspectors = (Get-ChildItem .\inspectors\*.ps1).Name | ForEach-Object { ($_ -split ".ps1")[0] }
-		}
-	}
-	catch {
-		'An Error Occured trying to find the Inspectors in $inspectors'
-	}
+If ($excluded_inspectors -and $excluded_inspectors.Count){
+	$excluded_inspectors = foreach ($inspector in $excluded_inspectors){"$inspector.ps1"}
+	$inspectors = (Get-ChildItem .\inspectors\*.ps1 -exclude $excluded_inspectors).Name | ForEach-Object { ($_ -split ".ps1")[0] }
 }
 else {
-	try {
-		If ($excluded_inspectors -and $excluded_inspectors.Count) {
-			$excluded_inspectors = foreach ($inspector in $excluded_inspectors) { "$inspector.ps1" }
-			$inspectors = (Get-ChildItem -Path $ScriptLocation -exclude $excluded_inspectors).Name | ForEach-Object { ($_ -split ".ps1")[0] }
-		}
-		else {
-			$inspectors = (Get-ChildItem $ScriptLocation\*.ps1).Name | ForEach-Object { ($_ -split ".ps1")[0] }
-		}
-	}
-	catch [MethodException] {
-		'An Error Occured trying to find the Inspectors in $inspectors'
-	}
+	$inspectors = (Get-ChildItem .\inspectors\*.ps1).Name | ForEach-Object { ($_ -split ".ps1")[0] }
 }
-
-
 
 #Use Selected Inspectors
 If ($selected_inspectors -AND $selected_inspectors.Count) {
 	"The following inspectors were selected for use: "
-	Foreach ($inspector in $selected_inspectors) {
+	Foreach ($inspector in $selected_inspectors){
 		Write-Output $inspector
 	}
 }
 elseif ($excluded_Inspectors -and $excluded_inspectors.Count) {
 	$selected_inspectors = $inspectors
 	Write-Output "Using inspectors:`n"
-	Foreach ($inspector in $inspectors) {
+	Foreach ($inspector in $inspectors){
 		Write-Output $inspector
 	}
 }
@@ -211,7 +217,7 @@ Else {
 #Create Output Directory if required
 Try {
 	New-Item -ItemType Directory -Force -Path $out_path | Out-Null
-	If ((Test-Path $out_path) -eq $true) {
+	If ((Test-Path $out_path) -eq $true){
 		$path = Resolve-Path $out_path
 		Write-Output "$($path.Path) created successfully."
 	}
@@ -226,60 +232,78 @@ $findings = @()
 
 # For every inspector the user wanted to run...
 ForEach ($selected_inspector in $selected_inspectors) {
-	# ...if the user selected a valid inspector...
-	If ($inspectors.Contains($selected_inspector)) {
-		Write-Output "Invoking Inspector: $selected_inspector"
-		if ($ScriptLocation -eq '') {
-			try {
-				# Get the static data (finding description, remediation etc.) associated with that inspector module.
-				$finding = Get-Content .\inspectors\$selected_inspector.json | Out-String | ConvertFrom-Json
-		
-				# Invoke the actual inspector module and store the resulting list of insecure objects.
-				$finding.AffectedObjects = Invoke-Expression ".\inspectors\$selected_inspector.ps1"
-			}
-			catch {
-				'An Error Occured trying to open the .json files in $finding'
-			}
+	Try {
+		# ...if the user selected a valid inspector...
+		If ($inspectors.Contains($selected_inspector)) {
+			Write-Output "Invoking Inspector: $selected_inspector"
+			
+			# Get the static data (finding description, remediation etc.) associated with that inspector module.
+			$finding = Get-Content .\inspectors\$selected_inspector.json | Out-String | ConvertFrom-Json
+			
+			# Invoke the actual inspector module and store the resulting list of insecure objects.
+			$finding.AffectedObjects = Invoke-Expression ".\inspectors\$selected_inspector.ps1"
+			
+			# Add the finding to the list of all findings.
+			$findings += $finding
 		}
-		else {
-			try {
-				$finding = Get-Content $ScriptLocation\$selected_inpsector.json | Out-String | ConvertFrom-Json
-
-				$finding.AffectedObjects = Invoke-Expression "$ScriptLocation\$selected_inspector.ps1"
-			}
-			catch { 'An Error Occured trying to find the affected objects $finding' }
-		}
-		
-		# Add the finding to the list of all findings.
-		$findings += $finding
+	}
+	Catch {
+	Write-Warning "Error message: $_"
+	$message = $_.ToString()
+	$exception = $_.Exception
+	$strace = $_.ScriptStackTrace
+	$failingline = $_.InvocationInfo.Line
+	$positionmsg = $_.InvocationInfo.PositionMessage
+	$pscommandpath = $_.InvocationInfo.PSCommandPath
+	$failinglinenumber = $_.InvocationInfo.ScriptLineNumber
+	$scriptname = $_.InvocationInfo.ScriptName
+	Write-Verbose "Write to log"
+	Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
+	Write-Verbose "Errors written to log"
 	}
 }
 
 # Function that retrieves templating information from 
 function Parse-Template {
-	$template = (Get-Content ".\365InspectDefaultTemplate.html") -join "`n"
-	$template -match '\<!--BEGIN_FINDING_LONG_REPEATER-->([\s\S]*)\<!--END_FINDING_LONG_REPEATER-->'
-	$findings_long_template = $matches[1]
-	
-	$template -match '\<!--BEGIN_FINDING_SHORT_REPEATER-->([\s\S]*)\<!--END_FINDING_SHORT_REPEATER-->'
-	$findings_short_template = $matches[1]
-	
-	$template -match '\<!--BEGIN_AFFECTED_OBJECTS_REPEATER-->([\s\S]*)\<!--END_AFFECTED_OBJECTS_REPEATER-->'
-	$affected_objects_template = $matches[1]
-	
-	$template -match '\<!--BEGIN_REFERENCES_REPEATER-->([\s\S]*)\<!--END_REFERENCES_REPEATER-->'
-	$references_template = $matches[1]
-	
-	$template -match '\<!--BEGIN_EXECSUM_TEMPLATE-->([\s\S]*)\<!--END_EXECSUM_TEMPLATE-->'
-	$execsum_template = $matches[1]
-	
-	return @{
-		FindingShortTemplate    = $findings_short_template;
-		FindingLongTemplate     = $findings_long_template;
-		AffectedObjectsTemplate = $affected_objects_template;
-		ReportTemplate          = $template;
-		ReferencesTemplate      = $references_template;
-		ExecsumTemplate         = $execsum_template
+	Try {
+		$template = (Get-Content ".\365InspectDefaultTemplate.html") -join "`n"
+		$template -match '\<!--BEGIN_FINDING_LONG_REPEATER-->([\s\S]*)\<!--END_FINDING_LONG_REPEATER-->'
+		$findings_long_template = $matches[1]
+		
+		$template -match '\<!--BEGIN_FINDING_SHORT_REPEATER-->([\s\S]*)\<!--END_FINDING_SHORT_REPEATER-->'
+		$findings_short_template = $matches[1]
+		
+		$template -match '\<!--BEGIN_AFFECTED_OBJECTS_REPEATER-->([\s\S]*)\<!--END_AFFECTED_OBJECTS_REPEATER-->'
+		$affected_objects_template = $matches[1]
+		
+		$template -match '\<!--BEGIN_REFERENCES_REPEATER-->([\s\S]*)\<!--END_REFERENCES_REPEATER-->'
+		$references_template = $matches[1]
+		
+		$template -match '\<!--BEGIN_EXECSUM_TEMPLATE-->([\s\S]*)\<!--END_EXECSUM_TEMPLATE-->'
+		$execsum_template = $matches[1]
+		
+		return @{
+			FindingShortTemplate    = $findings_short_template;
+			FindingLongTemplate     = $findings_long_template;
+			AffectedObjectsTemplate = $affected_objects_template;
+			ReportTemplate          = $template;
+			ReferencesTemplate      = $references_template;
+			ExecsumTemplate         = $execsum_template
+		}
+	}
+	Catch {
+	Write-Warning "Error message: $_"
+	$message = $_.ToString()
+	$exception = $_.Exception
+	$strace = $_.ScriptStackTrace
+	$failingline = $_.InvocationInfo.Line
+	$positionmsg = $_.InvocationInfo.PositionMessage
+	$pscommandpath = $_.InvocationInfo.PSCommandPath
+	$failinglinenumber = $_.InvocationInfo.ScriptLineNumber
+	$scriptname = $_.InvocationInfo.ScriptName
+	Write-Verbose "Write to log"
+	Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
+	Write-Verbose "Errors written to log"
 	}
 }
 
@@ -292,65 +316,62 @@ $long_findings_html = ''
 $findings_count = 0
 
 #$sortedFindings1 = $findings | Sort-Object {$_.FindingName}
-$sortedFindings = $findings | Sort-Object { Switch -Regex ($_.Impact) { 'Critical' { 1 }	'High' { 2 }	'Medium' { 3 }	'Low' { 4 }	'Informational' { 5 } }; $_.FindingName } 
+$sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Impact){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}};$_.FindingName} 
 ForEach ($finding in $sortedFindings) {
-	# If the result from the inspector was not $null,
-	# it identified a real finding that we must process.
-	If ($null -NE $finding.AffectedObjects) {
-		# Increment total count of findings
-		$findings_count += 1
-		
-		# Keep an HTML variable representing the current finding as HTML
-		$short_finding_html = $templates.FindingShortTemplate
-		$long_finding_html = $templates.FindingLongTemplate
-		
-		# Insert finding name and number into template HTML
-		$short_finding_html = $short_finding_html.Replace("{{FINDING_NAME}}", $finding.FindingName)
-		$short_finding_html = $short_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
-		$long_finding_html = $long_finding_html.Replace("{{FINDING_NAME}}", $finding.FindingName)
-		$long_finding_html = $long_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
-		
-		# Finding Impact
-		$short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $finding.Impact)
-		$long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $finding.Impact)
-		
-		# Finding description
-		$long_finding_html = $long_finding_html.Replace("{{DESCRIPTION}}", $finding.Description)
-		
-		# Finding Remediation
-		If ($finding.Remediation.length -GT 300) {
-			$short_finding_text = "Complete remediation advice is provided in the body of the report. Clicking the link to the left will take you there."
-		}
-		Else {
-			$short_finding_text = $finding.Remediation
-		}
-		
-		$short_finding_html = $short_finding_html.Replace("{{REMEDIATION}}", $short_finding_text)
-		$long_finding_html = $long_finding_html.Replace("{{REMEDIATION}}", $finding.Remediation)
-
-		
-		# Affected Objects
-		If ($finding.AffectedObjects.Count -GT 15) {
-			$condensed = "<a href='{name}'>{count} Affected Objects Identified<a/>."
-			$condensed = $condensed.Replace("{count}", $finding.AffectedObjects.Count.ToString())
-			$condensed = $condensed.Replace("{name}", $finding.FindingName)
-			$affected_object_html = $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $condensed)
-			$fname = $finding.FindingName
-			$finding.AffectedObjects | Out-File -FilePath $out_path\$fname
-		}
-		Else {
-			$affected_object_html = ''
-			ForEach ($affected_object in $finding.AffectedObjects) {
-				$affected_object_html += $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $affected_object)
+	Try {
+		# If the result from the inspector was not $null,
+		# it identified a real finding that we must process.
+		If ($null -NE $finding.AffectedObjects) {
+			# Increment total count of findings
+			$findings_count += 1
+			
+			# Keep an HTML variable representing the current finding as HTML
+			$short_finding_html = $templates.FindingShortTemplate
+			$long_finding_html = $templates.FindingLongTemplate
+			
+			# Insert finding name and number into template HTML
+			$short_finding_html = $short_finding_html.Replace("{{FINDING_NAME}}", $finding.FindingName)
+			$short_finding_html = $short_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
+			$long_finding_html = $long_finding_html.Replace("{{FINDING_NAME}}", $finding.FindingName)
+			$long_finding_html = $long_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
+			
+			# Finding Impact
+			$short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $finding.Impact)
+			$long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $finding.Impact)
+			
+			# Finding description
+			$long_finding_html = $long_finding_html.Replace("{{DESCRIPTION}}", $finding.Description)
+			
+			# Finding Remediation
+			If ($finding.Remediation.length -GT 300) {
+				$short_finding_text = "Complete remediation advice is provided in the body of the report. Clicking the link to the left will take you there."
 			}
-		}
-		
-		try {
+			Else {
+				$short_finding_text = $finding.Remediation
+			}
+			
+			$short_finding_html = $short_finding_html.Replace("{{REMEDIATION}}", $short_finding_text)
+			$long_finding_html = $long_finding_html.Replace("{{REMEDIATION}}", $finding.Remediation)
+			
+			# Affected Objects
+			If ($finding.AffectedObjects.Count -GT 15) {
+				$condensed = "<a href='{name}'>{count} Affected Objects Identified<a/>."
+				$condensed = $condensed.Replace("{count}", $finding.AffectedObjects.Count.ToString())
+				$condensed = $condensed.Replace("{name}", $finding.FindingName)
+				$affected_object_html = $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $condensed)
+				$fname = $finding.FindingName
+				$finding.AffectedObjects | Out-File -FilePath $out_path\$fname
+			}
+			Else {
+				$affected_object_html = ''
+				ForEach ($affected_object in $finding.AffectedObjects) {
+					$affected_object_html += $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $affected_object)
+				}
+			}
+			
 			$long_finding_html = $long_finding_html.Replace($templates.AffectedObjectsTemplate, $affected_object_html)
-		}
-		catch { 'An Error has Occured!' }
 
-		#Finding Default Value
+        #Finding Default Value
         $defaultval_html = ''
 		ForEach ($DefaultValue in $finding.DefaultValue) {
 			if ($finding.DefaultValue -eq '' -or $null) {
@@ -381,20 +402,35 @@ ForEach ($finding in $sortedFindings) {
             $long_finding_html = $long_finding_html.Replace("{{EXPECTEDVALUE}}", $finding.ExpectedValue)
             }
 		}		
-
-		# References
-		$reference_html = ''
-		ForEach ($reference in $finding.References) {
-			$this_reference = $templates.ReferencesTemplate.Replace("{{REFERENCE_URL}}", $reference.Url)
-			$this_reference = $this_reference.Replace("{{REFERENCE_TEXT}}", $reference.Text)
-			$reference_html += $this_reference
+			
+			# References
+			$reference_html = ''
+			ForEach ($reference in $finding.References) {
+				$this_reference = $templates.ReferencesTemplate.Replace("{{REFERENCE_URL}}", $reference.Url)
+				$this_reference = $this_reference.Replace("{{REFERENCE_TEXT}}", $reference.Text)
+				$reference_html += $this_reference
+			}
+			
+			$long_finding_html = $long_finding_html.Replace($templates.ReferencesTemplate, $reference_html)
+			
+			# Add the completed short and long findings to the running list of findings (in HTML)
+			$short_findings_html += $short_finding_html
+			$long_findings_html += $long_finding_html
 		}
-		
-		$long_finding_html = $long_finding_html.Replace($templates.ReferencesTemplate, $reference_html)
-		
-		# Add the completed short and long findings to the running list of findings (in HTML)
-		$short_findings_html += $short_finding_html
-		$long_findings_html += $long_finding_html
+	}
+	Catch {
+	Write-Warning "Error message: $_"
+	$message = $_.ToString()
+	$exception = $_.Exception
+	$strace = $_.ScriptStackTrace
+	$failingline = $_.InvocationInfo.Line
+	$positionmsg = $_.InvocationInfo.PositionMessage
+	$pscommandpath = $_.InvocationInfo.PSCommandPath
+	$failinglinenumber = $_.InvocationInfo.ScriptLineNumber
+	$scriptname = $_.InvocationInfo.ScriptName
+	Write-Verbose "Write to log"
+	Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
+	Write-Verbose "Errors written to log"
 	}
 }
 
