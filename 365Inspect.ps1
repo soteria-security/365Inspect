@@ -5,9 +5,6 @@
   .DESCRIPTION
   Automate the security assessment of Microsoft Office 365 environments.
 
-  .PARAMETER ScriptLocation
-  Custom Script Location when your scripts are at a different directory than the parent.
-
   .PARAMETER OrgName
   The name of the core organization or "company" of your O365 instance, which will be inspected.
 
@@ -41,9 +38,6 @@ param (
 	[Parameter(Mandatory = $true,
 		HelpMessage = 'Output path for report')]
 	[string] $OutPath,
-    [Parameter(Mandatory = $false,
-		HelpMessage = 'Custom Location of Inspectors Folder')]
-	[string] $ScriptLocation,
 	[Parameter(Mandatory = $true,
 		HelpMessage = 'Auth type')]
 	[ValidateSet('ALREADY_AUTHED', 'MFA',
@@ -371,7 +365,7 @@ ForEach ($finding in $sortedFindings) {
 			
 			$long_finding_html = $long_finding_html.Replace($templates.AffectedObjectsTemplate, $affected_object_html)
 
-        #Finding Default Value
+            #Finding Default Value
         $defaultval_html = ''
 		ForEach ($DefaultValue in $finding.DefaultValue) {
 			if ($finding.DefaultValue -eq '' -or $null) {
@@ -401,7 +395,7 @@ ForEach ($finding in $sortedFindings) {
             }else{
             $long_finding_html = $long_finding_html.Replace("{{EXPECTEDVALUE}}", $finding.ExpectedValue)
             }
-		}		
+		}	
 			
 			# References
 			$reference_html = ''
@@ -445,7 +439,6 @@ $output = $output.Replace($templates.ExecsumTemplate, $templates.ExecsumTemplate
 
 $output | Out-File -FilePath $out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss").html
 
-#Checks if file already exists by executing a try. 
 try {
 	$compress = @{
 		Path             = $out_path
