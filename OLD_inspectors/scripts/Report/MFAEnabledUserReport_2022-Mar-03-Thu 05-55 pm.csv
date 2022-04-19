@@ -1,7 +1,0 @@
-"DisplayName","UserPrincipalName","MFAStatus","ActivationStatus","DefaultMFAMethod","AllMFAMethods","MFAPhone","MFAEmail","LicenseStatus","IsAdmin","AdminRoles","SignInStatus"
-"Leonardo van de Weteringh","leonardo.vandeweteringh@astercomputers.nl","Enforced","Yes","PhoneAppNotification","OneWaySMS,TwoWayVoiceMobile,PhoneAppOTP,PhoneAppNotification","+31 0653622779","leonardo.vandeweteringh@asterict.nl","Licensed","True","Company Administrator","Allowed"
-"VeeamOffice365","SvcVeeamO365@astercomputers.onmicrosoft.com","Enforced","Yes","OneWaySMS","OneWaySMS,TwoWayVoiceMobile","+31 0628785500","-","Unlicensed","True","SharePoint Administrator","Allowed"
-"Aster Admin","AdmAster@astercomputers.onmicrosoft.com","Enforced","No","-","-","-","-","Unlicensed","True","Company Administrator","Allowed"
-"Stefan de Vries","stefan@astercomputers.nl","Enabled via Conditional Access","Yes","PhoneAppNotification","OneWaySMS,TwoWayVoiceMobile,PhoneAppOTP,PhoneAppNotification","+31 0628785500","-","Licensed","True","Company Administrator","Allowed"
-"Marinus van Schagen","marinus@astercomputers.nl","Enabled via Conditional Access","Yes","PhoneAppNotification","OneWaySMS,TwoWayVoiceMobile,PhoneAppOTP,PhoneAppNotification","+31 625138534","-","Licensed","True","Company Administrator","Allowed"
-"asttest","asttest@astercomputers.nl","Enabled","No","-","-","-","-","Unlicensed","False","No roles","Allowed"
