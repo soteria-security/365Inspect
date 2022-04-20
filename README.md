@@ -1,10 +1,24 @@
+# About 365Inspect
+
+365*Inspect* is a Microsoft365 Audit script that runs additional so-called 'inspector scripts'-modules stored in the .\inspectors folder. 
+
 # Purpose
 
-Further the state of O365 security by authoring a PowerShell script that automates the security assessment of Microsoft Office 365 environments.
+365Inspect checks a Microsoft365 environment's security (Azure, O365, Teams, SharePoint, etc.) by authoring a PowerShell script that automates the security assessment by executing additional PowerShell scripts that contain audit modules. Some of the audit modules are based on the CIS Baseline made by [CISSecurity](https://www.cisecurity.org/cis-benchmarks/). 
+
+# Advantages
+
+With M365Inspect you can:
+	
+* Audit your M365 Environments or your customer's M365 environments,
+	
+* Create additional modules called 'Inspectors' to expand the depth of assessing an M365 environment,
+
+* Create a clear report with the vulnerabilities and misconfigurations regarding the M365 environment,
 
 # Setup
 
-365*Inspect* requires the administrative PowerShell modules for Microsoft Online, Azure AD (We recommend installing the AzureADPreview module), Exchange administration, Microsoft Graph, Microsoft Intune, Microsoft Teams, and Sharepoint administration. 
+365*Inspect* requires the administrative PowerShell modules for Microsoft Online, Azure AD (We recommend installing the AzureADPreview module), Exchange Online Administration, Sharepoint Administration, Microsoft Intune,Microsoft Teams and Microsoft Graph.
 
 The 365*Inspect*.ps1 PowerShell script will validate the installed modules.
 
@@ -86,13 +100,18 @@ When you execute 365*Inspect* with *-Auth MFA*, it may produce several graphical
 
 As 365*Inspect* executes, it will steadily print status updates indicating which inspection task is running.
 
-365*Inspect* may take some time to execute. This time scales with the size and complexity of the environment under test. For example, some inspection tasks involve scanning the account configuration of all users. This may occur near-instantly for an organization with 50 users, or could take entire minutes (!) for an organization with 10000. 
+365*Inspect* may take some time to execute. This time scales with the size and complexity of the environment under test. For example, some inspection tasks involve scanning the account configuration of all users. This may occur near-instantly for an organization with 50 users, or could take entire minutes (!) for an organization with 10000.
+
+As with any other script you may run with elevated privileges, you should observe certain security hygiene practices:
+
+* No untrusted user should have write access to the 365*Inspect* folder/files, as that user could then overwrite scripts or templates therein and induce you to run malicious code.
+* No script module should be placed in .\inspectors unless you trust the source of that script module.
 
 # Output
 
 365*Inspect* creates the directory specified in the out_path parameter. This directory is the result of the entire 365*Inspect* inspection. It contains four items of note:
 
-* *Report.html*: graphical report that describes the O365 security issues identified by 365*Inspect*, lists O365 objects that are misconfigured, and provides remediation advice.
+* *Report.html*: graphical report that describes the M365 security issues identified by 365*Inspect*, lists O365 objects that are misconfigured, and provides remediation advice.
 * *Various text files named [Inspector-Name]*: these are raw output from inspector modules and contain a list (one item per line) of misconfigured O365 objects that contain the described security flaw. For example, if a module Inspect-FictionalMFASettings were to detect all users who do not have MFA set up, the file "Inspect-FictionalMFASettings" in the report ZIP would contain one user per line who does not have MFA set up. This information is only dumped to a file in cases where more than 15 affected objects are discovered. If less than 15 affected objects are discovered, the objects are listed directly in the main HTML report body.
 * *Report.zip*: zipped version of this entire directory, for convenient distribution of the results in cases where some inspector modules generated a large amount of findings.
 * *Log directory*: 365*Inspect* logs any errors encountered during the scripts execution to a timestamped log file found in the Log directory
@@ -106,7 +125,7 @@ As 365*Inspect* executes, it will steadily print status updates indicating which
 
 We realize that these are extremely permissive roles, unfortunately due to the use of Microsoft Graph, we are restricted from using lesser prileges by Microsoft. Application and Cloud Application Administrator roles (used to grant delegated and application permissions) are restricted from granting permissions for Microsoft Graph or Azure AD PowerShell modules. [https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-administrator](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-administrator) 
 
-# Developing Inspector Modules
+# Developing Additional Inspector Modules
 
 365*Inspect* is designed to be easy to expand, with the hope that it enables individuals and organizations to either utilize their own 365*Inspect* modules internally, or publish those modules for the O365 community.
 
@@ -118,6 +137,8 @@ It is simple to create an inspector module. Inspectors have two files:
 * *ModuleName.json*: metadata about the inspector itself. For example, the finding name, description, remediation information, and references.
 
 The PowerShell and JSON file names must be identical for 365*Inspect* to recognize that the two belong together. There are numerous examples in 365*Inspect*'s built-in suite of modules, but we'll put an example here too.
+
+## Example
 
 Example .ps1 file, BypassingSafeAttachments.ps1:
 ```
@@ -169,10 +190,3 @@ Once you drop these two files in the .\inspectors folder, they are considered pa
 You have just created the BypassingSafeAttachments Inspector module. That's all!
 
 365*Inspect* will throw a pretty loud and ugly error if something in your module doesn't work or doesn't follow 365*Inspect* conventions, so monitor the command line output.
-
-# About Security
-
-365*Inspect* is a script harness that runs other inspector script modules stored in the .\inspectors folder. As with any other script you may run with elevated privileges, you should observe certain security hygiene practices:
-
-* No untrusted user should have write access to the 365*Inspect* folder/files, as that user could then overwrite scripts or templates therein and induce you to run malicious code.
-* No script module should be placed in .\inspectors unless you trust the source of that script module.
