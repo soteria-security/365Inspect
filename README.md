@@ -101,12 +101,7 @@ When you execute 365*Inspect* with *-Auth MFA*, it may produce several graphical
 
 As 365*Inspect* executes, it will steadily print status updates indicating which inspection task is running.
 
-365*Inspect* may take some time to execute. This time scales with the size and complexity of the environment under test. For example, some inspection tasks involve scanning the account configuration of all users. This may occur near-instantly for an organization with 50 users, or could take entire minutes (!) for an organization with 10000.
-
-As with any other script you may run with elevated privileges, you should observe certain security hygiene practices:
-
-* No untrusted user should have write access to the 365*Inspect* folder/files, as that user could then overwrite scripts or templates therein and induce you to run malicious code.
-* No script module should be placed in .\inspectors unless you trust the source of that script module.
+365*Inspect* may take some time to execute. This time scales with the size and complexity of the environment under test. For example, some inspection tasks involve scanning the account configuration of all users. This may occur near-instantly for an organization with 50 users, or could take entire minutes (!) for an organization with 10000. 
 
 ## Output
 
@@ -191,6 +186,13 @@ Once you drop these two files in the .\inspectors folder, they are considered pa
 You have just created the BypassingSafeAttachments Inspector module. That's all!
 
 365*Inspect* will throw a pretty loud and ugly error if something in your module doesn't work or doesn't follow 365*Inspect* conventions, so monitor the command line output.
+
+## About Security
+
+365*Inspect* is a script harness that runs other inspector script modules stored in the .\inspectors folder. As with any other script you may run with elevated privileges, you should observe certain security hygiene practices:
+
+* No untrusted user should have write access to the 365*Inspect* folder/files, as that user could then overwrite scripts or templates therein and induce you to run malicious code.
+* No script module should be placed in .\inspectors unless you trust the source of that script module.
 
 ## Special Thanks To...
 * [CISSecurity](https://www.cisecurity.org/cis-benchmarks/): For providing the M365 benchmarks to make audit scripts
