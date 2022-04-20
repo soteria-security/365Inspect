@@ -339,7 +339,6 @@ ForEach ($finding in $sortedFindings) {
 			# Finding Remediation
 			If ($finding.Remediation.length -GT 300) {
 				$short_finding_text = "Complete remediation advice is provided in the body of the report. Clicking the link to the left will take you there."
-
 			}
 			Else {
 				$short_finding_text = $finding.Remediation
@@ -380,48 +379,9 @@ ForEach ($finding in $sortedFindings) {
 			}
 			else {
 				$long_finding_html = $long_finding_html.Replace("{{DEFAULTVALUE}}", $finding.DefaultValue)
-
 			}
-			Else {
-				$short_finding_text = $finding.Remediation
-			}
-			
-			$short_finding_html = $short_finding_html.Replace("{{REMEDIATION}}", $short_finding_text)
-			$long_finding_html = $long_finding_html.Replace("{{REMEDIATION}}", $finding.Remediation)
-			
-			# Affected Objects
-			If ($finding.AffectedObjects.Count -GT 15) {
-				$condensed = "<a href='{name}'>{count} Affected Objects Identified<a/>."
-				$condensed = $condensed.Replace("{count}", $finding.AffectedObjects.Count.ToString())
-				$condensed = $condensed.Replace("{name}", $finding.FindingName)
-				$affected_object_html = $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $condensed)
-				$fname = $finding.FindingName
-				$finding.AffectedObjects | Out-File -FilePath $out_path\$fname
-			}
-			Else {
-				$affected_object_html = ''
-				ForEach ($affected_object in $finding.AffectedObjects) {
-					$affected_object_html += $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $affected_object)
-				}
-			}
-			
-			$long_finding_html = $long_finding_html.Replace($templates.AffectedObjectsTemplate, $affected_object_html)
-			
-			# References
-			$reference_html = ''
-			ForEach ($reference in $finding.References) {
-				$this_reference = $templates.ReferencesTemplate.Replace("{{REFERENCE_URL}}", $reference.Url)
-				$this_reference = $this_reference.Replace("{{REFERENCE_TEXT}}", $reference.Text)
-				$reference_html += $this_reference
-			}
-			
-			$long_finding_html = $long_finding_html.Replace($templates.ReferencesTemplate, $reference_html)
-			
-			# Add the completed short and long findings to the running list of findings (in HTML)
-			$short_findings_html += $short_finding_html
-			$long_findings_html += $long_finding_html
 		}
- 
+        
 		#Finding Expected Value
         $expectedval_html = ''
 		ForEach ($ExpectedValue in $finding.ExpectedValue) {
