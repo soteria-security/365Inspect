@@ -1,14 +1,15 @@
-# About 365Inspect
+# 365Inspect
+**The Open-Source, Automated Microsoft 365 Security Assessment Tool**
 
-365*Inspect* is a Microsoft365 Audit script that runs additional so-called 'inspector scripts'-modules stored in the .\inspectors folder. 
+## About 365*Inspect*
 
-# Purpose
+365*Inspect* is a command-line utility that automatically audits an M365 environment. 365*Inspect* retrieves configuration information from your M365 instance and validates whether or not a series of security best practices have been followed. 365*Inspect* creates a simple graphical HTML report that provides descriptions of any discovered security flaws as well as actionable recommendations you can use to improve the security state of your M365 instance.
 
-365Inspect checks a Microsoft365 environment's security (Azure, O365, Teams, SharePoint, etc.) by authoring a PowerShell script that automates the security assessment by executing additional PowerShell scripts that contain audit modules. Some of the audit modules are based on the CIS Baseline made by [CISSecurity](https://www.cisecurity.org/cis-benchmarks/). 
+365Inspect is open-source and completely free. It is authored in PowerShell, and all you need to use it are the appropriate PowerShell modules and credentials to your M365 administrator account. For our fellow tinkerers and security analysts out there, 365Inspect also supports a simple module system that allows you to easily author your own additions to the audit functionality. This means you can use it out of the box as a powerful M365 security scanner, or nerd out and expand the functionality using your own or other modules. Detailed directions are provided on the project’s Github page.
 
-# Advantages
+## Advantages
 
-With M365Inspect you can:
+With 365Inspect you can:
 	
 * Audit your M365 Environments or your customer's M365 environments,
 	
@@ -16,7 +17,7 @@ With M365Inspect you can:
 
 * Create a clear report with the vulnerabilities and misconfigurations regarding the M365 environment,
 
-# Setup
+## Setup
 
 365*Inspect* requires the administrative PowerShell modules for Microsoft Online, Azure AD (We recommend installing the AzureADPreview module), Exchange Online Administration, Sharepoint Administration, Microsoft Intune,Microsoft Teams and Microsoft Graph.
 
@@ -56,7 +57,7 @@ Once the above are installed, download the 365*Inspect* source code folder from 
 
 As you will run 365*Inspect* with administrative privileges, you should place it in a logical location and make sure the contents of the folder are readable and writable only by the administrative user. This is especially important if you intend to install 365*Inspect* in a location where it will be executed frequently or used as part of an automated process.
 
-# Usage
+## Usage
 
 To run 365*Inspect*, open a PowerShell console and navigate to the folder you downloaded 365*Inspect* into:
 
@@ -107,7 +108,7 @@ As with any other script you may run with elevated privileges, you should observ
 * No untrusted user should have write access to the 365*Inspect* folder/files, as that user could then overwrite scripts or templates therein and induce you to run malicious code.
 * No script module should be placed in .\inspectors unless you trust the source of that script module.
 
-# Output
+## Output
 
 365*Inspect* creates the directory specified in the out_path parameter. This directory is the result of the entire 365*Inspect* inspection. It contains four items of note:
 
@@ -116,7 +117,7 @@ As with any other script you may run with elevated privileges, you should observ
 * *Report.zip*: zipped version of this entire directory, for convenient distribution of the results in cases where some inspector modules generated a large amount of findings.
 * *Log directory*: 365*Inspect* logs any errors encountered during the scripts execution to a timestamped log file found in the Log directory
 
-# Necessary Privileges
+## Necessary Privileges
 
 365*Inspect* can't run properly unless the O365 account you authenticate with has appropriate privileges. 365*Inspect* requires, at minimum, the following:
 
@@ -125,7 +126,7 @@ As with any other script you may run with elevated privileges, you should observ
 
 We realize that these are extremely permissive roles, unfortunately due to the use of Microsoft Graph, we are restricted from using lesser prileges by Microsoft. Application and Cloud Application Administrator roles (used to grant delegated and application permissions) are restricted from granting permissions for Microsoft Graph or Azure AD PowerShell modules. [https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-administrator](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-administrator) 
 
-# Developing Additional Inspector Modules
+## Developing Additional Inspector Modules
 
 365*Inspect* is designed to be easy to expand, with the hope that it enables individuals and organizations to either utilize their own 365*Inspect* modules internally, or publish those modules for the O365 community.
 
@@ -138,7 +139,7 @@ It is simple to create an inspector module. Inspectors have two files:
 
 The PowerShell and JSON file names must be identical for 365*Inspect* to recognize that the two belong together. There are numerous examples in 365*Inspect*'s built-in suite of modules, but we'll put an example here too.
 
-## Example
+### Example
 
 Example .ps1 file, BypassingSafeAttachments.ps1:
 ```
@@ -190,3 +191,6 @@ Once you drop these two files in the .\inspectors folder, they are considered pa
 You have just created the BypassingSafeAttachments Inspector module. That's all!
 
 365*Inspect* will throw a pretty loud and ugly error if something in your module doesn't work or doesn't follow 365*Inspect* conventions, so monitor the command line output.
+
+## Special Thanks To...
+* [CISSecurity](https://www.cisecurity.org/cis-benchmarks/): For providing the M365 benchmarks to make audit scripts
