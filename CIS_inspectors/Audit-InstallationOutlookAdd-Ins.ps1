@@ -4,7 +4,7 @@ $InstallationOutlookAddIns = Get-EXOMailbox | Select-Object -Unique RoleAssignme
 if ($InstallationOutlookAddIns.AssignedRoles -contains 'My Marketplace Apps' -or 'My Custom Apps' -or 'My ReadWriteMailbox Apps'){
 foreach ($InstallationOutlookAddInsDataObj in $InstallationOutlookAddIns){
 $InstallationOutlookAddInsData += "$($InstallationOutlookAddIns.Identity), $($InstallationOutlookAddIns.AssignedRoles)"}
-return $InstallationOutlookAddIns
+return $InstallationOutlookAddInsData
 }
 return $null
 }
