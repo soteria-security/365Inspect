@@ -52,6 +52,8 @@ It is important that any submitted feature requests are clear and easy to unders
 ## Use a Consistent Coding Style
 365*Inspect* is written using VS Code. This keeps spacing conventions and alias use (or lack thereof) consistent across all of the included scripts.
 Developing new inspectors and features within VS Code is encouraged, but not required.
+In the war of "Tabs vs Spaces", we fall squarely into the "spaces" camp and request that spacing and tabbing be set to four spaces for consistency.
+Spaces are consistently a single column regardless of environment, where tab columns can vary.
 
 ## Pull Request Process
 
