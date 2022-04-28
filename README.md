@@ -172,7 +172,7 @@ You have just created the BypassingSafeAttachments Inspector module. That's all!
 
 # Contributing
 We encourage community involvement and contributions!
-Please check out out [Contributing%20Guidelines](.github/ISSUE_TEMPLATE/CONTRIBUTING.md)
+Please check out out [Contributing Guidelines](.github/ISSUE_TEMPLATE/CONTRIBUTING.md)
 
 # About Security
 
