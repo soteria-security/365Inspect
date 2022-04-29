@@ -1,15 +1,15 @@
-# 365Inspect
+# 365Inspect+
 **The Open-Source, Automated Microsoft 365 Security Assessment Tool**
 
-## About 365*Inspect*
+## About 365*Inspect+*
 
-365*Inspect* is a command-line utility that automatically audits an M365 environment. 365*Inspect* retrieves configuration information from your M365 instance and validates whether or not a series of security best practices have been followed. 365*Inspect* creates a simple graphical HTML report that provides descriptions of any discovered security flaws as well as actionable recommendations you can use to improve the security state of your M365 instance.
+365*Inspect+* is a command-line utility that automatically audits an M365 environment. 365*Inspect+* retrieves configuration information from your M365 instance and validates whether or not a series of security best practices have been followed. 365*Inspect* creates a simple graphical HTML report that provides descriptions of any discovered security flaws as well as actionable recommendations you can use to improve the security state of your M365 instance.
 
-365Inspect is open-source and completely free. It is authored in PowerShell, and all you need to use it are the appropriate PowerShell modules and credentials to your M365 administrator account. For our fellow tinkerers and security analysts out there, 365Inspect also supports a simple module system that allows you to easily author your own additions to the audit functionality. This means you can use it out of the box as a powerful M365 security scanner, or nerd out and expand the functionality using your own or other modules. Detailed directions are provided on the project’s Github page.
+365Inspect+ is open-source and completely free. It is authored in PowerShell, and all you need to use it are the appropriate PowerShell modules and credentials to your M365 administrator account. For our fellow tinkerers and security analysts out there, 365Inspect also supports a simple module system that allows you to easily author your own additions to the audit functionality. This means you can use it out of the box as a powerful M365 security scanner, or nerd out and expand the functionality using your own or other modules. Detailed directions are provided on the project’s Github page.
 
 ## Advantages
 
-With 365Inspect you can:
+With 365Inspect+ you can:
 	
 * Audit your M365 Environments or your customer's M365 environments,
 	
@@ -17,9 +17,18 @@ With 365Inspect you can:
 
 * Create a clear report with the vulnerabilities and misconfigurations regarding the M365 environment,
 
+## Differences Between The Standard and Plus Version
+
+The following differences are existing:
+- The authentication is different and easier.
+- There is less output when authenticating and the authentication is validated as a message is displayed
+- There is an function that allows updating the modules to their latest version
+- The error handling is different as there is less code redundancy 
+- The tool will prompt for Admin Privileges if the .ps1 is ran without it.
+
 ## Setup
 
-365*Inspect* requires the administrative PowerShell modules for Microsoft Online, Azure AD (We recommend installing the AzureADPreview module), Exchange Online Administration, Sharepoint Administration, Microsoft Intune,Microsoft Teams and Microsoft Graph.
+365*Inspect+* requires the administrative PowerShell modules for Microsoft Online, Azure AD (We recommend installing the AzureADPreview module), Exchange Online Administration, Sharepoint Administration, Microsoft Intune,Microsoft Teams and Microsoft Graph.
 
 The 365*Inspect*.ps1 PowerShell script will validate the installed modules.
 
@@ -53,29 +62,29 @@ If you do not have these modules installed, you will be prompted to install them
 
 [Install Microsoft Intune PowerShell SDK](https://github.com/microsoft/Intune-PowerShell-SDK)
 
-Once the above are installed, download the 365*Inspect* source code folder from Github using your browser or by using *git clone*.
+Once the above are installed, download the 365*Inspect+* source code folder from Github using your browser or by using *git clone*.
 
-As you will run 365*Inspect* with administrative privileges, you should place it in a logical location and make sure the contents of the folder are readable and writable only by the administrative user. This is especially important if you intend to install 365*Inspect* in a location where it will be executed frequently or used as part of an automated process.
+As you will run 365*Inspect+* with administrative privileges, you should place it in a logical location and make sure the contents of the folder are readable and writable only by the administrative user. This is especially important if you intend to install 365*Inspect* in a location where it will be executed frequently or used as part of an automated process.
 
 ## Usage
 
-To run 365*Inspect*, open a PowerShell console and navigate to the folder you downloaded 365*Inspect* into:
+To run 365*Inspect+*, open a PowerShell console and navigate to the folder you downloaded 365*Inspect+* into:
 
 	cd 365Inspect
 
-You will interact with 365*Inspect* by executing the main script file, 365Inspect.ps1, from within the PowerShell command prompt. 
+You will interact with 365*Inspect+* by executing the main script file, 365Inspect.ps1, from within the PowerShell command prompt. 
 
 All 365*Inspect* requires to inspect your O365 tenant is access via an O365 account with proper permissions, so most of the command line parameters relate to the organization being assessed and the method of authentication.
 
-Execution of 365*Inspect* looks like this:
+Execution of 365*Inspect+* looks like this:
 
-	.\365Inspect.ps1 -OrgName <value> -OutPath <value> -Auth <MFA|ALREADY_AUTHED>
+	.\365Inspect.ps1 -OrgName <value> -OutPath <value> (-Username <username> -Password <password> -MFA -SkipUpdateCheck *these are optional*)
 
 For example, to log in by entering your credentials in a browser with MFA support:
 
 	.\365Inspect.ps1 -OrgName mycompany -OutPath ..\365_report -Auth MFA
 
-365*Inspect* can be run with only specified Inspector modules, or conversely, by excluding specified modules.
+365*Inspect+* can be run with only specified Inspector modules, or conversely, by excluding specified modules.
 
 For example, to log in by entering your credentials in a browser with MFA support:
 
@@ -90,22 +99,24 @@ To break down the parameters further:
 * *OrgName* is the name of the core organization or "company" of your O365 instance, which will be inspected. 
 	* If you do not know your organization name, you can navigate to the list of all Exchange domains in O365. The topmost domain should be named *domain_name*.onmicrosoft.com. In that example, *domain_name* is your organization name and should be used when executing 365*Inspect*.
 * *OutPath* is the path to a folder where the report generated by 365*Inspect* will be placed.
-* *Auth* is a selector that should be one of the literal values "MFA", "CMDLINE", or "ALREADY_AUTHED". 
-	* *Auth* controls how 365*Inspect* will authenticate to all of the Office 365 services. 
-	* *Auth MFA* will produce a graphical popup in which you can type your credentials and even enter an MFA code for MFA-enabled accounts. 
-	* *Auth ALREADY_AUTHED* instructs 365*Inspect* not to authenticate before scanning. This may be preferable if you are executing 365*Inspect* from a PowerShell prompt where you already have valid sessions for all of the described services, such as one where you have already executed 365*Inspect*.
+* *MFA* is an switch parameter that is optional and could be used if authentication requires MFA
+* *Username* is an string paramter that could be provided if the Username is constantly the same for authentication
+	* The *Password* parameter is optional to use if you use it with the *MFA* parameter.
+* *Password* is an string parameter that allows the user to authenticate with their password.
+	* You can't use the MFA parameter in combination with *Password* parameter!
 * *SelectedInspectors* is the name or names of the inspector or inspectors you wish to run with 365*Inspect*. If multiple inspectors are selected they must be comma separated. Only the named inspectors will be run.
 * *ExcludedInspectors*  is the name or names of the inspector or inspectors you wish to prevent from running with 365*Inspect*. If multiple inspectors are selected they must be comma separated. All modules other included modules will be run.
+* *SkipUpdateCheck* allows the user to skip the update and installation check. Only use this parameter if you know that your modules are up-to-date and are all installed correctly. 
 
-When you execute 365*Inspect* with *-Auth MFA*, it may produce several graphical login prompts that you must sequentially log into. This is normal behavior as Exchange, SharePoint etc. have separate administration modules and each requires a different login session. If you simply log in the requested number of times, 365*Inspect* should begin to execute. This is the opposite of fun and we're seeking a workaround, but needless to say we feel the results are worth the minute spent looking at MFA codes.
+When you execute 365*Inspect+* with *-MFA*, it may produce several graphical login prompts that you must sequentially log into. This is normal behavior as Exchange, SharePoint etc. have separate administration modules and each requires a different login session. If you simply log in the requested number of times, 365*Inspect* should begin to execute. This is the opposite of fun and we're seeking a workaround, but needless to say we feel the results are worth the minute spent looking at MFA codes.
 
-As 365*Inspect* executes, it will steadily print status updates indicating which inspection task is running.
+As 365*Inspect+* executes, it will steadily print status updates indicating which inspection task is running.
 
-365*Inspect* may take some time to execute. This time scales with the size and complexity of the environment under test. For example, some inspection tasks involve scanning the account configuration of all users. This may occur near-instantly for an organization with 50 users, or could take entire minutes (!) for an organization with 10000. 
+365*Inspect+* may take some time to execute. This time scales with the size and complexity of the environment under test. For example, some inspection tasks involve scanning the account configuration of all users. This may occur near-instantly for an organization with 50 users, or could take entire minutes (!) for an organization with 10000. 
 
 ## Output
 
-365*Inspect* creates the directory specified in the out_path parameter. This directory is the result of the entire 365*Inspect* inspection. It contains four items of note:
+365*Inspect+* creates the directory specified in the out_path parameter. This directory is the result of the entire 365*Inspect* inspection. It contains four items of note:
 
 * *Report.html*: graphical report that describes the M365 security issues identified by 365*Inspect*, lists O365 objects that are misconfigured, and provides remediation advice.
 * *Various text files named [Inspector-Name]*: these are raw output from inspector modules and contain a list (one item per line) of misconfigured O365 objects that contain the described security flaw. For example, if a module Inspect-FictionalMFASettings were to detect all users who do not have MFA set up, the file "Inspect-FictionalMFASettings" in the report ZIP would contain one user per line who does not have MFA set up. This information is only dumped to a file in cases where more than 15 affected objects are discovered. If less than 15 affected objects are discovered, the objects are listed directly in the main HTML report body.
@@ -114,7 +125,7 @@ As 365*Inspect* executes, it will steadily print status updates indicating which
 
 ## Necessary Privileges
 
-365*Inspect* can't run properly unless the O365 account you authenticate with has appropriate privileges. 365*Inspect* requires, at minimum, the following:
+365*Inspect+* can't run properly unless the O365 account you authenticate with has appropriate privileges. 365*Inspect* requires, at minimum, the following:
 
 * Global Administrator
 * SharePoint Administrator
@@ -123,7 +134,7 @@ We realize that these are extremely permissive roles, unfortunately due to the u
 
 ## Developing Additional Inspector Modules
 
-365*Inspect* is designed to be easy to expand, with the hope that it enables individuals and organizations to either utilize their own 365*Inspect* modules internally, or publish those modules for the O365 community.
+365*Inspect+* is designed to be easy to expand, with the hope that it enables individuals and organizations to either utilize their own 365*Inspect* modules internally, or publish those modules for the O365 community.
 
 All of 365*Inspect*'s inspector modules are stored in the .\inspectors folder. 
 
@@ -181,17 +192,17 @@ Example .json file, BypassingSafeAttachments.json:
 }
 ```
 
-Once you drop these two files in the .\inspectors folder, they are considered part of 365*Inspect*'s module inventory and will run the next time you execute 365*Inspect*.
+Once you drop these two files in the .\inspectors folder, they are considered part of 365*Inspect*'s module inventory and will run the next time you execute 365*Inspect+*.
 
 You have just created the BypassingSafeAttachments Inspector module. That's all!
 
-365*Inspect* will throw a pretty loud and ugly error if something in your module doesn't work or doesn't follow 365*Inspect* conventions, so monitor the command line output.
+365*Inspect+* will throw a pretty loud and ugly error if something in your module doesn't work or doesn't follow 365*Inspect* conventions, so monitor the command line output.
 
 ## About Security
 
 365*Inspect* is a script harness that runs other inspector script modules stored in the .\inspectors folder. As with any other script you may run with elevated privileges, you should observe certain security hygiene practices:
 
-* No untrusted user should have write access to the 365*Inspect* folder/files, as that user could then overwrite scripts or templates therein and induce you to run malicious code.
+* No untrusted user should have write access to the 365*Inspect+* folder/files, as that user could then overwrite scripts or templates therein and induce you to run malicious code.
 * No script module should be placed in .\inspectors unless you trust the source of that script module.
 
 ## Special Thanks To...
