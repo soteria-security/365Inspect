@@ -170,6 +170,10 @@ You have just created the BypassingSafeAttachments Inspector module. That's all!
 
 365*Inspect* will throw a pretty loud and ugly error if something in your module doesn't work or doesn't follow 365*Inspect* conventions, so monitor the command line output.
 
+# Contributing
+We encourage community involvement and contributions!
+Please check out our [Contributing Guidelines](.github/ISSUE_TEMPLATE/CONTRIBUTING.md)
+
 # About Security
 
 365*Inspect* is a script harness that runs other inspector script modules stored in the .\inspectors folder. As with any other script you may run with elevated privileges, you should observe certain security hygiene practices:

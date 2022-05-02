@@ -1,6 +1,6 @@
 {
 	"FindingName": "Email Security Checks are Bypassed Based on Sender Domain",
-	"Description": "In the Exchange transport rules settings, it is possible to implement transport rules that bypass spam filtering and other email security capabilities (Exchange Online Protection) based on an IP address or domain (whitelisting). This makes a significant assumption of trust that should be reviewed and reconsidered. The transport rules listed herein bypass email security based on a domain whitelist.",
+	"Description": "In the Exchange transport rules settings, it is possible to implement transport rules that bypass spam filtering and other email security capabilities (Exchange Online Protection) based on an IP address or domain (allowlisting). This makes a significant assumption of trust that should be reviewed and reconsidered. The transport rules listed herein bypass email security based on a domain allowlist.",
 	"Remediation": "Locate the rules 365Inspect has identified (they are listed in this report) and determine who created the rules. Pursue a dialogue or analysis of whether the Exchange Online Protection  is necessary for continued operations and whether another solution is possible. If you determine the rules are not necessary, remove the rules.",
 	"Impact": "High",
 	"AffectedObjects": "",
