@@ -1,0 +1,3 @@
+*.ps1 diff
+*.json diff
+*.html diff
