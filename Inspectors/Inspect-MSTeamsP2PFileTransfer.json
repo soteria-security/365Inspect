@@ -1,9 +1,13 @@
 {
 	"FindingName": "Microsoft Teams External P2P File Transfer Allowed",
-	"Description": "Microsoft Teams by default enables and allows P2P file transfers for all internal and external users and guests. Microsoft's P2P file sharing allows or blocks file transfers for users whether or not they are transferring files to a user who is within the same organization or to a federated user from another organization. Setting this option to \"Block\" allows only internal file transfers, while leaving it enabled allows for file sharing outside the organization. Many organizations block common P2P traffic protocols, but allow Microsoft IP's, protocols, and domains through their organizations firewalls. Microsoft Teams provides a native, usually unmonitored method of data exfiltration to external parties. This may be configured globally or on a per-user basis.",
-	"Remediation": "Recent exploits have been developed to leverage Microsoft Teams as a Command and Control (C2) platform. Mitigations include File Integrity monitoring (FIM), Application Allow/Block Controls (AppLocker), and disabling external file transfers. External Point to Point file transfers can be disabled by running the following PowerShell command: Set-CsExternalUserCommunicationPolicy -EnableP2PFileTransfer $False",
-	"Impact": "Medium",
-	"AffectedObjects": "",
+	"Description": "Microsoft Teams by default enables and allows Point-to-Point (P2P) file transfers for all internal and external users and guests. Microsoft's P2P file sharing allows or blocks file transfers for users whether or not they are transferring files to a user who is within the same organization or to a federated user from another organization. Setting this option to \"Block\" allows only internal file transfers, while leaving it enabled allows for file sharing outside the organization. Many organizations block common P2P traffic protocols, but allow Microsoft IP's, protocols, and domains through their organization's firewalls. Microsoft Teams provides a native, usually unmonitored method of data exfiltration to external parties. This may be configured globally or on a per-user basis.",
+	"Remediation": "Recent exploits have been developed to leverage Microsoft Teams as a Command and Control (C2) platform. Mitigations include File Integrity monitoring (FIM), Application Allow/Block Controls (AppLocker), and disabling external file transfers. External Point to Point file transfers can be disabled by running the following PowerShell command:\nSet-CsExternalUserCommunicationPolicy -EnableP2PFileTransfer $False",
+	"DefaultValue" : "True",
+    "ExpectedValue" : "False",
+    "ReturnedValue" : "",
+    "Impact": "Medium",
+	"RiskRating" : "",
+    "AffectedObjects": "",
 	"References": [
 		{
 			"Url": "https://docs.microsoft.com/en-us/microsoftteams/manage-external-access",

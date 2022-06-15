@@ -2,8 +2,12 @@
 	"FindingName": "Directory Synchronization Service Account Found",
 	"Description": "Directory synchronization allows you to manage identities in your Active Directory Domain Services (AD DS) and all updates to user accounts, groups, and contacts are synchronized to the Azure Active Directory (Azure AD) tenant of your Microsoft 365 subscription.",
 	"Remediation": "Validate the configuration of your service account if the default installation was not used. Follow Microsoft guidance and best practices to ensure your hybrid configuration meets your business needs and policies.",
-	"Impact": "Informational",
-	"AffectedObjects": "",
+	"DefaultValue" : "",
+    "ExpectedValue" : " ",
+    "ReturnedValue" : "",
+    "Impact": "Informational",
+	"RiskRating" : "Informational",
+    "AffectedObjects": "",
 	"References": [
         {
             "Url":"https://docs.microsoft.com/en-us/azure/active-directory/hybrid/concept-adsync-service-account",

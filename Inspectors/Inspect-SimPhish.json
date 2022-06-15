@@ -2,8 +2,12 @@
 	"FindingName": "Simulated Phishing Transport Rules - Security Bypasses",
 	"Description": "Simulated Phishing Transport Rules - Security Bypasses",
 	"Remediation": "Review Mail Flow rules that bypass spam filtering for Simulated Phishing platforms. Bypassing Spam filtering, Safe Links and Safe Attachments by IP, domain, or header values allows attackers to spoof domains and addresses, or modify the header of their emails and bypass security measures.",
-	"Impact": "High",
-	"AffectedObjects": "",
+	"DefaultValue" : "None",
+    "ExpectedValue" : "Not applicable",
+    "ReturnedValue" : "",
+    "Impact": "High",
+	"RiskRating" : "",
+    "AffectedObjects": "",
 	"References": [
 		{
 			"Url": "https://gist.github.com/ThoughtContagion/5f227b562bef4b19d5a5d0d4765f7890",

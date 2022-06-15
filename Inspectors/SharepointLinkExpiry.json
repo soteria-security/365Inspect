@@ -1,9 +1,13 @@
 {
-	"FindingName": "Sharepoint 'Anyone' Shared Links Never Expire",
-	"Description": "Your organization's instance of SharePoint is set to never expire links to documents accessible by the 'Anyone' group. 'Anyone' links that exist indefinitely could be abused by an adversary or enable leakage of sensitive information in multiple ways. It is suggested that these links expire eventually to control possible information disclosure.",
-	"Remediation": "In the SharePoint administration center, navigate to Sharing -> Choose expiration and permissions options for Anyone links. Select a link expiry period and save the settings. Prior to taking this action, discuss amongst your organization whether anyone is using non-expiring Anyone links for a legitimate purpose.",
-	"Impact": "Critical",
-	"AffectedObjects": "",
+	"FindingName": "SharePoint 'Anyone' Shared Links Never Expire",
+	"Description": "The organization's instance of SharePoint is set to never expire links to documents accessible by the 'Anyone' group. 'Anyone' links that exist indefinitely could be abused by an adversary or enable leakage of sensitive information in multiple ways. A value of -1 indicates anonymous links never expire. It is suggested that these links expire eventually to control possible information disclosure.",
+	"Remediation": "In the SharePoint administration center, navigate to Sharing → Choose expiration and permissions options for Anyone links. Select a link expiry period and save the settings. Prior to taking this action, discuss amongst the organization whether anyone is using non-expiring Anyone links for a legitimate purpose.",
+	"DefaultValue" : "-1",
+    "ExpectedValue" : "Value of 1 or higher",
+    "ReturnedValue" : "",
+    "Impact": "Critical",
+	"RiskRating" : "",
+    "AffectedObjects": "",
 	"References": [
 		{
 			"Url": "https://docs.microsoft.com/en-us/microsoft-365/solutions/best-practices-anonymous-sharing?view=o365-worldwide",
