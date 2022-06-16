@@ -2,8 +2,12 @@
 	"FindingName": "Microsoft Teams Consumer Communication Policies",
 	"Description": "Microsoft Teams External Access Policies allow communication with Teams users not managed by an organization.",
 	"Remediation": "Review Microsoft Teams External Access Policies and validate that all results are expected and no conflicting rules are in place.",
-	"Impact": "High",
-	"AffectedObjects": "",
+	"DefaultValue" : "No restrictions are in place for communication with public Skype or Teams users",
+    "ExpectedValue" : "Not applicable",
+    "ReturnedValue" : "",
+    "Impact": "High",
+	"RiskRating" : "",
+    "AffectedObjects": "",
 	"References": [
 		{
 			"Url": "https://docs.microsoft.com/en-us/microsoftteams/manage-external-access",

@@ -1,9 +1,13 @@
 {
 	"FindingName": "User Accounts Created via Email Verified Self-Service Creation Found",
-	"Description": "Recently a blog was published about a method of tenant takeover using expired domain registrations. This method relied on a domain registration expiring and the domain remaining associated with the tenant.\nMonitoring account creation types can help detect and alert on attempts to exploit this attack path. Outlined in both Soteria's blog \"Azure AD Default Configuration Blunders\" and the newly published \"LetItGo: A Case Study in Expired Domains and Azure AD\" blog is the risk of allowing Microsoft's self-service sign-up for Azure Active Directory.\nMicrosoft initially issued fixes for this attack between December 2021 and January 2022, but has since rolled back those efforts.",
+	"Description": "Recently a blog was published about a method of tenant takeover using expired domain registrations. This method relied on a domain registration expiring and the domain remaining associated with the tenant. Monitoring account creation types can help detect and alert on attempts to exploit this attack path. Outlined in both Soteria's blog \"Azure AD Default Configuration Blunders\" and the newly published \"LetItGo: A Case Study in Expired Domains and Azure AD\" blog is the risk of allowing Microsoft's self-service sign-up for Azure Active Directory. Microsoft initially issued fixes for this attack between December 2021 and January 2022, but has since rolled back those efforts.",
 	"Remediation": "Review any accounts returned to ensure they are appropriate for the tenant. Determine if the self-service sign-up configuration is appropriate for business needs and either remediate as outlined, or implement a continuous monitoring solution for accounts created via the self-service method.",
-	"Impact": "High",
-	"AffectedObjects": "",
+	"DefaultValue" : "None",
+    "ExpectedValue" : "Not applicable",
+    "ReturnedValue" : "",
+    "Impact": "High",
+	"RiskRating" : "",
+    "AffectedObjects": "",
 	"References": [
 		{
 			"Url": "https://sra.io/blog/letitgo-a-case-study-in-expired-domains-and-azure-ad/",

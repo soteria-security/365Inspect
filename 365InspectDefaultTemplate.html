@@ -614,7 +614,12 @@
                     </td>
                     <td class="c11" colspan="1" rowspan="1">
                         <p class="c8">
-                            <span class="c23">Impact</span>
+                            <span class="c23">Inherent Risk</span>
+                        </p>
+                    </td>
+                    <td class="c11" colspan="1" rowspan="1">
+                        <p class="c8">
+                            <span class="c23">Residual Risk</span>
                         </p>
                     </td>
 					<!--
@@ -639,6 +644,10 @@
                     <td class="c11" colspan="1" rowspan="1" style="">
                         <span class="table-detail-light">{{IMPACT}}</span>
                     </a>
+                    </td>
+                    <td class="c11" colspan="1" rowspan="1" style="">
+                        <span class="table-detail-light">{{RISKRATING}}</span>
+                    </td>
                 </td>
                 <!--
                     <td class="c15" colspan="1" rowspan="1">
@@ -657,7 +666,7 @@
             <span class="c2">O365 Audit Findings</span>
         </h1>
         <p class="c6">
-            <span>The following issues were discovered during the automated O365 Assessment. These findings are ordered by impact.</span>
+            <span>The following issues were discovered during the automated O365 Assessment. These findings are ordered by Inherent Risk.</span>
         </p>
         <hr>
         <p class="c1 c28">
@@ -666,20 +675,22 @@
         <p class="c1">
             <span class="c34"></span>
         </p>
-<!--BEGIN_FINDING_LONG_REPEATER-->
+    
+    <!--BEGIN_FINDING_LONG_REPEATER-->
 		<h2 class="c19" id="finding_{{FINDING_NUMBER}}" style="text-align:left">
             <span class="c2" style="font-size:20">{{FINDING_NUMBER}}: {{FINDING_NAME}}</span>
         </h1>
         <p class="c20">
-            <span class="finding-detail-heading">Affected O365 Objects:</span>
+            <span class="finding-detail-heading">Returned Value:</span>
         </p>
         <ul class="c17 lst-kix_9wblkacyqph0-0 start">
-<!--BEGIN_AFFECTED_OBJECTS_REPEATER-->
+        <!--BEGIN_AFFECTED_OBJECTS_REPEATER-->
             <li class="finding-detail-list">
                 <span>{{AFFECTED_OBJECT}}</span>
             </li>
-<!--END_AFFECTED_OBJECTS_REPEATER-->
+        <!--END_AFFECTED_OBJECTS_REPEATER-->
         </ul>
+
         <span class="finding-paragraph-spacing">&nbsp;</span>
         <p class="finding-paragraph">
             <span class="finding-detail-heading">Finding: </span>
@@ -689,10 +700,38 @@
         </p>
         <span class="finding-paragraph-spacing">&nbsp;</span>
         <p class="finding-paragraph">
-            <span class="finding-detail-heading">Impact:</span>
+            <span class="finding-detail-heading">Default Value:</span>
+        </p>
+        <p class="finding-paragraph">
+            <span class="finding-detail-value">{{DEFAULTVALUE}}</span>
+        </p>
+        <span class="finding-paragraph-spacing">&nbsp;</span>
+        <p class="finding-paragraph">
+            <span class="finding-detail-heading">Expected Value:</span>
+        </p>
+        <p class="finding-paragraph">
+            <span class="finding-detail-value">{{EXPECTEDVALUE}}</span>
+        </p>
+        <!--<span class="finding-paragraph-spacing">&nbsp;</span>
+        <p class="finding-paragraph">
+            <span class="finding-detail-heading">Returned Value:</span>
+        </p>
+        <p class="finding-paragraph">
+            <span class="finding-detail-value">{{AFFECTED_OBJECT}}</span>
+        </p>-->
+        <span class="finding-paragraph-spacing">&nbsp;</span>
+        <p class="finding-paragraph">
+            <span class="finding-detail-heading">Inherent Risk:</span>
         </p>
         <p class="finding-paragraph">
             <span class="finding-detail-value">{{IMPACT}}</span>
+        </p>
+        <span class="finding-paragraph-spacing">&nbsp;</span>
+        <p class="finding-paragraph">
+            <span class="finding-detail-heading">Residual Risk:</span>
+        </p>
+        <p class="finding-paragraph">
+            <span class="finding-detail-value">{{RISKRATING}}</span>
         </p>
         <span class="finding-paragraph-spacing">&nbsp;</span>
         <p class="finding-paragraph">

@@ -1,9 +1,13 @@
 {
 	"FindingName": "Microsoft Teams External Access Policies",
 	"Description": "Microsoft Teams External Access Policies",
-	"Remediation": "Review Microsoft Teams External Access Policies and validate that all results are expected and no conflicting rules are in place.",
-	"Impact": "Informational",
-	"AffectedObjects": "",
+	"Remediation": "Review Microsoft Teams External Access Policies and validate that all results are expected, and no conflicting rules are in place.",
+	"DefaultValue" : "Global, Tag:FederationAndPICDefault, Tag:FederationOnly, Tag:NoFederationAndPIC",
+    "ExpectedValue" : "Not applicable",
+    "ReturnedValue" : "",
+    "Impact": "Informational",
+	"RiskRating" : "Informational",
+    "AffectedObjects": "",
 	"References": [
 		{
 			"Url": "https://docs.microsoft.com/en-us/microsoftteams/manage-external-access",

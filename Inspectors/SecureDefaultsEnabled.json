@@ -2,8 +2,12 @@
 	"FindingName": "Microsoft Secure Defaults",
 	"Description": "Microsoft Security Defaults are enabled on all tenants by default. Security Defaults configures and enforces a number of common security features. If more fine-grained security options are required, consider enabling Conditional Access policies. If Security Defaults are not enabled, ensure that other configurations are in place to safeguard your tenant and users.",
 	"Remediation": "None. If Secure Defaults are not enabled, ensure that equivalent protections have been enforced.",
-	"Impact": "Informational",
-	"AffectedObjects": "",
+	"DefaultValue" : "True",
+    "ExpectedValue" : "True",
+    "ReturnedValue" : "",
+    "Impact": "Critical",
+	"RiskRating" : "Critical",
+    "AffectedObjects": "",
 	"References": [
 		{
 			"Url": "https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/concept-fundamentals-security-defaults",
