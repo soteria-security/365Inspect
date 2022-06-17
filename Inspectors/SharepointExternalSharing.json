@@ -1,0 +1,21 @@
+{
+	"FindingName": "SharePoint External Sharing Enabled (Global)",
+	"Description": "SharePoint is the organization's hub for sharing files amongst each other. SharePoint can also permit users to share content with anonymous outsiders or members of other organizations (commonly referred to as \"external users\"). Sharing with external users and guests is currently enabled in this instance of SharePoint. This setting may increase the probability of sensitive information being shared outside of the organization, either accidentally or as a means of data exfiltration by a cyber adversary with access to the organizational environment. Consider disabling this setting for the sake of preventing such occurrences if there is no intention of sharing information outside of the organization as part of the organization's mission. However, note that some degree of external sharing is vital for many organizations. Furthermore, disabling external sharing is not necessarily a panacea for problems related to confidential information, as users may still mistakenly or maliciously share confidential information through a number of channels. Continue to apply good sense in data loss prevention and other forms of monitoring even if external sharing is disabled.",
+	"Remediation": "First, look at the \"Affected Objects\" section of the report for this finding; it should indicate which global sharing permission level the organization has currently enabled in SharePoint. If this is too permissive for the organization's use cases, consider taking action. There are multiple ways to change this setting. Navigate to Settings → Services → Sites in the O365 Admin portal, or the Sharing page of the SharePoint Administration Center. Doing either should present a list of global sharing capabilities, where \"Share with Anyone\" is the default; change this to a more restrictive setting. Before taking this action, it is advised to engage with other stakeholders in the organization to determine if SharePoint external sharing is used for an organizational function. An appropriate workaround or alternative course of action may need to be determined. Additionally, sharing settings besides the global-level settings are available; consider reading the \"Limit sharing in Microsoft 365\" guide below if additional granularity in sharing settings is required.",
+	"DefaultValue" : "ExternalUserAndGuestSharing (Anyone)",
+    "ExpectedValue" : "ExternalUserSharingOnly (New and Existing Guests)",
+    "ReturnedValue" : "",
+    "Impact": "Critical",
+	"RiskRating" : "",
+    "AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/sharepoint/turn-external-sharing-on-or-off",
+			"Text": "Manage sharing settings"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/solutions/microsoft-365-limit-sharing?view=o365-worldwide",
+			"Text": "Limit sharing in M365"
+		}
+	]
+}

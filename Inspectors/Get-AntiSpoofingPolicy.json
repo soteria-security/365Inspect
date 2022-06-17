@@ -1,0 +1,17 @@
+{
+	"FindingName": "Anti-Domain Spoofing Not Fully Enabled",
+	"Description": "Domain Spoofing occurs when an external entity sends email using a mail domain owned by another entity. There are legitimate use cases where domain spoofing is allowed. It is recommended to speak with stakeholders and determine if this type of rule is beneficial and if any exceptions are needed. Microsoft configures some Anti-Spoofing settings by default in the Anti-Phishing policies on tenants, this rule would complement default settings.",
+	"Remediation": "Review the Anti-Phishing policy in the Security console and enable protection for owned domains, custom domains, or users.",
+	"DefaultValue" : "False",
+    "ExpectedValue" : "True",
+    "ReturnedValue" : "",
+    "Impact": "High",
+	"RiskRating" : "",
+    "AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/set-up-anti-phishing-policies?view=o365-worldwide#spoof-settings",
+			"Text": "Spoof settings"
+		}
+	]
+}

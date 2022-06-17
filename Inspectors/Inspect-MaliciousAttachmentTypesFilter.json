@@ -1,0 +1,25 @@
+{
+	"FindingName": "Dangerous Attachment Extensions are Not Filtered",
+	"Description": "Email is a primary vector of exploitation. It is common for attackers to send malicious file attachments designed to mimic legitimate business files. A list of historically malicious extensions that should be blocked/filtered from O365 emails is checked against the Tenant's malware filters to determine if these file types are being blocked. The file extensions listed herein are on this list of dangerous file extensions, but no O365 Malware Filter Policy is configured to filter them. Creating filters for these file types may decrease the risk of malware spreading within the organization through phishing or lateral phishing. The common malicious attachments defined in O365 at the time this document was authored are: xll, wll, rtf, reg, ws, wsf, vb, wsc, wsh, msh, msh1, msh2, mshxml, msh1xml, msh2xml, ps1, ps1xml, ps2, ps2xml, psc1, psc2, pif, msi, gadget, application, com, cpl, msc, hta, msp, bat, cmd, js, jse, scf, lnk, inf, dotm, xlsm, xltm, xlam, pptm, potm, ppam, ppsm, sldm.",
+	"Remediation": "This feature is accessible in the Security portal of the O365 Admin Center. Click through to Threat management → Policy → Anti-malware, and either edit the Default policy to include the above extensions, or create a custom policy to filter these extensions. Additionally, if other known dangerous attachment types are added to this exceptions list, they may be quickly filtered. However it is recommended to create a new policy to accomplish this as it is a more ideal long-term solution. Before doing this, consider polling key stakeholders in the organization or using available data to determine whether any of these file types are commonly exchanged via email within the organization.\nThe complete list of additional filetypes may be added using the following PowerShell commands:\n$FileTypesAdd = Get-MalwareFilterPolicy -Identity Default | select -Expand FileTypes \n $FileTypesAdd += \"xll\",\"wll\",\"rtf\",\"reg\",\"ws\",\"wsf\",\"vb\",\"wsc\",\"wsh\",\"msh\",\"msh1\",\"msh2\",\"mshxml\",\"msh1xml\",\"msh2xml\",\"ps1\",\"ps1xml\",\"ps2\",\"ps2xml\",\"psc1\",\"psc2\",\"pif\",\"msi\",\"gadget\",\"application\",\"com\",\"cpl\",\"msc\",\"hta\",\"msp\",\"bat\",\"cmd\",\"js\",\"jse\",\"scf\",\"lnk\",\"inf\",\"dotm\",\"xlsm\",\"xltm\",\"xlam\",\"pptm\",\"potm\",\"ppam\",\"ppsm\",\"sldm\" \n Set-MalwareFilterPolicy -Identity Default -EnableFileFilter $true -FileTypes $FileTypesAdd",
+	"DefaultValue" : "None",
+    "ExpectedValue" : "None",
+    "ReturnedValue" : "",
+    "Impact": "Critical",
+	"RiskRating" : "",
+    "AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/business-video/anti-malware?view=o365-worldwide",
+			"Text": "Turn on malware protection for your business"
+		},
+		{
+			"Url": "https://www.howtogeek.com/137270/50-file-extensions-that-are-potentially-dangerous-on-windows/",
+			"Text": "50+ File Extensions That Are Potentially Dangerous on Windows"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/powershell/module/exchange/set-malwarefilterpolicy?view=exchange-ps",
+			"Text": "Set-MalwareFilterPolicy"
+		}
+	]
+}
