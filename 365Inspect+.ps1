@@ -122,42 +122,48 @@ $O365Modules = @(<#"MicrosoftTeams",#> "MSOnline", "AzureADPreview", "ExchangeOn
 #Check which Modules are Installed Already...
 
 $installed = Get-InstalledModule
-foreach ($Module in $O365Modules){
+foreach ($module in $O365Modules){
     if ($installed.Name -notcontains $module){
         Write-Host "`n$module is not installed." -ForegroundColor Red}
+        Write-Warning 'The module may be installed by running "Install-Module $module -Force -Scope CurrentUser -Confirm:$false" in an elevated PowerShell window.'
+		$install = Read-Host -Prompt "Would you like to attempt installation now? (Y|N)"
+		If ($install -eq 'y') {
+			Install-Module $module -Scope CurrentUser -Force -Confirm:$false
+            $count ++
+        }
     Else {
         Write-Host "[+] $module is installed." -ForegroundColor Green
         $count ++
          }
     }
 Write-Host "[?] Checking Installed Modules Updates..." -ForegroundColor Yellow
-ForEach ($Module in $O365Modules) {
-$onversion = Find-Module -Name $Module -ErrorAction Stop
-$localversion = Get-InstalledModule -Name $Module -ErrorAction Stop
+ForEach ($module in $O365Modules) {
+$onversion = Find-Module -Name $module -ErrorAction Stop
+$localversion = Get-InstalledModule -Name $module -ErrorAction Stop
          #compare versions
          if ($onversion.Version -ige $localversion.Version){
-         Write-Warning ($Module+' is up-to-date!')
+         Write-Warning ($module+' is up-to-date!')
          }
          else{
          Write-Warning ($onversion.Version+ ' != '+$localversion.Version)
-            Write-Host "Updating $Module ..."
-            Update-Module -Name $Module -Force}
+            Write-Host "Updating $module ..."
+            Update-Module -Name $module -Force}
             }
         }
 # Check and remove older versions of the modules from the PC
-ForEach ($Module in $O365Modules) {
-   Write-Host "[?] Checking for older versions of" $Module
-   $AllVersions = Get-InstalledModule -Name $Module -AllVersions
+ForEach ($module in $O365Modules) {
+   Write-Host "[?] Checking for older versions of" $module
+   $AllVersions = Get-InstalledModule -Name $module -AllVersions
    if ($AllVersions.PublishedDate -ne $null)
    {
    $AllVersions = $AllVersions | Sort PublishedDate -Descending
    $MostRecentVersion = $AllVersions[0].Version
-   Write-Host "Most recent version of" $Module "is" $MostRecentVersion "published on" (Get-Date($AllVersions[0].PublishedDate) -format g)
+   Write-Host "Most recent version of" $module "is" $MostRecentVersion "published on" (Get-Date($AllVersions[0].PublishedDate) -format g)
    If ($AllVersions.Count -gt 1 ) { # More than a single version installed
       ForEach ($Version in $AllVersions) { #Check each version and remove old versions
         If ($Version.Version -ilt $MostRecentVersion)  { # Old version - remove
-           Write-Host "Uninstalling version" $Version.Version "of Module" $Module+"..." -ForegroundColor Red 
-           Uninstall-Module -Name $Module -RequiredVersion $Version.Version -Force
+           Write-Host "Uninstalling version" $Version.Version "of Module" $module+"..." -ForegroundColor Red 
+           Uninstall-Module -Name $module -RequiredVersion $Version.Version -Force
          } #End if
       } #End ForEach
     } #End If
