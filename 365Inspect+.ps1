@@ -124,12 +124,13 @@ $O365Modules = @(<#"MicrosoftTeams",#> "MSOnline", "AzureADPreview", "ExchangeOn
 $installed = Get-InstalledModule
 foreach ($module in $O365Modules){
     if ($installed.Name -notcontains $module){
-        Write-Host "`n$module is not installed." -ForegroundColor Red}
+        Write-Host "`n$module is not installed." -ForegroundColor Red
         Write-Warning 'The module may be installed by running "Install-Module $module -Force -Scope CurrentUser -Confirm:$false" in an elevated PowerShell window.'
 		$install = Read-Host -Prompt "Would you like to attempt installation now? (Y|N)"
 		If ($install -eq 'y') {
 			Install-Module $module -Scope CurrentUser -Force -Confirm:$false
             $count ++
+        }
         }
     Else {
         Write-Host "[+] $module is installed." -ForegroundColor Green
