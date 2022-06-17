@@ -1,9 +1,9 @@
 ﻿<#
 Author: Soteria-Se, Leonardo van de Weteringh
 Copright: 2022
-Version: 0.0.1beta+
+Version: 0.0.2beta+
 Usage: ./365Inspect.ps1 or ./365Inspect.exe
-Date: 28-04-2022
+Date: 17-06-2022
 #>
 
 <#
@@ -636,6 +636,11 @@ $short_findings_html = ''
 $long_findings_html = ''
 
 $findings_count = 0
+$critical_count = 0
+$high_count = 0
+$medium_count = 0
+$low_count = 0
+$informational_count = 0
 
 #$sortedFindings1 = $findings | Sort-Object {$_.FindingName}
 $sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Impact){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}};$_.FindingName}
@@ -660,6 +665,18 @@ Try {
 		# Finding Impact
 		$short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $finding.Impact)
 		$long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $finding.Impact)
+        if ($finding.Impact -like "*Critical*"){
+        $critical_count += 1
+        }elseif($finding.Impact -like "*High*"){
+        $high_count += 1
+        }elseif($finding.Impact -like "*Medium*"){
+        $medium_count += 1
+        }elseif($finding.Impact -like "*Low*"){
+        $low_count += 1
+        }elseif($finding.Impact -like "*Informational*"){
+        $informational_count += 1
+        }
+
 
 		# Finding description
 		$long_finding_html = $long_finding_html.Replace("{{DESCRIPTION}}", $finding.Description)
@@ -720,7 +737,8 @@ Exception
 }
 # Insert command line execution information. This is coupled kinda badly, as is the Affected Objects html.
 $flags = "<b>Prepared for organization:</b><br/>" + $org_name + "<br/><br/>"
-$flags = $flags + "<b>Stats</b>:<br/> <b>" + $findings_count + "</b> out of <b>" + $inspectors.Count + "</b> executed inspector modules identified possible opportunities for improvement.<br/><br/>"  
+$flags = $flags + "<b>Stats</b>:<br/> <b>" + $findings_count + "</b> out of <b>" + $inspectors.Count + "</b> executed inspector modules identified possible opportunities for improvement.<br/>"
+$flags = $flags + "<b>Critical</b>: "+$critical_count+"<b>High</b>: " +$high_count+"<b> Medium</b>: " +$medium_count+"<b> Low</b>: " +$low_count+"<b> Informational</b>: "+$informational_count+"<br/><br/>"   
 $flags = $flags + "<b>Inspector Modules Executed</b>:<br/>" + [String]::Join("<br/>", $selected_inspectors)
 
 $output = $templates.ReportTemplate.Replace($templates.FindingShortTemplate, $short_findings_html)
