@@ -644,100 +644,75 @@ Try {
 		# If the result from the inspector was not $null,
 		# it identified a real finding that we must process.
 		If ($null -NE $finding.AffectedObjects) {
-			# Increment total count of findings
-			$findings_count += 1
-			
-			# Keep an HTML variable representing the current finding as HTML
-			$short_finding_html = $templates.FindingShortTemplate
-			$long_finding_html = $templates.FindingLongTemplate
-			
-			# Insert finding name and number into template HTML
-			$short_finding_html = $short_finding_html.Replace("{{FINDING_NAME}}", $finding.FindingName)
-			$short_finding_html = $short_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
-			$long_finding_html = $long_finding_html.Replace("{{FINDING_NAME}}", $finding.FindingName)
-			$long_finding_html = $long_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
-			
-			# Finding Impact
-			$short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $finding.Impact)
-			$long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $finding.Impact)
-			
-			# Finding description
-			$long_finding_html = $long_finding_html.Replace("{{DESCRIPTION}}", $finding.Description)
-			
-			# Finding Remediation
-			If ($finding.Remediation.length -GT 300) {
-				$short_finding_text = "Complete remediation advice is provided in the body of the report. Clicking the link to the left will take you there."
-			}
-			Else {
-				$short_finding_text = $finding.Remediation
-			}
-			
-			$short_finding_html = $short_finding_html.Replace("{{REMEDIATION}}", $short_finding_text)
-			$long_finding_html = $long_finding_html.Replace("{{REMEDIATION}}", $finding.Remediation)
-			
-			# Affected Objects
-			If ($finding.AffectedObjects.Count -GT 15) {
-				$condensed = "<a href='{name}'>{count} Affected Objects Identified<a/>."
-				$condensed = $condensed.Replace("{count}", $finding.AffectedObjects.Count.ToString())
-				$condensed = $condensed.Replace("{name}", $finding.FindingName)
-				$affected_object_html = $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $condensed)
-				$fname = $finding.FindingName
-				$finding.AffectedObjects | Out-File -FilePath $out_path\$fname
-			}
-			Else {
-				$affected_object_html = ''
-				ForEach ($affected_object in $finding.AffectedObjects) {
-					$affected_object_html += $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $affected_object)
+# Increment total count of findings
+		$findings_count += 1
+
+		# Keep an HTML variable representing the current finding as HTML
+		$short_finding_html = $templates.FindingShortTemplate
+		$long_finding_html = $templates.FindingLongTemplate
+
+		# Insert finding name and number into template HTML
+		$short_finding_html = $short_finding_html.Replace("{{FINDING_NAME}}", $finding.FindingName)
+		$short_finding_html = $short_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
+		$long_finding_html = $long_finding_html.Replace("{{FINDING_NAME}}", $finding.FindingName)
+		$long_finding_html = $long_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
+
+		# Finding Impact
+		$short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $finding.Impact)
+		$long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $finding.Impact)
+
+		# Finding description
+		$long_finding_html = $long_finding_html.Replace("{{DESCRIPTION}}", $finding.Description)
+
+		# Finding default value
+		$long_finding_html = $long_finding_html.Replace("{{DEFAULTVALUE}}", $finding.DefaultValue)
+
+		# Finding expected value
+		$long_finding_html = $long_finding_html.Replace("{{EXPECTEDVALUE}}", $finding.ExpectedValue)
+
+		# Finding Remediation
+		If ($finding.Remediation.length -GT 300) {
+			$short_finding_text = "Complete remediation advice is provided in the body of the report. Clicking the link to the left will take you there."
+		}
+		Else {
+			$short_finding_text = $finding.Remediation
+		}
+
+		$short_finding_html = $short_finding_html.Replace("{{REMEDIATION}}", $short_finding_text)
+		$long_finding_html = $long_finding_html.Replace("{{REMEDIATION}}", $finding.Remediation)
+
+		# Affected Objects
+		If ($finding.AffectedObjects.Count -GT 15) {
+			$condensed = "<a href='{name}'>{count} Affected Objects Identified<a/>."
+			$condensed = $condensed.Replace("{count}", $finding.AffectedObjects.Count.ToString())
+			$condensed = $condensed.Replace("{name}", $finding.FindingName)
+			$affected_object_html = $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $condensed)
+			$fname = $finding.FindingName
+			$finding.AffectedObjects | Out-File -FilePath $out_path\$fname
+		}
+		Else {
+			$affected_object_html = ''
+			ForEach ($affected_object in $finding.AffectedObjects) {
+				$affected_object_html += $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $affected_object)
 				}
 			}
 			
-			$long_finding_html = $long_finding_html.Replace($templates.AffectedObjectsTemplate, $affected_object_html)
 
-            #Finding Default Value
-        $defaultval_html = ''
-		ForEach ($DefaultValue in $finding.DefaultValue) {
-			if ($finding.DefaultValue -eq '' -or $null) {
-            $short_finding_html = $short_finding_html.Replace("{{DEFAULTVALUE}}", $null)
-			}
-			else {
-				$short_finding_html = $short_finding_html.Replace("{{DEFAULTVALUE}}", $finding.DefaultValue)
-			}
-			if ($finding.DefaultValue -eq '' -or $null) {
-            $long_finding_html = $long_finding_html.Replace("{{DEFAULTVALUE}}", $null)
-			}
-			else {
-				$long_finding_html = $long_finding_html.Replace("{{DEFAULTVALUE}}", $finding.DefaultValue)
-			}
+		$long_finding_html = $long_finding_html.Replace($templates.AffectedObjectsTemplate, $affected_object_html)
+
+		# References
+		$reference_html = ''
+		ForEach ($reference in $finding.References) {
+			$this_reference = $templates.ReferencesTemplate.Replace("{{REFERENCE_URL}}", $reference.Url)
+			$this_reference = $this_reference.Replace("{{REFERENCE_TEXT}}", $reference.Text)
+			$reference_html += $this_reference
 		}
-        
-		#Finding Expected Value
-        $expectedval_html = ''
-		ForEach ($ExpectedValue in $finding.ExpectedValue) {
-            if ($finding.ExpectedValue -eq '' -or $null){
-			$short_finding_html = $short_finding_html.Replace("{{EXPECTEDVALUE}}", '')
-            }else{
-            $short_finding_html = $short_finding_html.Replace("{{EXPECTEDVALUE}}", $finding.ExpectedValue)
-            }
-            if ($finding.ExpectedValue -eq '' -or $null){
-			$long_finding_html = $long_finding_html.Replace("{{EXPECTEDVALUE}}", '')
-            }else{
-            $long_finding_html = $long_finding_html.Replace("{{EXPECTEDVALUE}}", $finding.ExpectedValue)
-            }
-		}	
-			
-			# References
-			$reference_html = ''
-			ForEach ($reference in $finding.References) {
-				$this_reference = $templates.ReferencesTemplate.Replace("{{REFERENCE_URL}}", $reference.Url)
-				$this_reference = $this_reference.Replace("{{REFERENCE_TEXT}}", $reference.Text)
-				$reference_html += $this_reference
-			}
-			
-			$long_finding_html = $long_finding_html.Replace($templates.ReferencesTemplate, $reference_html)
-			
-			# Add the completed short and long findings to the running list of findings (in HTML)
-			$short_findings_html += $short_finding_html
-			$long_findings_html += $long_finding_html
+
+		$long_finding_html = $long_finding_html.Replace($templates.ReferencesTemplate, $reference_html)
+
+		# Add the completed short and long findings to the running list of findings (in HTML)
+		$short_findings_html += $short_finding_html
+		$long_findings_html += $long_finding_html
 		}
 	}catch{
 Exception
@@ -802,12 +777,19 @@ catch {
 }
 
 Function DisconnectServices{
-#Disconnect Exchange Online,Skype and Security & Compliance center session
- Get-PSSession | Remove-PSSession
- #Disconnect Teams connection
- Disconnect-MicrosoftTeams
- #Disconnect SharePoint connection
- Disconnect-SPOService
+	Write-Output "Disconnect from MSOnline Service"
+	[Microsoft.Online.Administration.Automation.ConnectMsolService]::ClearUserSessionState()
+	Write-Output "Disconnect from Azure Active Directory"
+	Disconnect-AzureAD
+	Write-Output "Disconnect from Exchange Online"
+	Disconnect-ExchangeOnline -Confirm:$false
+	Write-Output "Disconnect from SharePoint Service"
+	Disconnect-SPOService
+	Write-Output "Disconnect from Microsoft Teams"
+	Disconnect-MicrosoftTeams
+	Write-Output "Disconnect from Microsoft Intune"
+	Write-Output "Disconnect from Microsoft Graph"
+	Disconnect-MgGraph
 }
 
 #Fun Banners To Make The Program Awesome!
