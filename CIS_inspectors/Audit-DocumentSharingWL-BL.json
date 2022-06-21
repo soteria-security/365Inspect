@@ -2,9 +2,11 @@
 	"FindingName": "[VULNERABLE] - Document Sharing Restriction is Not Enabled",
 	"Description": "Attackers will often attempt to expose sensitive information to external entities through sharing, and restricting the domains that your users can share documents with will reduce that surface area.",
 	"Remediation": "1. Connect to SharePoint Online using Connect-SPOService > RUN: Set-SPOTenant -SharingDomainRestrictionMode AllowList -SharingAllowedDomainList 'domain1.com domain2.com'",
-	"Impact": "Critical",
 	"DefaultValue": "off",
 	"ExpectedValue": "See Remediation to apply expected measure.",
+	"ReturnedValue" : "",
+	"Impact": "Critical",
+	"RiskRating": "Critical",
 	"AffectedObjects": "",
 	"References": [
 		{

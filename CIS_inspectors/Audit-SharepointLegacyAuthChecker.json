@@ -4,7 +4,9 @@
 	"Remediation": "Set-SPOTenant -LegacyAuthProtocolsEnabled $false",
 	"DefaultValue": "True",
 	"ExpectedValue": "False",
+	"ReturnedValue" : "",
 	"Impact": "High",
+	"RiskRating": "High",
 	"AffectedObjects": "",
 	"References": [
 		{

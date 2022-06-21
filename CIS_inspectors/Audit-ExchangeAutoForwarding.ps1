@@ -1,4 +1,11 @@
+$ErrorActionPreference = "Stop"
+
+$errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1"
+
+. $errorHandling
+
 function Audit-AutoForwardingExchange{
+try{
 $AutoForwardingExchangeData = @() 
 $AutoForwardingExchange_1 = Get-RemoteDomain Default | select AllowedOOFType, AutoForwardEnabled
 $AutoForwardingExchange_2 = Get-TransportRule | Where-Object {$_.RedirectMessageTo -ne $null} | select Name,RedirectMessageTo
@@ -27,5 +34,19 @@ $AutoForwardingExchangeData += 'Identity: '+$AutoForwardingExchange_3.Identity}
 return $AutoForwardingExchangeData
 }
 return $null
+}catch{
+Write-Warning "Error message: $_"
+$message = $_.ToString()
+$exception = $_.Exception
+$strace = $_.ScriptStackTrace
+$failingline = $_.InvocationInfo.Line
+$positionmsg = $_.InvocationInfo.PositionMessage
+$pscommandpath = $_.InvocationInfo.PSCommandPath
+$failinglinenumber = $_.InvocationInfo.ScriptLineNumber
+$scriptname = $_.InvocationInfo.ScriptName
+Write-Verbose "Write to log"
+Write-ErrorLog -message $message -exception $exception -scriptname $scriptname
+Write-Verbose "Errors written to log"
+}
 }
 return Audit-AutoForwardingExchange

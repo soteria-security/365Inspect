@@ -2,9 +2,11 @@
 	"FindingName": "VULNERABLE - External Forwarding and AutoForwarding is not correctly Configured",
 	"Description": "AllowedOOFType should not match 'External' and AutoForwardEnabled should not match 'True'. External Forwarding should be disabled to avoid information leaks and disclosure. Attackers often create these rules to exfiltrate data from your tenancy, this could be accomplished via access to an end-user account or otherwise.",
 	"Remediation": "1. Connect to Exchange Online using Connect-ExchangeOnline. > 2. RUN: Remove-TransportRule {RuleName} > 3. Set-RemoteDomain Default -AutoForwardEnabled $false > 4. Verify if the setting is enabled > 5. RUN: $rejectMessageText = 'To improve security, auto-forwarding rules to external addresses have been disabled. Please contact your Microsoft Partner if you'd like to set up an exception.' > 5. New-TransportRule -name 'Client Rules To External Block' -Priority 0 -SentToScope NotInOrganization -FromScope InOrganization -MessageTypeMatches AutoForward -RejectMessageEnhancedStatusCode 5.7.1 -RejectMessageReasonText $rejectMessageText ",
-	"Impact": "Critical",
 	"DefaultValue": "AllowedOOFType: External <br /> AutoForwardEnabled: True,",
 	"ExpectedValue": "AllowedOOFType: Not External <br /> AutoForwardEnabled: False",
+    "ReturnedValue" : "",	
+	"Impact": "Critical",
+	"RiskRating": "Critical",
 	"AffectedObjects": "",
 	"References": [
 		{

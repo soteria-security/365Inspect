@@ -4,7 +4,9 @@
 	"Remediation": "1. Connect using Connect-ExchangeOnline. > 2. Run the following PowerShell command: New-SafeLinksPolicy -Name 'My SafeLinks Policy' -IsEnabled $true -AllowClickThrough $false -EnableSafeLinksForTeams $true -ScanUrls $true -DeliverMessageAfterScan $false -EnableForInternalSenders $true -DoNotAllowClickThrough $true",
 	"DefaultValue": "IsEnabled: True <br /> AllowClickThrough: True <br /> DoNotAllowClickThrough: False <br /> ScanUrls: True <br /> EnableForInternalSenders: True <br /> EnableSafeLinksForTeams: True",
 	"ExpectedValue": "IsEnabled: True <br /> AllowClickThrough: False <br /> DoNotAllowClickThrough: True <br /> ScanUrls: True <br /> EnableForInternalSenders: True <br /> EnableSafeLinksForTeams: True",
+    "ReturnedValue" : "",
 	"Impact": "High",
+	"RiskRating": "High",
 	"AffectedObjects": "",
 	"References": [
 		{

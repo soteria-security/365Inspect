@@ -2,9 +2,11 @@
 	"FindingName": "[VULNERABLE] - No AllowList set up and Unmanaged Device Restriction Enabled",
 	"Description": "Unmanaged devices pose a risk, since their security cannot be verified. Allowing users to sync data to these devices, takes that data out of the control of the organization. This increases the risk of the data either being intentionally or accidentally leaked.",
 	"Remediation": "1. Connect to SharePoint Online using Connect-SPOService > 2. RUN: Get-ADDomain and save the GUIDs > 3. RUN Command and replace the GUIDs Set-SPOTenantSyncClientRestriction -Enable -DomainGuids 'GUID1; GUID2' -BlockMacSync:$true ",
-	"Impact": "High",
 	"DefaultValue": "False <br /> False",
 	"ExpectedValue": "True <br /> True",
+	"ReturnedValue" : "",
+	"Impact": "High",
+	"RiskRating": "High",
 	"AffectedObjects": "",
 	"References": [
 		{

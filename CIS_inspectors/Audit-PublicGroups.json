@@ -2,9 +2,11 @@
 	"FindingName": "O365 Contains Public Groups",
 	"Description": "Ensure that only organizationally managed and approved public groups exist.",
 	"Remediation": "In the Microsoft 365 Administration portal, go to: Teams&Groups > Select the Public Group > Go To Settings > Set Privacy To Private",
-	"Impact": "Informational",
 	"DefaultValue": "N/A",
 	"ExpectedValue": "N/A",
+	"ReturnedValue" : "",
+	"Impact": "Informational",
+	"RiskRating": "Informational",
 	"AffectedObjects": "",
 	"References": [
 		{

@@ -2,9 +2,11 @@
 	"FindingName": "[VULNERABLE] - Modern Authentication is not Enabled!",
 	"Description": "Enabling modern authentication for Exchange Online ensures strong authentication mechanisms are used when establishing sessions between email clients and Exchange Online.",
 	"Remediation": "1. Run the Microsoft Exchange Online PowerShell Module. > 2. Connect to Exchange Online using Connect-ExchangeOnline. > 3. Run the following PowerShell command: Set-OrganizationConfig -OAuth2ClientProfileEnabled $True ",
-	"Impact": "Medium",
 	"DefaultValue": "False",
 	"ExpectedValue": "True",
+	"ReturnedValue" : "",
+	"Impact": "Medium",
+	"RiskRating": "Medium",
 	"AffectedObjects": "",
 	"References": [
 		{

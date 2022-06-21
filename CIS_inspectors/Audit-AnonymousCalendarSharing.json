@@ -2,9 +2,11 @@
 	"FindingName": "[VULNERABLE] - Anonymous Calendar Sharing is Enabled. Please turn it off!",
 	"Description": "Attackers often spend time learning about your organization before launching an attack. Publicly available calendars can help attackers understand organizational relationships and determine when specific users may be more vulnerable to an attack, such as when they are traveling.",
 	"Remediation": "1. Select Admin Center and Click to expand Settings. > Org Settings > Calendar > 2. Uncheck Let your users share their calendars with people outside of your organization who have Office 365 or Exchange. > 3. Connect to Exchange Online using Connect-ExchangeOnline > 4. RUN: Set-SharingPolicy -Identity 'Name of the policy' -Enabled $False",
-	"Impact": "High",
 	"DefaultValue": "True",
 	"ExpectedValue": "False",
+	"ReturnedValue": "",
+	"Impact": "High",
+	"RiskRating" : "High",
 	"AffectedObjects": "",
 	"References": [
 		{

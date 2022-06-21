@@ -2,9 +2,11 @@
 	"FindingName": "[VULNERABLE] - Spam Policy Setting on Exchange Online Not Correctly Configured!",
 	"Description": "You should set your Exchange Online Spam Policies to copy emails and notify someone when a sender in your tenant has been blocked for sending spam emails.",
 	"Remediation": "1. Connect to Exchange Online using Connect-ExchangeOnline. > 2. RUN: $BccEmailAddress = @('<INSERT-EMAIL>') 3. RUN: $NotifyEmailAddress = @('<INSERT-EMAIL>') 4. RUN: Set-HostedOutboundSpamFilterPolicy -Identity Default -BccSuspiciousOutboundAdditionalRecipients $BccEmailAddress -BccSuspiciousOutboundMail $true -NotifyOutboundSpam $true -NotifyOutboundSpamRecipients $NotifyEmailAddress ",
-	"Impact": "Medium",
 	"DefaultValue": "BccSuspiciousOutboundMail: False <br /> NotifyOutboundSpamRecipients: Null <br /> NotifyOutboundSpam: False",
 	"ExpectedValue": "BccSuspiciousOutboundMail: True <br /> NotifyOutboundSpamRecipients: example@mail.org <br /> NotifyOutboundSpam: True",
+    "ReturnedValue" : "",	
+	"Impact": "Medium",
+	"RiskRating": "Medium",
 	"AffectedObjects": "",
 	"References": [
 		{

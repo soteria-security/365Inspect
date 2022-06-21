@@ -2,9 +2,11 @@
 	"FindingName": "[VULNERABLE] - Safe Attachments is not Correctly Configured!",
 	"Description": "Safe Attachments for SharePoint, OneDrive, and Microsoft Teams protects your organization from inadvertently sharing malicious files. If this is not enabled your organization might be at risk with malicious files are executed!",
 	"Remediation": "1. Connect using Connect-ExchangeOnline. > 2. Run the following PowerShell command: Set-AtpPolicyForO365 -EnableATPForSPOTeamsODB $True ",
-	"Impact": "High",
 	"DefaultValue": "False",
 	"ExpectedValue": "True",
+	"ReturnedValue" : "",
+	"Impact": "High",
+	"RiskRating": "High",
 	"AffectedObjects": "",
 	"References": [
 		{

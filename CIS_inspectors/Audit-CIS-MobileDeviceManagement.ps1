@@ -1,5 +1,12 @@
-#Applies to: 7.2, 7.3, 7.4 , 7.5, 7.6, 7.7, 7.8, 7.9, 7.10
+#Applies to CIS: 7.2, 7.3, 7.4 , 7.5, 7.6, 7.7, 7.8, 7.9, 7.10
+$ErrorActionPreference = "Stop"
+
+$errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1"
+
+. $errorHandling
+
 function Audit-CISMobileDeviceAudit{
+try{
 $CISMobileDeviceAuditData = @()
 $CISMobileDevice = Get-MobileDeviceMailboxPolicy | select AlphanumericPasswordRequired,PasswordEnabled,PasswordRecoveryEnabled,AllowSimplePassword,MinPasswordLength,MaxPasswordFailedAttempts,PasswordExpiration,PasswordHistory,MinPasswordComplexCharacters,MaxInactivityTimeLock,DeviceEncryptionEnabled
 if ($CISMobileDevice -ne $null){
@@ -39,5 +46,19 @@ $CISMobileDeviceAuditData += "`n DeviceEncryptionEnabled: "+$CISMobileDevice.Dev
 return $CISMobileDeviceAuditData
 }
 return $null
+}catch{
+Write-Warning "Error message: $_"
+$message = $_.ToString()
+$exception = $_.Exception
+$strace = $_.ScriptStackTrace
+$failingline = $_.InvocationInfo.Line
+$positionmsg = $_.InvocationInfo.PositionMessage
+$pscommandpath = $_.InvocationInfo.PSCommandPath
+$failinglinenumber = $_.InvocationInfo.ScriptLineNumber
+$scriptname = $_.InvocationInfo.ScriptName
+Write-Verbose "Write to log"
+Write-ErrorLog -message $message -exception $exception -scriptname $scriptname
+Write-Verbose "Errors written to log"
+}
 }
 return Audit-CISMobileDeviceAudit

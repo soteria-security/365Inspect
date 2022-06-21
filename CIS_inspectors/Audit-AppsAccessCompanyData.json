@@ -2,9 +2,11 @@
 	"FindingName": "[VULNERABLE] - Apps can Access Sensitive Company Data!!!",
 	"Description": "Attackers can commonly use custom applications to trick users into granting them access to company data.",
 	"Remediation": "1. Connect to Microsoft Online service using Connect-MSOLService. > 2. Run the following Microsoft Online PowerShell command: Set-MsolCompanySettings -UsersPermissionToUserConsentToAppEnabled $False ",
-	"Impact": "Critical",
 	"DefaultValue": "True",
 	"ExpectedValue": "False",
+	"ReturnedValue" : "",
+	"Impact": "Critical",
+	"RiskRating": "Critical",
 	"AffectedObjects": "",
 	"References": [
 		{

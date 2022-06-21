@@ -2,9 +2,11 @@
 	"FindingName": "[VULNERABLE] - External Users can Reshare Files,Folders and Sites they do not own!",
 	"Description": "Sharing and collaboration are key; however, file, folder, or site collection owners should have the authority over what external users get shared with to prevent unauthorized disclosures of information.",
 	"Remediation": "1. Connect to SharePoint Online service using Connect-SPOService. > 2. RUN: Set-SPOTenant -PreventExternalUsersFromResharing $True ",
-	"Impact": "Critical",
 	"DefaultValue": "True",
 	"ExpectedValue": "False",
+	"ReturnedValue" : "",
+	"Impact": "Critical",
+	"RiskRating": "Critical",
 	"AffectedObjects": "",
 	"References": [
 		{
