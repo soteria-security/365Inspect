@@ -44,27 +44,27 @@ Date: 21-06-2022
   PS> .\365Inspect.ps1
 #>
 
-param (
-	[Parameter(Mandatory = $true,
-		HelpMessage = 'Organization name')]
-	[string] $OrgName,
-	[Parameter(Mandatory = $true,
-		HelpMessage = 'Output path for report')]
-	[string] $OutPath,
-    [Parameter(Mandatory = $false,
-        HelpMessage = 'Username')]
-        [string] $Username,
-    [Parameter(Mandatory = $false,
-        HelpMessage = 'Password')]
-        [String] $Password,
-	[Parameter(Mandatory = $false,
-		HelpMessage = 'Skip Update Check')]
-    [switch]$SkipUpdateCheck,
-    [Parameter(Mandatory = $false,
-        HelpMessage = 'Auth Type')]
-    [switch] $MFA,
-	[string[]] $SelectedInspectors = @(),
-	[string[]] $ExcludedInspectors = @()
+param(
+  [Parameter(Mandatory = $true,
+    HelpMessage = 'Organization name')]
+  [string]$OrgName,
+  [Parameter(Mandatory = $true,
+    HelpMessage = 'Output path for report')]
+  [string]$OutPath,
+  [Parameter(Mandatory = $false,
+    HelpMessage = 'Username')]
+  [string]$Username,
+  [Parameter(Mandatory = $false,
+    HelpMessage = 'Password')]
+  [string]$Password,
+  [Parameter(Mandatory = $false,
+    HelpMessage = 'Skip Update Check')]
+  [switch]$SkipUpdateCheck,
+  [Parameter(Mandatory = $false,
+    HelpMessage = 'Auth Type')]
+  [switch]$MFA,
+  [string[]]$SelectedInspectors = @(),
+  [string[]]$ExcludedInspectors = @()
 )
 
 $user_name = $Username
@@ -73,759 +73,759 @@ $org_name = $OrgName
 $out_path = $OutPath
 $selected_inspectors = $SelectedInspectors
 $excluded_inspectors = $ExcludedInspectors
-$ConnectedServices=""
+$ConnectedServices = ""
 
 
-Function CheckAdminPrivBeta{
-# Check if script is running as Adminstrator and if not use RunAs
-Write-Host "[...] Checking if the script is running as Administrator"
-$IsAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")
-if (-not $IsAdmin){
+function CheckAdminPrivBeta {
+  # Check if script is running as Adminstrator and if not use RunAs
+  Write-Host "[...] Checking if the script is running as Administrator"
+  $IsAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")
+  if (-not $IsAdmin) {
     Write-Host "[!] The script is NOT running as Administrator, restarting PowerShell as Administrator..." -ForegroundColor Red
-    try{
-    $cmd = $PSCommandPath + " -OrgName $OrgName -OutPath $OutPath"
-    if (-not [string]::IsNullOrEmpty($user_name)){
-    $cmd = $cmd + " -username "+$Username
+    try {
+      $cmd = $PSCommandPath + " -OrgName $OrgName -OutPath $OutPath"
+      if (-not [string]::IsNullOrEmpty($user_name)) {
+        $cmd = $cmd + " -username " + $Username
+      }
+      if (-not [string]::IsNullOrEmpty($pass_word)) {
+        $cmd = $cmd + " -password " + $Password
+      }
+      if ($SkipUpdateCheck.IsPresent) {
+        $cmd = $cmd + " -SkipUpdateCheck"
+      }
+      if ($MFA.IsPresent) {
+        $cmd = $cmd + " -MFA"
+      }
+      $arguments = "-NoProfile -NoExit -Command ""& {$cmd} """
+      Start-Process "$psHome\powershell.exe" -Verb Runas -ArgumentList $arguments -ErrorAction Stop
+      break
+    } catch {
+      Write-Warning "[!] Program needs Administrator Rights! You cannot run this in normal user mode!"
+      break
     }
-    if(-not [string]::IsNullOrEmpty($pass_word)){
-    $cmd = $cmd + " -password "+$Password
-    }
-    if ($SkipUpdateCheck.IsPresent){
-    $cmd = $cmd + " -SkipUpdateCheck"
-    }
-    if($MFA.IsPresent){
-    $cmd = $cmd + " -MFA"
-    }
-    $arguments = "-NoProfile -NoExit -Command ""& {$cmd} """ 
-    Start-Process "$psHome\powershell.exe" -Verb Runas -ArgumentList $arguments -ErrorAction Stop
-    Break
-    }catch{
-    Write-Warning "[!] Program needs Administrator Rights! You cannot run this in normal user mode!"
-    Break
-    }             
-}
-else{
+  }
+  else {
     Write-Host "[+] The script is running as Administrator..." -ForegroundColor Green
-}
+  }
 }
 
 
-Function CheckInstalledModules{
-if (-not $SkipUpdateCheck.IsPresent){
-Write-Warning "[?] Checking Installed Modules..."
-# Define the set of modules installed and updated from the PowerShell Gallery that we want to maintain
-$O365Modules = @("MicrosoftTeams", "MSOnline", "AzureADPreview", "ExchangeOnlineManagement", "Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph","Microsoft.Graph.Intune")
-#Check which Modules are Installed Already...
-$installed = Get-InstalledModule
-    foreach ($module in $O365Modules){
-        if ($installed.Name -notcontains $module){
-            Write-Host "`n$module is not installed." -ForegroundColor Red
-            Write-Warning 'The module may be installed by running "Install-Module $module -Force -Scope CurrentUser -Confirm:$false" in an elevated PowerShell window.'
-            $install = Read-Host -Prompt "Would you like to attempt installation now? (Y|N)"
-		        if ($install -eq 'y') {
-			        Install-Module $module -Scope CurrentUser -Force -Confirm:$false
-                    $count ++
-                    }
-                    }else{
-                    Write-Host "[+] $module is installed." -ForegroundColor Green
-                    $count ++
-                    }
-                    }
-Write-Host "[?] Checking Installed Modules Updates..." -ForegroundColor Yellow
-ForEach ($module in $O365Modules) {
-$onversion = Find-Module -Name $module -ErrorAction Stop -AllowPrerelease
-$localversion = Get-InstalledModule -Name $module -ErrorAction Stop
-         #compare versions
-         if ($localversion.Version -ilt $onversion.Version -or $localversion.Version -ne $onversion.Version){
-         Write-Warning ($onversion.Version+ ' != '+$localversion.Version)
-         Write-Host "Trying to update $module ..."
-            Update-Module -Name $module -AllowPrerelease -Force
-         }
-         if ($onversion.Version -ige $localversion.Version){
-         Write-Warning ($module+' is up-to-date!')
-         }
-         }
-#Check if PowerShellGet is on Version 3 instead of 2
-$PowerShellGetVersion = Get-InstalledModule -Name "PowerShellGet" -ErrorAction Stop
-if ($PowerShellGetVersion.Version -igt 2.2.5){
-ForEach ($module in $O365Modules) {
-Write-Host "[?] Checking for older versions of" $module
-   $AllVersions = Get-InstalledModule -Name $module -AllVersions -AllowPrerelease | measure
-   if ($AllVersions.Count -igt 1)
-   {
-   $AllVersions = Get-InstalledModule -Name $module -AllVersions -AllowPrerelease | Sort Version -Descending
-   $MostRecentVersion = $AllVersions[0].Version
-   Write-Host "Most recent version of" $module "is" $MostRecentVersion
-      ForEach ($Version in $AllVersions) { #Check each version and remove old versions
-        If ($Version.Version -ilt $MostRecentVersion -or $Version.Version -ne $MostRecentVersion)  { # Old version - remove
-           Write-Host "Uninstalling version" $Version.Version "of Module" $module "..." -ForegroundColor Red
-           Uninstall-PSResource -Name $module -Version $Version.Version 
-           }
-           }
-           }
-           }
-           }else{
-           # Check and remove older versions of the modules from the PC (Classic Method)
-ForEach ($module in $O365Modules) {
-   Write-Host "[?] Checking for older versions of" $module
-   $AllVersions = Get-InstalledModule -Name $module -AllVersions -AllowPrerelease | measure
-   if ($AllVersions.Count -igt 1){
-   $AllVersions = Get-InstalledModule -Name $module -AllVersions -AllowPrerelease | Sort Version -Descending
-   $MostRecentVersion = $AllVersions[0].Version
-   Write-Host "Most recent version of" $module "is" $MostRecentVersion
-      ForEach ($Version in $AllVersions) { #Check each version and remove old versions
-        If ($Version.Version -ilt $MostRecentVersion)  { # Old version - remove
-           Write-Host "Uninstalling version" $Version.Version "of Module" $module "..." -ForegroundColor Red 
-           Uninstall-Module -Name $module -RequiredVersion $Version.Version -Force
-         } #End if
+function CheckInstalledModules {
+  if (-not $SkipUpdateCheck.IsPresent) {
+    Write-Warning "[?] Checking Installed Modules..."
+    # Define the set of modules installed and updated from the PowerShell Gallery that we want to maintain
+    $O365Modules = @("MicrosoftTeams","MSOnline","AzureADPreview","ExchangeOnlineManagement","Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph","Microsoft.Graph.Intune")
+    #Check which Modules are Installed Already...
+    $installed = Get-InstalledModule
+    foreach ($module in $O365Modules) {
+      if ($installed.Name -notcontains $module) {
+        Write-Host "`n$module is not installed." -ForegroundColor Red
+        Write-Warning 'The module may be installed by running "Install-Module $module -Force -Scope CurrentUser -Confirm:$false" in an elevated PowerShell window.'
+        $install = Read-Host -Prompt "Would you like to attempt installation now? (Y|N)"
+        if ($install -eq 'y') {
+          Install-Module $module -Scope CurrentUser -Force -Confirm:$false
+          $count++
+        }
+      } else {
+        Write-Host "[+] $module is installed." -ForegroundColor Green
+        $count++
+      }
+    }
+    Write-Host "[?] Checking Installed Modules Updates..." -ForegroundColor Yellow
+    foreach ($module in $O365Modules) {
+      $onversion = Find-Module -Name $module -ErrorAction Stop -AllowPrerelease
+      $localversion = Get-InstalledModule -Name $module -ErrorAction Stop
+      #compare versions
+      if ($localversion.Version -ilt $onversion.Version -or $localversion.Version -ne $onversion.Version) {
+        Write-Warning ($onversion.Version + ' != ' + $localversion.Version)
+        Write-Host "Trying to update $module ..."
+        Update-Module -Name $module -AllowPrerelease -Force
+      }
+      if ($onversion.Version -ige $localversion.Version) {
+        Write-Warning ($module + ' is up-to-date!')
+      }
+    }
+    #Check if PowerShellGet is on Version 3 instead of 2
+    $PowerShellGetVersion = Get-InstalledModule -Name "PowerShellGet" -ErrorAction Stop
+    if ($PowerShellGetVersion.Version -igt 2.2.5) {
+      foreach ($module in $O365Modules) {
+        Write-Host "[?] Checking for older versions of" $module
+        $AllVersions = Get-InstalledModule -Name $module -AllVersions -AllowPrerelease | Measure-Object
+        if ($AllVersions.Count -igt 1)
+        {
+          $AllVersions = Get-InstalledModule -Name $module -AllVersions -AllowPrerelease | Sort Version -Descending
+          $MostRecentVersion = $AllVersions[0].Version
+          Write-Host "Most recent version of" $module "is" $MostRecentVersion
+          foreach ($Version in $AllVersions) { #Check each version and remove old versions
+            if ($Version.Version -ilt $MostRecentVersion -or $Version.Version -ne $MostRecentVersion) { # Old version - remove
+              Write-Host "Uninstalling version" $Version.Version "of Module" $module "..." -ForegroundColor Red
+              Uninstall-PSResource -Name $module -Version $Version.Version
+            }
+          }
+        }
+      }
+    } else {
+      # Check and remove older versions of the modules from the PC (Classic Method)
+      foreach ($module in $O365Modules) {
+        Write-Host "[?] Checking for older versions of" $module
+        $AllVersions = Get-InstalledModule -Name $module -AllVersions -AllowPrerelease | Measure-Object
+        if ($AllVersions.Count -igt 1) {
+          $AllVersions = Get-InstalledModule -Name $module -AllVersions -AllowPrerelease | Sort Version -Descending
+          $MostRecentVersion = $AllVersions[0].Version
+          Write-Host "Most recent version of" $module "is" $MostRecentVersion
+          foreach ($Version in $AllVersions) { #Check each version and remove old versions
+            if ($Version.Version -ilt $MostRecentVersion) { # Old version - remove
+              Write-Host "Uninstalling version" $Version.Version "of Module" $module "..." -ForegroundColor Red
+              Uninstall-Module -Name $module -RequiredVersion $Version.Version -Force
+            } #End if
+          } #End ForEach
+        } #End If
       } #End ForEach
-  } #End If
- } #End ForEach
-           }
-#END SCRIPT
     }
+    #END SCRIPT
+  }
 }
 
-Function Exception{
-if(-not (Get-Variable -Name 'PSScriptRoot' -Scope 'Script')) {
+function Exception {
+  if (-not (Get-Variable -Name 'PSScriptRoot' -Scope 'Script')) {
     $Script:PSScriptRoot = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
-}
-if ($psISE){
-. (Join-Path (Split-Path -Path $psISE.CurrentFile.FullPath) Write-ErrorLog.ps1)
-}else{
-. (Join-Path $PSScriptRoot Write-ErrorLog.ps1)
-}
-Write-Warning "Error message: $_"
-	$message = $_.ToString()
-	$exception = $_.Exception
-	$strace = $_.ScriptStackTrace
-	$failingline = $_.InvocationInfo.Line
-	$positionmsg = $_.InvocationInfo.PositionMessage
-	$pscommandpath = $_.InvocationInfo.PSCommandPath
-	$failinglinenumber = $_.InvocationInfo.ScriptLineNumber
-	$scriptname = $_.InvocationInfo.ScriptName
-	Write-Verbose "Write to log"
-	Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
-	Write-Verbose "Errors written to log"
-}
-
-Function Connect-Services{
-if ($MFA.IsPresent){
-#Microsoft Teams
-try{
-Write-Output "Connecting to Microsoft Teams"
-if (-not [string]::IsNullOrEmpty($Username)){
-$Team = Connect-MicrosoftTeams -AccountId $Username
-}else{
-$Team = Connect-MicrosoftTeams
-}
-If(-not [string]::IsNullOrEmpty($Team)){
-Write-Warning "Succesfully Connected to Microsoft Teams"
-     $ConnectedServices=$ConnectedServices+"Microsoft Teams `n"
-}
-}catch{
-Exception
-break
+  }
+  if ($psISE) {
+    .(Join-Path (Split-Path -Path $psISE.CurrentFile.FullPath) Write-ErrorLog.ps1)
+  } else {
+    .(Join-Path $PSScriptRoot Write-ErrorLog.ps1)
+  }
+  Write-Warning "Error message: $_"
+  $message = $_.ToString()
+  $exception = $_.Exception
+  $strace = $_.ScriptStackTrace
+  $failingline = $_.InvocationInfo.Line
+  $positionmsg = $_.InvocationInfo.PositionMessage
+  $pscommandpath = $_.InvocationInfo.PSCommandPath
+  $failinglinenumber = $_.InvocationInfo.ScriptLineNumber
+  $scriptname = $_.InvocationInfo.ScriptName
+  Write-Verbose "Write to log"
+  Write-ErrorLog -Message $message -Exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
+  Write-Verbose "Errors written to log"
 }
 
-#Microsoft Online Service
-try{
-Write-Output "Connecting to MSOnline Service..."
-Connect-MsolService -ErrorAction Stop
-    If((Get-MsolUser -MaxResults 1) -ne $null)
-    {
-     Write-Warning "Succesfully Connected to MSOnline"
-     $ConnectedServices=$ConnectedServices+"MSOnline `n"
+function Connect-Services {
+  if ($MFA.IsPresent) {
+    #Microsoft Teams
+    try {
+      Write-Output "Connecting to Microsoft Teams"
+      if (-not [string]::IsNullOrEmpty($Username)) {
+        $Team = Connect-MicrosoftTeams -AccountId $Username
+      } else {
+        $Team = Connect-MicrosoftTeams
+      }
+      if (-not [string]::IsNullOrEmpty($Team)) {
+        Write-Warning "Succesfully Connected to Microsoft Teams"
+        $ConnectedServices = $ConnectedServices + "Microsoft Teams `n"
+      }
+    } catch {
+      Exception
+      break
     }
-}catch{
-Exception
-break
-}
-#Azure-AD (Preview)
-try{
-Write-Output "Connecting to Azure Active Directory..."
-if (-not [string]::IsNullOrEmpty($Username)){
-Connect-AzureAD -AccountId $Username -ErrorAction Stop | out-null
-}else{
-Connect-AzureAD -ErrorAction Stop | out-null
-}
-If((Get-AzureADUser -Top 1) -ne $null){
-    Write-Warning "Succesfully Connected to AzureAD"
-     $ConnectedServices=$ConnectedServices+"AzureAD `n"
-}
-}catch{
-Exception
-break
-}
-#Exchange Online
-try{
-Write-Output "Connecting to Exchange Online..."
-if (-not [string]::IsNullOrEmpty($Username)){
-Connect-ExchangeOnline -UserPrincipalName $Username -ShowBanner:$false -ErrorAction Stop
-}else{
-Connect-ExchangeOnline -ShowBanner:$false -ErrorAction Stop
-}
-If((Get-EXOMailbox -ResultSize 1) -ne $null){
-    Write-Warning "Succesfully Connected to Exchange Online"
-     $ConnectedServices=$ConnectedServices+"Exchange Online `n"
+
+    #Microsoft Online Service
+    try {
+      Write-Output "Connecting to MSOnline Service..."
+      Connect-MsolService -ErrorAction Stop
+      if ((Get-MsolUser -MaxResults 1) -ne $null)
+      {
+        Write-Warning "Succesfully Connected to MSOnline"
+        $ConnectedServices = $ConnectedServices + "MSOnline `n"
+      }
+    } catch {
+      Exception
+      break
     }
-}catch{
-Exception
-break
-}
-#Sharepoint Service
-try{
-Write-Output "Connecting to SharePoint Service"
-Import-Module Microsoft.Online.SharePoint.PowerShell -DisableNameChecking 
-Connect-SPOService -ErrorAction Stop -Url "https://$org_name-admin.sharepoint.com"
-if((Get-SPOTenant) -ne $null){
-Write-Warning "Succesfully Connected to SharePoint Online"
-     $ConnectedServices=$ConnectedServices+"SharePoint Online `n"
-}
-}catch{
-Exception
-break
-}
-
-#Microsoft InTune
-try{
-Write-Output "Connecting and consenting to Microsoft Intune"
-Connect-MsGraph -AdminConsent -ErrorAction Stop | out-null
-Connect-MSGraph -ErrorAction Stop | out-null
-if ((Get-IntuneManagedDevice -Top 1) -ne $null){
-Write-Warning "Succesfully Connected to Microsoft InTune"
-     $ConnectedServices=$ConnectedServices+"Microsoft InTune `n"
-}
-}catch{
-Exception
-break
-}
-
-#Microsoft Graph
-
-try{
-Write-Output "Connecting and consenting to Microsoft Graph"
-$MSGraph = Connect-MgGraph -ErrorAction Stop -Scopes "AuditLog.Read.All","Policy.Read.All","Directory.Read.All","IdentityProvider.Read.All","Organization.Read.All","Securityevents.Read.All","ThreatIndicators.Read.All","SecurityActions.Read.All","User.Read.All","UserAuthenticationMethod.Read.All","MailboxSettings.Read"
-if ($MSGraph -contains "Welcome To Microsoft Graph!"){
-Write-Warning "Succesfully Connected to Microsoft Graph"
-     $ConnectedServices=$ConnectedServices+"Microsoft Graph `n"
-     }
-}catch{
-Exception
-break
-}
-
-#Security & Compliance Center IPPSSession
-try{
-Write-Output "Connecting to IPPSSession..."
-if (-not [string]::IsNullOrEmpty($Username)){
-Connect-IPPSSession -UserPrincipalName $Username -WarningAction SilentlyContinue -ErrorAction Stop
-}else{
-Connect-IPPSSession -WarningAction SilentlyContinue -ErrorAction Stop
-}
-$Result=Get-RetentionCompliancePolicy
-if (($?) -eq $true){
-Write-Warning "Succesfully Connected to Security & Compliance Center"
-     $ConnectedServices=$ConnectedServices+"IPPSSession `n"
-}
-}catch{
-Exception
-break
-}
-}elseif(-not [string]::IsNullOrEmpty($Username) -and -not [string]::IsNullOrEmpty($Password)){
-#DO NORMAL AUTHENTICATION HERE with Username and Password
-try{
-$SecuredPassword = ConvertTo-SecureString -AsPlainText $Password -Force 
-$Credential  = New-Object System.Management.Automation.PSCredential $UserName,$SecuredPassword
-}catch{
-Exception
-}
-
-#Microsoft Teams
-try{
-Write-Output "Connecting to Microsoft Teams"
-$Team = Connect-MicrosoftTeams -Credential $Credential -ErrorAction Stop
-If(-not [string]::IsNullOrEmpty($Team)){
-Write-Warning "Succesfully Connected to Microsoft Teams"
-     $ConnectedServices=$ConnectedServices+"Microsoft Teams `n"
-}
-}catch{
-Exception
-break
-}
-
-#Microsoft Online Service
-try{
-Write-Output "Connecting to MSOnline Service..."
-Connect-MsolService -Credential $Credential -ErrorAction Stop
-    If((Get-MsolUser -MaxResults 1) -ne $null)
-    {
-     Write-Warning "Succesfully Connected to MSOnline"
-     $ConnectedServices=$ConnectedServices+"MSOnline `n"
-    }
-}catch{
-Exception
-break
-}
     #Azure-AD (Preview)
-try{
-Write-Output "Connecting to Azure Active Directory..."
-Connect-AzureAD -Credential $Credential -ErrorAction Stop
-If((Get-AzureADUser -Top 1) -ne $null){
-    Write-Warning "Succesfully Connected to AzureAD"
-     $ConnectedServices=$ConnectedServices+"AzureAD `n"
-}
-}catch{
-Exception
-break
-}
-#Exchange Online
-try{
-Write-Output "Connecting to Exchange Online..."
-Connect-ExchangeOnline -Credential $Credential -ShowBanner:$false -ErrorAction Stop
-If((Get-EXOMailbox -ResultSize 1) -ne $null){
-    Write-Warning "Succesfully Connected to Exchange Online"
-     $ConnectedServices=$ConnectedServices+"Exchange Online `n"
+    try {
+      Write-Output "Connecting to Azure Active Directory..."
+      if (-not [string]::IsNullOrEmpty($Username)) {
+        Connect-AzureAD -AccountId $Username -ErrorAction Stop | Out-Null
+      } else {
+        Connect-AzureAD -ErrorAction Stop | Out-Null
+      }
+      if ((Get-AzureADUser -Top 1) -ne $null) {
+        Write-Warning "Succesfully Connected to AzureAD"
+        $ConnectedServices = $ConnectedServices + "AzureAD `n"
+      }
+    } catch {
+      Exception
+      break
     }
-}catch{
-Exception
-break
-}
-#Sharepoint Service
-try{
-Write-Output "Connecting to SharePoint Service"
-Import-Module Microsoft.Online.SharePoint.PowerShell -DisableNameChecking
-Connect-SPOService -Url "https://$org_name-admin.sharepoint.com" -Credential $Credential -ErrorAction Stop
-if((Get-SPOTenant) -ne $null){
-Write-Warning "Succesfully Connected to SharePoint Online"
-     $ConnectedServices=$ConnectedServices+"SharePoint Online `n"
-}
-}catch{
-Exception
-break
-}
-
-#Microsoft InTune
-try{
-Write-Output "Connecting and consenting to Microsoft Intune"
-Connect-MsGraph -AdminConsent -ErrorAction Stop | out-null
-Connect-MSGraph -ErrorAction Stop | out-null
-if ((Get-IntuneManagedDevice -Top 1) -ne $null){
-Write-Warning "Succesfully Connected to Microsoft InTune"
-     $ConnectedServices=$ConnectedServices+"Microsoft InTune `n"
-}
-}catch{
-Exception
-break
-}
-
-#Microsoft Graph
-
-try{
-Write-Output "Connecting and consenting to Microsoft Graph"
-$MSGraph = Connect-MgGraph -ErrorAction Stop -Scopes "AuditLog.Read.All","Policy.Read.All","Directory.Read.All","IdentityProvider.Read.All","Organization.Read.All","Securityevents.Read.All","ThreatIndicators.Read.All","SecurityActions.Read.All","User.Read.All","UserAuthenticationMethod.Read.All","MailboxSettings.Read"
-if ($MSGraph -contains "Welcome To Microsoft Graph!"){
-Write-Warning "Succesfully Connected to Microsoft Graph"
-     $ConnectedServices=$ConnectedServices+"Microsoft Graph `n"
-     }
-}catch{
-Exception
-break
-}
-
-#Security & Compliance Center IPPSSession
-try{
-Write-Output "Connecting to IPPSSession..."
-Connect-IPPSSession -Credential $Credential -WarningAction SilentlyContinue -ErrorAction Stop
-$Result=Get-RetentionCompliancePolicy
-if (($?) -eq $true){
-Write-Warning "Succesfully Connected to Security & Compliance Center"
-     $ConnectedServices=$ConnectedServices+"IPPSSession `n"
-}
-}catch{
-Exception
-break
-}
-}else{
-#Normal Auth
-
-#Microsoft Teams
-#There is a bug that if we put Microsoft Teams somewhere in the middle to connect that we might get an exception.
-try{
-Write-Output "Connecting to Microsoft Teams"
-if (-not [string]::IsNullOrEmpty($Username)){
-$Team = Connect-MicrosoftTeams -AccountId $Username
-}else{
-$Team = Connect-MicrosoftTeams 
-}
-If(-not [string]::IsNullOrEmpty($Team)){
-Write-Warning "Succesfully Connected to Microsoft Teams"
-     $ConnectedServices=$ConnectedServices+"Microsoft Teams `n"
-}
-}catch{
-Exception
-break
-}
-
-#Microsoft Online Service
-try{
-Write-Output "Connecting to MSOnline Service..."
-Connect-MsolService -ErrorAction Stop
-    If((Get-MsolUser -MaxResults 1) -ne $null)
-    {
-     Write-Warning "Succesfully Connected to MSOnline"
-     $ConnectedServices=$ConnectedServices+"MSOnline `n"
+    #Exchange Online
+    try {
+      Write-Output "Connecting to Exchange Online..."
+      if (-not [string]::IsNullOrEmpty($Username)) {
+        Connect-ExchangeOnline -UserPrincipalName $Username -ShowBanner:$false -ErrorAction Stop
+      } else {
+        Connect-ExchangeOnline -ShowBanner:$false -ErrorAction Stop
+      }
+      if ((Get-EXOMailbox -ResultSize 1) -ne $null) {
+        Write-Warning "Succesfully Connected to Exchange Online"
+        $ConnectedServices = $ConnectedServices + "Exchange Online `n"
+      }
+    } catch {
+      Exception
+      break
     }
-}catch{
-Exception
-break
-}
+    #Sharepoint Service
+    try {
+      Write-Output "Connecting to SharePoint Service"
+      Import-Module Microsoft.Online.SharePoint.PowerShell -DisableNameChecking
+      Connect-SPOService -ErrorAction Stop -Url "https://$org_name-admin.sharepoint.com"
+      if ((Get-SPOTenant) -ne $null) {
+        Write-Warning "Succesfully Connected to SharePoint Online"
+        $ConnectedServices = $ConnectedServices + "SharePoint Online `n"
+      }
+    } catch {
+      Exception
+      break
+    }
+
+    #Microsoft InTune
+    try {
+      Write-Output "Connecting and consenting to Microsoft Intune"
+      Connect-MSGraph -AdminConsent -ErrorAction Stop | Out-Null
+      Connect-MSGraph -ErrorAction Stop | Out-Null
+      if ((Get-IntuneManagedDevice -Top 1) -ne $null) {
+        Write-Warning "Succesfully Connected to Microsoft InTune"
+        $ConnectedServices = $ConnectedServices + "Microsoft InTune `n"
+      }
+    } catch {
+      Exception
+      break
+    }
+
+    #Microsoft Graph
+
+    try {
+      Write-Output "Connecting and consenting to Microsoft Graph"
+      $MSGraph = Connect-MgGraph -ErrorAction Stop -Scopes "AuditLog.Read.All","Policy.Read.All","Directory.Read.All","IdentityProvider.Read.All","Organization.Read.All","Securityevents.Read.All","ThreatIndicators.Read.All","SecurityActions.Read.All","User.Read.All","UserAuthenticationMethod.Read.All","MailboxSettings.Read"
+      if ($MSGraph -contains "Welcome To Microsoft Graph!") {
+        Write-Warning "Succesfully Connected to Microsoft Graph"
+        $ConnectedServices = $ConnectedServices + "Microsoft Graph `n"
+      }
+    } catch {
+      Exception
+      break
+    }
+
+    #Security & Compliance Center IPPSSession
+    try {
+      Write-Output "Connecting to IPPSSession..."
+      if (-not [string]::IsNullOrEmpty($Username)) {
+        Connect-IPPSSession -UserPrincipalName $Username -WarningAction SilentlyContinue -ErrorAction Stop
+      } else {
+        Connect-IPPSSession -WarningAction SilentlyContinue -ErrorAction Stop
+      }
+      $Result = Get-RetentionCompliancePolicy
+      if (($?) -eq $true) {
+        Write-Warning "Succesfully Connected to Security & Compliance Center"
+        $ConnectedServices = $ConnectedServices + "IPPSSession `n"
+      }
+    } catch {
+      Exception
+      break
+    }
+  } elseif (-not [string]::IsNullOrEmpty($Username) -and -not [string]::IsNullOrEmpty($Password)) {
+    #DO NORMAL AUTHENTICATION HERE with Username and Password
+    try {
+      $SecuredPassword = ConvertTo-SecureString -AsPlainText $Password -Force
+      $Credential = New-Object System.Management.Automation.PSCredential $UserName,$SecuredPassword
+    } catch {
+      Exception
+    }
+
+    #Microsoft Teams
+    try {
+      Write-Output "Connecting to Microsoft Teams"
+      $Team = Connect-MicrosoftTeams -Credential $Credential -ErrorAction Stop
+      if (-not [string]::IsNullOrEmpty($Team)) {
+        Write-Warning "Succesfully Connected to Microsoft Teams"
+        $ConnectedServices = $ConnectedServices + "Microsoft Teams `n"
+      }
+    } catch {
+      Exception
+      break
+    }
+
+    #Microsoft Online Service
+    try {
+      Write-Output "Connecting to MSOnline Service..."
+      Connect-MsolService -Credential $Credential -ErrorAction Stop
+      if ((Get-MsolUser -MaxResults 1) -ne $null)
+      {
+        Write-Warning "Succesfully Connected to MSOnline"
+        $ConnectedServices = $ConnectedServices + "MSOnline `n"
+      }
+    } catch {
+      Exception
+      break
+    }
     #Azure-AD (Preview)
-try{
-Write-Output "Connecting to Azure Active Directory..."
-if (-not [string]::IsNullOrEmpty($Username)){
-Connect-AzureAD -ErrorAction Stop -AccountId $Username | out-null
-}else{
-Connect-AzureAD -ErrorAction Stop | out-null
-}
-If((Get-AzureADUser -Top 1) -ne $null){
-    Write-Warning "Succesfully Connected to AzureAD"
-     $ConnectedServices=$ConnectedServices+"AzureAD `n"
-}
-}catch{
-Exception
-break
-}
-#Exchange Online
-try{
-Write-Output "Connecting to Exchange Online..."
-if (-not [string]::IsNullOrEmpty($Username)){
-Connect-ExchangeOnline -UserPrincipalName $Username -ShowBanner:$false
-}else{
-Connect-ExchangeOnline -ShowBanner:$false
-}
-If((Get-EXOMailbox -ResultSize 1) -ne $null){
-    Write-Warning "Succesfully Connected to Exchange Online"
-     $ConnectedServices=$ConnectedServices+"Exchange Online `n"
+    try {
+      Write-Output "Connecting to Azure Active Directory..."
+      Connect-AzureAD -Credential $Credential -ErrorAction Stop
+      if ((Get-AzureADUser -Top 1) -ne $null) {
+        Write-Warning "Succesfully Connected to AzureAD"
+        $ConnectedServices = $ConnectedServices + "AzureAD `n"
+      }
+    } catch {
+      Exception
+      break
     }
-}catch{
-Exception
-break
-}
-#Sharepoint Service
-try{
-Write-Output "Connecting to SharePoint Service"
-Import-Module Microsoft.Online.SharePoint.PowerShell -DisableNameChecking
-Connect-SPOService -Url "https://$org_name-admin.sharepoint.com" -ErrorAction Stop
-if((Get-SPOTenant) -ne $null){
-Write-Warning "Succesfully Connected to SharePoint Online"
-     $ConnectedServices=$ConnectedServices+"SharePoint Online `n"
-}
-}catch{
-Exception
-break
+    #Exchange Online
+    try {
+      Write-Output "Connecting to Exchange Online..."
+      Connect-ExchangeOnline -Credential $Credential -ShowBanner:$false -ErrorAction Stop
+      if ((Get-EXOMailbox -ResultSize 1) -ne $null) {
+        Write-Warning "Succesfully Connected to Exchange Online"
+        $ConnectedServices = $ConnectedServices + "Exchange Online `n"
+      }
+    } catch {
+      Exception
+      break
+    }
+    #Sharepoint Service
+    try {
+      Write-Output "Connecting to SharePoint Service"
+      Import-Module Microsoft.Online.SharePoint.PowerShell -DisableNameChecking
+      Connect-SPOService -Url "https://$org_name-admin.sharepoint.com" -Credential $Credential -ErrorAction Stop
+      if ((Get-SPOTenant) -ne $null) {
+        Write-Warning "Succesfully Connected to SharePoint Online"
+        $ConnectedServices = $ConnectedServices + "SharePoint Online `n"
+      }
+    } catch {
+      Exception
+      break
+    }
+
+    #Microsoft InTune
+    try {
+      Write-Output "Connecting and consenting to Microsoft Intune"
+      Connect-MSGraph -AdminConsent -ErrorAction Stop | Out-Null
+      Connect-MSGraph -ErrorAction Stop | Out-Null
+      if ((Get-IntuneManagedDevice -Top 1) -ne $null) {
+        Write-Warning "Succesfully Connected to Microsoft InTune"
+        $ConnectedServices = $ConnectedServices + "Microsoft InTune `n"
+      }
+    } catch {
+      Exception
+      break
+    }
+
+    #Microsoft Graph
+
+    try {
+      Write-Output "Connecting and consenting to Microsoft Graph"
+      $MSGraph = Connect-MgGraph -ErrorAction Stop -Scopes "AuditLog.Read.All","Policy.Read.All","Directory.Read.All","IdentityProvider.Read.All","Organization.Read.All","Securityevents.Read.All","ThreatIndicators.Read.All","SecurityActions.Read.All","User.Read.All","UserAuthenticationMethod.Read.All","MailboxSettings.Read"
+      if ($MSGraph -contains "Welcome To Microsoft Graph!") {
+        Write-Warning "Succesfully Connected to Microsoft Graph"
+        $ConnectedServices = $ConnectedServices + "Microsoft Graph `n"
+      }
+    } catch {
+      Exception
+      break
+    }
+
+    #Security & Compliance Center IPPSSession
+    try {
+      Write-Output "Connecting to IPPSSession..."
+      Connect-IPPSSession -Credential $Credential -WarningAction SilentlyContinue -ErrorAction Stop
+      $Result = Get-RetentionCompliancePolicy
+      if (($?) -eq $true) {
+        Write-Warning "Succesfully Connected to Security & Compliance Center"
+        $ConnectedServices = $ConnectedServices + "IPPSSession `n"
+      }
+    } catch {
+      Exception
+      break
+    }
+  } else {
+    #Normal Auth
+
+    #Microsoft Teams
+    #There is a bug that if we put Microsoft Teams somewhere in the middle to connect that we might get an exception.
+    try {
+      Write-Output "Connecting to Microsoft Teams"
+      if (-not [string]::IsNullOrEmpty($Username)) {
+        $Team = Connect-MicrosoftTeams -AccountId $Username
+      } else {
+        $Team = Connect-MicrosoftTeams
+      }
+      if (-not [string]::IsNullOrEmpty($Team)) {
+        Write-Warning "Succesfully Connected to Microsoft Teams"
+        $ConnectedServices = $ConnectedServices + "Microsoft Teams `n"
+      }
+    } catch {
+      Exception
+      break
+    }
+
+    #Microsoft Online Service
+    try {
+      Write-Output "Connecting to MSOnline Service..."
+      Connect-MsolService -ErrorAction Stop
+      if ((Get-MsolUser -MaxResults 1) -ne $null)
+      {
+        Write-Warning "Succesfully Connected to MSOnline"
+        $ConnectedServices = $ConnectedServices + "MSOnline `n"
+      }
+    } catch {
+      Exception
+      break
+    }
+    #Azure-AD (Preview)
+    try {
+      Write-Output "Connecting to Azure Active Directory..."
+      if (-not [string]::IsNullOrEmpty($Username)) {
+        Connect-AzureAD -ErrorAction Stop -AccountId $Username | Out-Null
+      } else {
+        Connect-AzureAD -ErrorAction Stop | Out-Null
+      }
+      if ((Get-AzureADUser -Top 1) -ne $null) {
+        Write-Warning "Succesfully Connected to AzureAD"
+        $ConnectedServices = $ConnectedServices + "AzureAD `n"
+      }
+    } catch {
+      Exception
+      break
+    }
+    #Exchange Online
+    try {
+      Write-Output "Connecting to Exchange Online..."
+      if (-not [string]::IsNullOrEmpty($Username)) {
+        Connect-ExchangeOnline -UserPrincipalName $Username -ShowBanner:$false
+      } else {
+        Connect-ExchangeOnline -ShowBanner:$false
+      }
+      if ((Get-EXOMailbox -ResultSize 1) -ne $null) {
+        Write-Warning "Succesfully Connected to Exchange Online"
+        $ConnectedServices = $ConnectedServices + "Exchange Online `n"
+      }
+    } catch {
+      Exception
+      break
+    }
+    #Sharepoint Service
+    try {
+      Write-Output "Connecting to SharePoint Service"
+      Import-Module Microsoft.Online.SharePoint.PowerShell -DisableNameChecking
+      Connect-SPOService -Url "https://$org_name-admin.sharepoint.com" -ErrorAction Stop
+      if ((Get-SPOTenant) -ne $null) {
+        Write-Warning "Succesfully Connected to SharePoint Online"
+        $ConnectedServices = $ConnectedServices + "SharePoint Online `n"
+      }
+    } catch {
+      Exception
+      break
+    }
+
+    #Microsoft InTune
+    try {
+      Write-Output "Connecting and consenting to Microsoft Intune"
+      Connect-MSGraph -AdminConsent -ErrorAction Stop | Out-Null
+      Connect-MSGraph -ErrorAction Stop | Out-Null
+      if ((Get-IntuneManagedDevice -Top 1) -ne $null) {
+        Write-Warning "Succesfully Connected to Microsoft InTune"
+        $ConnectedServices = $ConnectedServices + "Microsoft InTune `n"
+      }
+    } catch {
+      Exception
+      break
+    }
+
+    #Microsoft Graph
+    try {
+      Write-Output "Connecting and consenting to Microsoft Graph"
+      $MSGraph = Connect-MgGraph -ErrorAction Stop -Scopes "AuditLog.Read.All","Policy.Read.All","Directory.Read.All","IdentityProvider.Read.All","Organization.Read.All","Securityevents.Read.All","ThreatIndicators.Read.All","SecurityActions.Read.All","User.Read.All","UserAuthenticationMethod.Read.All","MailboxSettings.Read"
+      if ($MSGraph -contains "Welcome To Microsoft Graph!") {
+        Write-Warning "Succesfully Connected to Microsoft Graph"
+        $ConnectedServices = $ConnectedServices + "Microsoft Graph `n"
+      }
+    } catch {
+      Exception
+      break
+    }
+
+    #Security & Compliance Center IPPSSession
+    try {
+      Write-Output "Connecting to IPPSSession..."
+      if (-not [string]::IsNullOrEmpty($Username)) {
+        Connect-IPPSSession -ErrorAction Stop -UserPrincipalName $Username -WarningAction SilentlyContinue
+      } else {
+        Connect-IPPSSession -ErrorAction Stop -WarningAction SilentlyContinue
+      }
+      $Result = Get-RetentionCompliancePolicy
+      if (($?) -eq $true) {
+        Write-Warning "Succesfully Connected to Security & Compliance Center"
+        $ConnectedServices = $ConnectedServices + "IPPSSession `n"
+      }
+    } catch {
+      Exception
+      break
+    }
+    #Normal Authentication with just connecting to the session
+  }
 }
 
-#Microsoft InTune
-try{
-Write-Output "Connecting and consenting to Microsoft Intune"
-Connect-MsGraph -AdminConsent -ErrorAction Stop | out-null
-Connect-MSGraph -ErrorAction Stop | out-null
-if ((Get-IntuneManagedDevice -Top 1) -ne $null){
-Write-Warning "Succesfully Connected to Microsoft InTune"
-     $ConnectedServices=$ConnectedServices+"Microsoft InTune `n"
-}
-}catch{
-Exception
-break
-}
+function ExecuteInspectors {
+  # Get a list of every available detection module by parsing the PowerShell
+  # scripts present in the .\inspectors folder. 
+  #Exclude specified Inspectors
+  if ($excluded_inspectors -and $excluded_inspectors.Count) {
+    $excluded_inspectors = foreach ($inspector in $excluded_inspectors) { "$inspector.ps1" }
+    $inspectors = (Get-ChildItem $PSScriptRoot\inspectors\*.ps1 -Exclude $excluded_inspectors).Name | ForEach-Object { ($_ -split ".ps1")[0] }
+  }
+  else {
+    $inspectors = (Get-ChildItem $PSScriptRoot\inspectors\*.ps1).Name | ForEach-Object { ($_ -split ".ps1")[0] }
+  }
 
-#Microsoft Graph
-try{
-Write-Output "Connecting and consenting to Microsoft Graph"
-$MSGraph = Connect-MgGraph -ErrorAction Stop -Scopes "AuditLog.Read.All","Policy.Read.All","Directory.Read.All","IdentityProvider.Read.All","Organization.Read.All","Securityevents.Read.All","ThreatIndicators.Read.All","SecurityActions.Read.All","User.Read.All","UserAuthenticationMethod.Read.All","MailboxSettings.Read"
-if ($MSGraph -contains "Welcome To Microsoft Graph!"){
-Write-Warning "Succesfully Connected to Microsoft Graph"
-     $ConnectedServices=$ConnectedServices+"Microsoft Graph `n"
-     }
-}catch{
-Exception
-break
-}
+  #Use Selected Inspectors
+  if ($selected_inspectors -and $selected_inspectors.Count) {
+    "The following inspectors were selected for use: "
+    foreach ($inspector in $selected_inspectors) {
+      Write-Output $inspector
+    }
+  }
+  elseif ($excluded_Inspectors -and $excluded_inspectors.Count) {
+    $selected_inspectors = $inspectors
+    Write-Output "Using inspectors:`n"
+    foreach ($inspector in $inspectors) {
+      Write-Output $inspector
+    }
+  }
+  else {
+    "Using all inspectors."
+    $selected_inspectors = $inspectors
+  }
 
-#Security & Compliance Center IPPSSession
-try{
-Write-Output "Connecting to IPPSSession..."
-if (-not [string]::IsNullOrEmpty($Username)){
-Connect-IPPSSession -ErrorAction Stop -UserPrincipalName $Username -WarningAction SilentlyContinue
-}else{
-Connect-IPPSSession -ErrorAction Stop -WarningAction SilentlyContinue
-}
-$Result=Get-RetentionCompliancePolicy
-if (($?) -eq $true){
-Write-Warning "Succesfully Connected to Security & Compliance Center"
-     $ConnectedServices=$ConnectedServices+"IPPSSession `n"
-}
-}catch{
-Exception
-break
-}
-#Normal Authentication with just connecting to the session
-}
-}
-
-Function ExecuteInspectors{
-# Get a list of every available detection module by parsing the PowerShell
-# scripts present in the .\inspectors folder. 
-#Exclude specified Inspectors
-If ($excluded_inspectors -and $excluded_inspectors.Count){
-	$excluded_inspectors = foreach ($inspector in $excluded_inspectors){"$inspector.ps1"}
-	$inspectors = (Get-ChildItem $PSScriptRoot\inspectors\*.ps1 -exclude $excluded_inspectors).Name | ForEach-Object { ($_ -split ".ps1")[0] }
-}
-else {
-	$inspectors = (Get-ChildItem $PSScriptRoot\inspectors\*.ps1).Name | ForEach-Object { ($_ -split ".ps1")[0] }
-}
-
-#Use Selected Inspectors
-If ($selected_inspectors -AND $selected_inspectors.Count) {
-	"The following inspectors were selected for use: "
-	Foreach ($inspector in $selected_inspectors){
-		Write-Output $inspector
-	}
-}
-elseif ($excluded_Inspectors -and $excluded_inspectors.Count) {
-	$selected_inspectors = $inspectors
-	Write-Output "Using inspectors:`n"
-	Foreach ($inspector in $inspectors){
-		Write-Output $inspector
-	}
-}
-Else {
-	"Using all inspectors."
-	$selected_inspectors = $inspectors
-}
-
-#Create Output Directory if required
-Try {
-	New-Item -ItemType Directory -Force -Path $out_path | Out-Null
-	If ((Test-Path $out_path) -eq $true){
-		$path = Resolve-Path $out_path
-		Write-Output "$($path.Path) created successfully."
-	}
-}
-Catch {
-	Write-Error "Directory not created. Please check permissions."
+  #Create Output Directory if required
+  try {
+    New-Item -ItemType Directory -Force -Path $out_path | Out-Null
+    if ((Test-Path $out_path) -eq $true) {
+      $path = Resolve-Path $out_path
+      Write-Output "$($path.Path) created successfully."
+    }
+  }
+  catch {
+    Write-Error "Directory not created. Please check permissions."
     break
-}
+  }
 
-# Maintain a list of all findings, beginning with an empty list.
-$findings = @()
+  # Maintain a list of all findings, beginning with an empty list.
+  $findings = @()
 
-# For every inspector the user wanted to run...
-ForEach ($selected_inspector in $selected_inspectors) {
-	Try {
-		# ...if the user selected a valid inspector...
-		If ($inspectors.Contains($selected_inspector)) {
-			Write-Output "Invoking Inspector: $selected_inspector"
-			
-			# Get the static data (finding description, remediation etc.) associated with that inspector module.
-			$finding = Get-Content $PSScriptRoot\inspectors\$selected_inspector.json | Out-String | ConvertFrom-Json
-			
-			# Invoke the actual inspector module and store the resulting list of insecure objects.
-			$finding.AffectedObjects = Invoke-Expression "$PSScriptRoot\inspectors\$selected_inspector.ps1"
-			
-			# Add the finding to the list of all findings.
-			$findings += $finding
-		}
-	}
-	Catch {
-    Exception
-	}
-}
-$templates = Parse-Template
+  # For every inspector the user wanted to run...
+  foreach ($selected_inspector in $selected_inspectors) {
+    try {
+      # ...if the user selected a valid inspector...
+      if ($inspectors.Contains($selected_inspector)) {
+        Write-Output "Invoking Inspector: $selected_inspector"
 
-# Maintain a running list of each finding, represented as HTML
-$short_findings_html = '' 
-$long_findings_html = ''
+        # Get the static data (finding description, remediation etc.) associated with that inspector module.
+        $finding = Get-Content $PSScriptRoot\inspectors\$selected_inspector.json | Out-String | ConvertFrom-Json
 
-$findings_count = 0
-$critical_count = 0
-$high_count = 0
-$medium_count = 0
-$low_count = 0
-$informational_count = 0
+        # Invoke the actual inspector module and store the resulting list of insecure objects.
+        $finding.AffectedObjects = Invoke-Expression "$PSScriptRoot\inspectors\$selected_inspector.ps1"
 
-#$sortedFindings1 = $findings | Sort-Object {$_.FindingName}
-$sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Impact){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}};$_.FindingName}
-ForEach ($finding in $sortedFindings) {
-Try {
-		# If the result from the inspector was not $null,
-		# it identified a real finding that we must process.
-		If ($null -NE $finding.AffectedObjects) {
-# Increment total count of findings
-		$findings_count += 1
+        # Add the finding to the list of all findings.
+        $findings += $finding
+      }
+    }
+    catch {
+      Exception
+    }
+  }
+  $templates = Parse-Template
 
-		# Keep an HTML variable representing the current finding as HTML
-		$short_finding_html = $templates.FindingShortTemplate
-		$long_finding_html = $templates.FindingLongTemplate
+  # Maintain a running list of each finding, represented as HTML
+  $short_findings_html = ''
+  $long_findings_html = ''
 
-		# Insert finding name and number into template HTML
-		$short_finding_html = $short_finding_html.Replace("{{FINDING_NAME}}", $finding.FindingName)
-		$short_finding_html = $short_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
-		$long_finding_html = $long_finding_html.Replace("{{FINDING_NAME}}", $finding.FindingName)
-		$long_finding_html = $long_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
+  $findings_count = 0
+  $critical_count = 0
+  $high_count = 0
+  $medium_count = 0
+  $low_count = 0
+  $informational_count = 0
 
-		# Finding Impact
-		$short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $finding.Impact)
-		$long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $finding.Impact)
-        if ($finding.Impact -like "*Critical*"){
-        $critical_count += 1
-        }elseif($finding.Impact -like "*High*"){
-        $high_count += 1
-        }elseif($finding.Impact -like "*Medium*"){
-        $medium_count += 1
-        }elseif($finding.Impact -like "*Low*"){
-        $low_count += 1
-        }elseif($finding.Impact -like "*Informational*"){
-        $informational_count += 1
+  #$sortedFindings1 = $findings | Sort-Object {$_.FindingName}
+  $sortedFindings = $findings | Sort-Object { switch -Regex ($_.Impact) { 'Critical' { 1 } 'High' { 2 } 'Medium' { 3 } 'Low' { 4 } 'Informational' { 5 } }; $_.FindingName }
+  foreach ($finding in $sortedFindings) {
+    try {
+      # If the result from the inspector was not $null,
+      # it identified a real finding that we must process.
+      if ($null -ne $finding.AffectedObjects) {
+        # Increment total count of findings
+        $findings_count += 1
+
+        # Keep an HTML variable representing the current finding as HTML
+        $short_finding_html = $templates.FindingShortTemplate
+        $long_finding_html = $templates.FindingLongTemplate
+
+        # Insert finding name and number into template HTML
+        $short_finding_html = $short_finding_html.Replace("{{FINDING_NAME}}",$finding.FindingName)
+        $short_finding_html = $short_finding_html.Replace("{{FINDING_NUMBER}}",$findings_count.ToString())
+        $long_finding_html = $long_finding_html.Replace("{{FINDING_NAME}}",$finding.FindingName)
+        $long_finding_html = $long_finding_html.Replace("{{FINDING_NUMBER}}",$findings_count.ToString())
+
+        # Finding Impact
+        $short_finding_html = $short_finding_html.Replace("{{IMPACT}}",$finding.Impact)
+        $long_finding_html = $long_finding_html.Replace("{{IMPACT}}",$finding.Impact)
+        if ($finding.Impact -like "*Critical*") {
+          $critical_count += 1
+        } elseif ($finding.Impact -like "*High*") {
+          $high_count += 1
+        } elseif ($finding.Impact -like "*Medium*") {
+          $medium_count += 1
+        } elseif ($finding.Impact -like "*Low*") {
+          $low_count += 1
+        } elseif ($finding.Impact -like "*Informational*") {
+          $informational_count += 1
         }
 
 
-		# Finding description
-		$long_finding_html = $long_finding_html.Replace("{{DESCRIPTION}}", $finding.Description)
+        # Finding description
+        $long_finding_html = $long_finding_html.Replace("{{DESCRIPTION}}",$finding.Description)
 
-		# Finding default value
-		$long_finding_html = $long_finding_html.Replace("{{DEFAULTVALUE}}", $finding.DefaultValue)
+        # Finding default value
+        $long_finding_html = $long_finding_html.Replace("{{DEFAULTVALUE}}",$finding.DefaultValue)
 
-		# Finding expected value
-		$long_finding_html = $long_finding_html.Replace("{{EXPECTEDVALUE}}", $finding.ExpectedValue)
+        # Finding expected value
+        $long_finding_html = $long_finding_html.Replace("{{EXPECTEDVALUE}}",$finding.ExpectedValue)
 
-		# Finding Remediation
-		If ($finding.Remediation.length -GT 300) {
-			$short_finding_text = "Complete remediation advice is provided in the body of the report. Clicking the link to the left will take you there."
-		}
-		Else {
-			$short_finding_text = $finding.Remediation
-		}
+        # Finding Remediation
+        if ($finding.Remediation.length -gt 300) {
+          $short_finding_text = "Complete remediation advice is provided in the body of the report. Clicking the link to the left will take you there."
+        }
+        else {
+          $short_finding_text = $finding.Remediation
+        }
 
-		$short_finding_html = $short_finding_html.Replace("{{REMEDIATION}}", $short_finding_text)
-		$long_finding_html = $long_finding_html.Replace("{{REMEDIATION}}", $finding.Remediation)
+        $short_finding_html = $short_finding_html.Replace("{{REMEDIATION}}",$short_finding_text)
+        $long_finding_html = $long_finding_html.Replace("{{REMEDIATION}}",$finding.Remediation)
 
-		# Affected Objects
-		If ($finding.AffectedObjects.Count -GT 15) {
-			$condensed = "<a href='{name}'>{count} Affected Objects Identified<a/>."
-			$condensed = $condensed.Replace("{count}", $finding.AffectedObjects.Count.ToString())
-			$condensed = $condensed.Replace("{name}", $finding.FindingName)
-			$affected_object_html = $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $condensed)
-			$fname = $finding.FindingName
-			$finding.AffectedObjects | Out-File -FilePath $out_path\$fname
-		}
-		Else {
-			$affected_object_html = ''
-			ForEach ($affected_object in $finding.AffectedObjects) {
-				$affected_object_html += $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $affected_object)
-				}
-			}
-			
+        # Affected Objects
+        if ($finding.AffectedObjects.Count -gt 15) {
+          $condensed = "<a href='{name}'>{count} Affected Objects Identified<a/>."
+          $condensed = $condensed.Replace("{count}",$finding.AffectedObjects.Count.ToString())
+          $condensed = $condensed.Replace("{name}",$finding.FindingName)
+          $affected_object_html = $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}",$condensed)
+          $fname = $finding.FindingName
+          $finding.AffectedObjects | Out-File -FilePath $out_path\$fname
+        }
+        else {
+          $affected_object_html = ''
+          foreach ($affected_object in $finding.AffectedObjects) {
+            $affected_object_html += $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}",$affected_object)
+          }
+        }
 
-		$long_finding_html = $long_finding_html.Replace($templates.AffectedObjectsTemplate, $affected_object_html)
 
-		# References
-		$reference_html = ''
-		ForEach ($reference in $finding.References) {
-			$this_reference = $templates.ReferencesTemplate.Replace("{{REFERENCE_URL}}", $reference.Url)
-			$this_reference = $this_reference.Replace("{{REFERENCE_TEXT}}", $reference.Text)
-			$reference_html += $this_reference
-		}
+        $long_finding_html = $long_finding_html.Replace($templates.AffectedObjectsTemplate,$affected_object_html)
 
-		$long_finding_html = $long_finding_html.Replace($templates.ReferencesTemplate, $reference_html)
+        # References
+        $reference_html = ''
+        foreach ($reference in $finding.References) {
+          $this_reference = $templates.ReferencesTemplate.Replace("{{REFERENCE_URL}}",$reference.Url)
+          $this_reference = $this_reference.Replace("{{REFERENCE_TEXT}}",$reference.Text)
+          $reference_html += $this_reference
+        }
 
-		# Add the completed short and long findings to the running list of findings (in HTML)
-		$short_findings_html += $short_finding_html
-		$long_findings_html += $long_finding_html
-		}
-	}catch{
-Exception
-}
-}
-# Insert command line execution information. This is coupled kinda badly, as is the Affected Objects html.
-$flags = "<b>Prepared for organization:</b><br/>" + $org_name + "<br/><br/>"
-$flags = $flags + "<b>Stats</b>:<br/> <b>" + $findings_count + "</b> out of <b>" + $inspectors.Count + "</b> executed inspector modules identified possible opportunities for improvement.<br/>"
-$flags = $flags + "<b>Critical</b>: "+$critical_count+"<b> High</b>: " +$high_count+"<b> Medium</b>: " +$medium_count+"<b> Low</b>: " +$low_count+"<b> Informational</b>: "+$informational_count+"<br/><br/>"   
-$flags = $flags + "<b>Inspector Modules Executed</b>:<br/>" + [String]::Join("<br/>", $selected_inspectors)
+        $long_finding_html = $long_finding_html.Replace($templates.ReferencesTemplate,$reference_html)
 
-$output = $templates.ReportTemplate.Replace($templates.FindingShortTemplate, $short_findings_html)
-$output = $output.Replace($templates.FindingLongTemplate, $long_findings_html)
-$output = $output.Replace($templates.ExecsumTemplate, $templates.ExecsumTemplate.Replace("{{CMDLINEFLAGS}}", $flags))
+        # Add the completed short and long findings to the running list of findings (in HTML)
+        $short_findings_html += $short_finding_html
+        $long_findings_html += $long_finding_html
+      }
+    } catch {
+      Exception
+    }
+  }
+  # Insert command line execution information. This is coupled kinda badly, as is the Affected Objects html.
+  $flags = "<b>Prepared for organization:</b><br/>" + $org_name + "<br/><br/>"
+  $flags = $flags + "<b>Stats</b>:<br/> <b>" + $findings_count + "</b> out of <b>" + $inspectors.Count + "</b> executed inspector modules identified possible opportunities for improvement.<br/>"
+  $flags = $flags + "<b>Critical</b>: " + $critical_count + "<b> High</b>: " + $high_count + "<b> Medium</b>: " + $medium_count + "<b> Low</b>: " + $low_count + "<b> Informational</b>: " + $informational_count + "<br/><br/>"
+  $flags = $flags + "<b>Inspector Modules Executed</b>:<br/>" + [string]::Join("<br/>",$selected_inspectors)
 
-$output | Out-File -FilePath $out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss").html
+  $output = $templates.ReportTemplate.Replace($templates.FindingShortTemplate,$short_findings_html)
+  $output = $output.Replace($templates.FindingLongTemplate,$long_findings_html)
+  $output = $output.Replace($templates.ExecsumTemplate,$templates.ExecsumTemplate.Replace("{{CMDLINEFLAGS}}",$flags))
+
+  $output | Out-File -FilePath $out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss").html
 }
 
 function Parse-Template {
-	Try {
-		$template = (Get-Content "$PSScriptRoot\365InspectDefaultTemplate.html") -join "`n"
-		$template -match '\<!--BEGIN_FINDING_LONG_REPEATER-->([\s\S]*)\<!--END_FINDING_LONG_REPEATER-->'
-		$findings_long_template = $matches[1]
-		
-		$template -match '\<!--BEGIN_FINDING_SHORT_REPEATER-->([\s\S]*)\<!--END_FINDING_SHORT_REPEATER-->'
-		$findings_short_template = $matches[1]
-		
-		$template -match '\<!--BEGIN_AFFECTED_OBJECTS_REPEATER-->([\s\S]*)\<!--END_AFFECTED_OBJECTS_REPEATER-->'
-		$affected_objects_template = $matches[1]
-		
-		$template -match '\<!--BEGIN_REFERENCES_REPEATER-->([\s\S]*)\<!--END_REFERENCES_REPEATER-->'
-		$references_template = $matches[1]
-		
-		$template -match '\<!--BEGIN_EXECSUM_TEMPLATE-->([\s\S]*)\<!--END_EXECSUM_TEMPLATE-->'
-		$execsum_template = $matches[1]
-		
-		return @{
-			FindingShortTemplate    = $findings_short_template;
-			FindingLongTemplate     = $findings_long_template;
-			AffectedObjectsTemplate = $affected_objects_template;
-			ReportTemplate          = $template;
-			ReferencesTemplate      = $references_template;
-			ExecsumTemplate         = $execsum_template
-		}
-	}
-	Catch {
+  try {
+    $template = (Get-Content "$PSScriptRoot\365InspectDefaultTemplate.html") -join "`n"
+    $template -match '\<!--BEGIN_FINDING_LONG_REPEATER-->([\s\S]*)\<!--END_FINDING_LONG_REPEATER-->'
+    $findings_long_template = $matches[1]
+
+    $template -match '\<!--BEGIN_FINDING_SHORT_REPEATER-->([\s\S]*)\<!--END_FINDING_SHORT_REPEATER-->'
+    $findings_short_template = $matches[1]
+
+    $template -match '\<!--BEGIN_AFFECTED_OBJECTS_REPEATER-->([\s\S]*)\<!--END_AFFECTED_OBJECTS_REPEATER-->'
+    $affected_objects_template = $matches[1]
+
+    $template -match '\<!--BEGIN_REFERENCES_REPEATER-->([\s\S]*)\<!--END_REFERENCES_REPEATER-->'
+    $references_template = $matches[1]
+
+    $template -match '\<!--BEGIN_EXECSUM_TEMPLATE-->([\s\S]*)\<!--END_EXECSUM_TEMPLATE-->'
+    $execsum_template = $matches[1]
+
+    return @{
+      FindingShortTemplate = $findings_short_template;
+      FindingLongTemplate = $findings_long_template;
+      AffectedObjectsTemplate = $affected_objects_template;
+      ReportTemplate = $template;
+      ReferencesTemplate = $references_template;
+      ExecsumTemplate = $execsum_template
+    }
+  }
+  catch {
     Exception
-	}
+  }
 }
 
-Function SaveFile{
-try {
-	$compress = @{
-		Path             = $out_path
-		CompressionLevel = "Fastest"
-		DestinationPath  = "$out_path\$($org_name)_Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss").zip"
-	}
-	Compress-Archive @compress
-}
-catch {
-	'File Already Exists!'
-}
+function SaveFile {
+  try {
+    $compress = @{
+      Path = $out_path
+      CompressionLevel = "Fastest"
+      DestinationPath = "$out_path\$($org_name)_Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss").zip"
+    }
+    Compress-Archive @compress
+  }
+  catch {
+    'File Already Exists!'
+  }
 }
 
-Function DisconnectServices{
-	Write-Output "Disconnect from MSOnline Service"
-	[Microsoft.Online.Administration.Automation.ConnectMsolService]::ClearUserSessionState()
-	Write-Output "Disconnect from Azure Active Directory"
-	Disconnect-AzureAD
-	Write-Output "Disconnect from Exchange Online"
-	Disconnect-ExchangeOnline -Confirm:$false
-	Write-Output "Disconnect from SharePoint Service"
-	Disconnect-SPOService
-	Write-Output "Disconnect from Microsoft Teams"
-	Disconnect-MicrosoftTeams
-	Write-Output "Disconnect from Microsoft Intune"
-	Write-Output "Disconnect from Microsoft Graph"
-	Disconnect-MgGraph
+function DisconnectServices {
+  Write-Output "Disconnect from MSOnline Service"
+  [Microsoft.Online.Administration.Automation.ConnectMsolService]::ClearUserSessionState()
+  Write-Output "Disconnect from Azure Active Directory"
+  Disconnect-AzureAD
+  Write-Output "Disconnect from Exchange Online"
+  Disconnect-ExchangeOnline -Confirm:$false
+  Write-Output "Disconnect from SharePoint Service"
+  Disconnect-SPOService
+  Write-Output "Disconnect from Microsoft Teams"
+  Disconnect-MicrosoftTeams
+  Write-Output "Disconnect from Microsoft Intune"
+  Write-Output "Disconnect from Microsoft Graph"
+  Disconnect-MgGraph
 }
 
 #Fun Banners To Make The Program Awesome!
-Function Banner{
-$banner1 = @"
+function Banner {
+  $banner1 = @"
  #####   #####  #######    #         ######   ##########    # #                                #     
 #     # #     # #         ########            #        #    # #     ##########              #######  
       # #       #        #    #    ##########         #     # #             #    ##          # #     
@@ -834,9 +834,9 @@ $banner1 = @"
 #     # #     # #     #    #            ##        ##      #   # #        #             ##      #     
  #####   #####   #####    #           ##        ##       #    ##          #                    #    
 365Inspect - The M365 Environment Audit Tool                    
-Version 0.0.3clear+Beta - Leonardo van de Weteringh
+Version 0.0.3+Beta - Leonardo van de Weteringh
 "@
-$banner2 = @"
+  $banner2 = @"
 
  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄        ▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄ 
 ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░▌      ▐░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌
@@ -853,7 +853,7 @@ $banner2 = @"
 Version 0.0.3+Beta - Leonardo van de Weteringh
 "@
 
-$banner3 = @"
+  $banner3 = @"
 
  ::::::::   ::::::::  :::::::::: ::::::::::: ::::    :::  ::::::::  :::::::::  :::::::::: :::::::: ::::::::::: 
 :+:    :+: :+:    :+: :+:    :+:     :+:     :+:+:   :+: :+:    :+: :+:    :+: :+:       :+:    :+:    :+:     
@@ -865,19 +865,19 @@ $banner3 = @"
 365Inspect - The M365 Environment Audit Tool                    
 Version 0.0.3+Beta - Leonardo van de Weteringh
 "@
-$banner = @($banner1,$banner2,$banner3)
-$bannernumber = (Get-Random -Maximum $banner.Length)
-Write-Host($banner[$bannernumber]) -ForegroundColor Yellow
+  $banner = @($banner1,$banner2,$banner3)
+  $bannernumber = (Get-Random -Maximum $banner.length)
+  Write-Host ($banner[$bannernumber]) -ForegroundColor Yellow
 }
 
-Function Main{
-Banner
-CheckAdminPrivBeta #First Checking Admin
-CheckInstalledModules #Check Install Modules + Updates + Uninstall only earlier versions
-Connect-Services #Connect to Services!
-ExecuteInspectors
-SaveFile
-DisconnectServices
+function Main {
+  Banner
+  CheckAdminPrivBeta #First Checking Admin
+  CheckInstalledModules #Check Install Modules + Updates + Uninstall only earlier versions
+  Connect-Services #Connect to Services!
+  ExecuteInspectors
+  SaveFile
+  DisconnectServices
 }
 Main
 return
