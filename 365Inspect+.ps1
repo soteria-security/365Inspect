@@ -1,9 +1,9 @@
 ﻿<#
 Author: Soteria-Se, Leonardo van de Weteringh
 Copright: 2022
-Version: 0.0.2beta+
+Version: 0.0.3beta+
 Usage: ./365Inspect.ps1 or ./365Inspect.exe
-Date: 17-06-2022
+Date: 21-06-2022
 #>
 
 <#
@@ -109,69 +109,82 @@ else{
 }
 }
 
-Function DisconnectSessions{
-#An Dummy script for disconnecting sessions. WIP
-}
 
 Function CheckInstalledModules{
 if (-not $SkipUpdateCheck.IsPresent){
-Write-Host "[?] Checking Installed Modules..." -ForegroundColor Yellow
+Write-Warning "[?] Checking Installed Modules..."
 # Define the set of modules installed and updated from the PowerShell Gallery that we want to maintain
-$O365Modules = @(<#"MicrosoftTeams",#> "MSOnline", "AzureADPreview", "ExchangeOnlineManagement", "Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph","Microsoft.Graph.Intune")
-
+$O365Modules = @("MicrosoftTeams", "MSOnline", "AzureADPreview", "ExchangeOnlineManagement", "Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph","Microsoft.Graph.Intune")
 #Check which Modules are Installed Already...
-
 $installed = Get-InstalledModule
-foreach ($module in $O365Modules){
-    if ($installed.Name -notcontains $module){
-        Write-Host "`n$module is not installed." -ForegroundColor Red
-        Write-Warning 'The module may be installed by running "Install-Module $module -Force -Scope CurrentUser -Confirm:$false" in an elevated PowerShell window.'
-		$install = Read-Host -Prompt "Would you like to attempt installation now? (Y|N)"
-		If ($install -eq 'y') {
-			Install-Module $module -Scope CurrentUser -Force -Confirm:$false
-            $count ++
-        }
-        }
-    Else {
-        Write-Host "[+] $module is installed." -ForegroundColor Green
-        $count ++
-         }
-    }
+    foreach ($module in $O365Modules){
+        if ($installed.Name -notcontains $module){
+            Write-Host "`n$module is not installed." -ForegroundColor Red
+            Write-Warning 'The module may be installed by running "Install-Module $module -Force -Scope CurrentUser -Confirm:$false" in an elevated PowerShell window.'
+            $install = Read-Host -Prompt "Would you like to attempt installation now? (Y|N)"
+		        if ($install -eq 'y') {
+			        Install-Module $module -Scope CurrentUser -Force -Confirm:$false
+                    $count ++
+                    }
+                    }else{
+                    Write-Host "[+] $module is installed." -ForegroundColor Green
+                    $count ++
+                    }
+                    }
 Write-Host "[?] Checking Installed Modules Updates..." -ForegroundColor Yellow
 ForEach ($module in $O365Modules) {
-$onversion = Find-Module -Name $module -ErrorAction Stop
+$onversion = Find-Module -Name $module -ErrorAction Stop -AllowPrerelease
 $localversion = Get-InstalledModule -Name $module -ErrorAction Stop
          #compare versions
+         if ($localversion.Version -ilt $onversion.Version -or $localversion.Version -ne $onversion.Version){
+         Write-Warning ($onversion.Version+ ' != '+$localversion.Version)
+         Write-Host "Trying to update $module ..."
+            Update-Module -Name $module -AllowPrerelease -Force
+         }
          if ($onversion.Version -ige $localversion.Version){
          Write-Warning ($module+' is up-to-date!')
          }
-         else{
-         Write-Warning ($onversion.Version+ ' != '+$localversion.Version)
-            Write-Host "Updating $module ..."
-            Update-Module -Name $module -Force}
-            }
-        }
-# Check and remove older versions of the modules from the PC
+         }
+#Check if PowerShellGet is on Version 3 instead of 2
+$PowerShellGetVersion = Get-InstalledModule -Name "PowerShellGet" -ErrorAction Stop
+if ($PowerShellGetVersion.Version -igt 2.2.5){
+ForEach ($module in $O365Modules) {
+Write-Host "[?] Checking for older versions of" $module
+   $AllVersions = Get-InstalledModule -Name $module -AllVersions -AllowPrerelease | measure
+   if ($AllVersions.Count -igt 1)
+   {
+   $AllVersions = Get-InstalledModule -Name $module -AllVersions -AllowPrerelease | Sort Version -Descending
+   $MostRecentVersion = $AllVersions[0].Version
+   Write-Host "Most recent version of" $module "is" $MostRecentVersion
+      ForEach ($Version in $AllVersions) { #Check each version and remove old versions
+        If ($Version.Version -ilt $MostRecentVersion -or $Version.Version -ne $MostRecentVersion)  { # Old version - remove
+           Write-Host "Uninstalling version" $Version.Version "of Module" $module "..." -ForegroundColor Red
+           Uninstall-PSResource -Name $module -Version $Version.Version 
+           }
+           }
+           }
+           }
+           }else{
+           # Check and remove older versions of the modules from the PC (Classic Method)
 ForEach ($module in $O365Modules) {
    Write-Host "[?] Checking for older versions of" $module
-   $AllVersions = Get-InstalledModule -Name $module -AllVersions
-   if ($AllVersions.PublishedDate -ne $null)
-   {
-   $AllVersions = $AllVersions | Sort PublishedDate -Descending
+   $AllVersions = Get-InstalledModule -Name $module -AllVersions -AllowPrerelease | measure
+   if ($AllVersions.Count -igt 1){
+   $AllVersions = Get-InstalledModule -Name $module -AllVersions -AllowPrerelease | Sort Version -Descending
    $MostRecentVersion = $AllVersions[0].Version
-   Write-Host "Most recent version of" $module "is" $MostRecentVersion "published on" (Get-Date($AllVersions[0].PublishedDate) -format g)
-   If ($AllVersions.Count -gt 1 ) { # More than a single version installed
+   Write-Host "Most recent version of" $module "is" $MostRecentVersion
       ForEach ($Version in $AllVersions) { #Check each version and remove old versions
         If ($Version.Version -ilt $MostRecentVersion)  { # Old version - remove
-           Write-Host "Uninstalling version" $Version.Version "of Module" $module+"..." -ForegroundColor Red 
+           Write-Host "Uninstalling version" $Version.Version "of Module" $module "..." -ForegroundColor Red 
            Uninstall-Module -Name $module -RequiredVersion $Version.Version -Force
          } #End if
       } #End ForEach
-    } #End If
-  }#End If
-} #End ForEach
+  } #End If
+ } #End ForEach
+           }
+#END SCRIPT
+    }
 }
-
 
 Function Exception{
 if(-not (Get-Variable -Name 'PSScriptRoot' -Scope 'Script')) {
@@ -738,7 +751,7 @@ Exception
 # Insert command line execution information. This is coupled kinda badly, as is the Affected Objects html.
 $flags = "<b>Prepared for organization:</b><br/>" + $org_name + "<br/><br/>"
 $flags = $flags + "<b>Stats</b>:<br/> <b>" + $findings_count + "</b> out of <b>" + $inspectors.Count + "</b> executed inspector modules identified possible opportunities for improvement.<br/>"
-$flags = $flags + "<b>Critical</b>: "+$critical_count+"<b>High</b>: " +$high_count+"<b> Medium</b>: " +$medium_count+"<b> Low</b>: " +$low_count+"<b> Informational</b>: "+$informational_count+"<br/><br/>"   
+$flags = $flags + "<b>Critical</b>: "+$critical_count+"<b> High</b>: " +$high_count+"<b> Medium</b>: " +$medium_count+"<b> Low</b>: " +$low_count+"<b> Informational</b>: "+$informational_count+"<br/><br/>"   
 $flags = $flags + "<b>Inspector Modules Executed</b>:<br/>" + [String]::Join("<br/>", $selected_inspectors)
 
 $output = $templates.ReportTemplate.Replace($templates.FindingShortTemplate, $short_findings_html)
@@ -821,7 +834,7 @@ $banner1 = @"
 #     # #     # #     #    #            ##        ##      #   # #        #             ##      #     
  #####   #####   #####    #           ##        ##       #    ##          #                    #    
 365Inspect - The M365 Environment Audit Tool                    
-Version 0.0.1+Beta - Leonardo van de Weteringh
+Version 0.0.3clear+Beta - Leonardo van de Weteringh
 "@
 $banner2 = @"
 
@@ -837,7 +850,7 @@ $banner2 = @"
 ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░▌      ▐░░▌▐░░░░░░░░░░░▌▐░▌          ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌     ▐░▌     
  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀        ▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀            ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀       ▀      
 365Inspect - The M365 Environment Audit Tool                    
-Version 0.0.1+Beta - Leonardo van de Weteringh
+Version 0.0.3+Beta - Leonardo van de Weteringh
 "@
 
 $banner3 = @"
@@ -850,7 +863,7 @@ $banner3 = @"
 #+#    #+# #+#    #+# #+#    #+#     #+#     #+#   #+#+# #+#    #+# #+#        #+#       #+#    #+#    #+#     
  ########   ########   ########  ########### ###    ####  ########  ###        ########## ########     ###     
 365Inspect - The M365 Environment Audit Tool                    
-Version 0.0.1+Beta - Leonardo van de Weteringh
+Version 0.0.3+Beta - Leonardo van de Weteringh
 "@
 $banner = @($banner1,$banner2,$banner3)
 $bannernumber = (Get-Random -Maximum $banner.Length)
