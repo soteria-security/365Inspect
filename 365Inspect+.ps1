@@ -159,7 +159,7 @@ function CheckInstalledModules {
           foreach ($Version in $AllVersions) { #Check each version and remove old versions
             if ($Version.Version -ilt $MostRecentVersion -or $Version.Version -ne $MostRecentVersion) { # Old version - remove
               Write-Host "Uninstalling version" $Version.Version "of Module" $module "..." -ForegroundColor Red
-              Uninstall-PSResource -Name $module -Version $Version.Version
+              Uninstall-PSResource -Name $module -Version $Version.Version -Force
             }
           }
         }
@@ -170,7 +170,7 @@ function CheckInstalledModules {
         Write-Host "[?] Checking for older versions of" $module
         $AllVersions = Get-InstalledModule -Name $module -AllVersions -AllowPrerelease | Measure-Object
         if ($AllVersions.Count -igt 1) {
-          $AllVersions = Get-InstalledModule -Name $module -AllVersions -AllowPrerelease | Sort Version -Descending
+          $AllVersions = Get-InstalledModule -Name $module -AllVersions -AllowPrerelease | Sort Version
           $MostRecentVersion = $AllVersions[0].Version
           Write-Host "Most recent version of" $module "is" $MostRecentVersion
           foreach ($Version in $AllVersions) { #Check each version and remove old versions

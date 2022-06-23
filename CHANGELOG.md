@@ -66,3 +66,30 @@
 - CVSS where possible to implement risk and impact. 
 - Write mitigation steps (maybe on GitHub about each issue to update the reference)
 - Create a auto-mitigation script that will allow the user to correct the issues after they are found
+
+# v0.0.5beta+ 23-06-2022
+## Added:
+- Implemented cosmetic features in the template such as: IMPACT Rating now displayed in color at detailed view, CVS score tag when CVS scores are defined correctly, added a date stamp where the execution date of the audit is now displayed in the report itself and multiple statistics (counts) of the critical, high, medium, low and informational findings.
+- Added the Azure Powershell Module (no this is not the Azure AD Powershell module, this is a different one). This allows more audit functionalitity as Azure instances could be audited as well 
+
+## Changed:
+- Changed the Risk tab to CVS because that should be in detailed view. CVS is an important aspect and should be sorted on in the future
+- Some aspects that caused cosmetic failures or imperfections in the template
+
+## Fixed:
+- An issue with uninstallation of the same module that was updated at first. This was caused by a descending sort-object problem. This has been fixed now!
+- An issue that cause 365Inspect+ to hang when modules are updated
+- Added Out-Null values to some of the authentication processes so no output is displayed. 
+
+## Removed:
+Removed some non-functional things inside the template that were not displaying in the template at all.
+
+## Common Issues/remarks:
+- When updating a module it could take some time until the module is installed, please be patient.
+- When removing a module it could take some time until it is removed, please be patient.
+- When generating an error it would generate multiple logs. The goal is to append to this log afterwards so no multiple logs are created. This will be looked into later.
+
+## Expected in the future:
+- CVSS Score implementation
+- More professional cosmetic changes to the report
+- Simplified authentication mechanism (prototype is ready)
