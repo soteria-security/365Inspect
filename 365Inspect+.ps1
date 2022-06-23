@@ -1,7 +1,7 @@
 ﻿<#
 Author: Soteria-Se, Leonardo van de Weteringh
 Copright: 2022
-Version: 0.0.4beta+
+Version: 0.0.5beta+
 Usage: ./365Inspect.ps1 or ./365Inspect.exe
 Date: 23-06-2022
 #>
@@ -153,7 +153,7 @@ function CheckInstalledModules {
         $AllVersions = Get-InstalledModule -Name $module -AllVersions -AllowPrerelease | Measure-Object
         if ($AllVersions.Count -igt 1)
         {
-          $AllVersions = Get-InstalledModule -Name $module -AllVersions -AllowPrerelease | Sort Version -Descending
+          $AllVersions = Get-InstalledModule -Name $module -AllVersions -AllowPrerelease | Sort Version
           $MostRecentVersion = $AllVersions[0].Version
           Write-Host "Most recent version of" $module "is" $MostRecentVersion
           foreach ($Version in $AllVersions) { #Check each version and remove old versions
@@ -375,7 +375,7 @@ function Connect-Services {
         #Azure PowerShell (in progress)
     try{
     Write-Output "Connecting to Azure PowerShell..."
-    Connect-AzAccount -Credential $Credential -ErrorAction Stop
+    Connect-AzAccount -Credential $Credential -ErrorAction Stop | Out-Null
     if (Get-AzAccessToken)
     {
     Write-Warning "Succesfully Connected to Azure PowerShell"
@@ -401,7 +401,7 @@ function Connect-Services {
     #Azure-AD (Preview)
     try {
       Write-Output "Connecting to Azure Active Directory..."
-      Connect-AzureAD -Credential $Credential -ErrorAction Stop
+      Connect-AzureAD -Credential $Credential -ErrorAction Stop | Out-Null
       if ((Get-AzureADUser -Top 1) -ne $null) {
         Write-Warning "Succesfully Connected to AzureAD"
         $ConnectedServices = $ConnectedServices + "AzureAD `n"
@@ -502,9 +502,9 @@ function Connect-Services {
     try{
     Write-Output "Connecting to Azure PowerShell..."
     if (-not [string]::IsNullOrEmpty($Username)) {
-        Connect-AzAccount -AccountId $Username
+        Connect-AzAccount -AccountId $Username | Out-Null
       } else {
-        Connect-AzAccount
+        Connect-AzAccount | Out-Null
       }
     if (Get-AzAccessToken)
     {
@@ -690,60 +690,67 @@ function ExecuteInspectors {
       Exception
     }
   }
-  $templates = Parse-Template
+$templates = Parse-Template
 
-  # Maintain a running list of each finding, represented as HTML
-  $short_findings_html = ''
+# Maintain a running list of each finding, represented as HTML
+  $short_findings_html = '' 
   $long_findings_html = ''
 
   $findings_count = 0
+
   $critical_count = 0
   $high_count = 0
   $medium_count = 0
   $low_count = 0
   $informational_count = 0
 
-  #$sortedFindings1 = $findings | Sort-Object {$_.FindingName}
-  #$sortedFindings2 = $findings | Sort-Object {$_.CVS}
-  $sortedFindings = $findings | Sort-Object { switch -Regex ($_.Impact) { 'Critical' { 1 } 'High' { 2 } 'Medium' { 3 } 'Low' { 4 } 'Informational' { 5 } }; $_.FindingName }
-  foreach ($finding in $sortedFindings) {
-    try {
-      # If the result from the inspector was not $null,
-      # it identified a real finding that we must process.
-      if ($null -ne $finding.AffectedObjects) {
-        # Increment total count of findings
-        $findings_count += 1
 
-        # Keep an HTML variable representing the current finding as HTML
-        $short_finding_html = $templates.FindingShortTemplate
-        $long_finding_html = $templates.FindingLongTemplate
+#Sort Object on CVS Score
+#$sortedFindings = $findings | Sort-Object {$_.CVS}
+$sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Impact){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}};$_.FindingName} 
+ForEach ($finding in $sortedFindings) {
+	# If the result from the inspector was not $null,
+	# it identified a real finding that we must process.
+	If ($null -NE $finding.AffectedObjects) {
+		# Increment total count of findings
+		$findings_count += 1
+		
+		# Keep an HTML variable representing the current finding as HTML
+		$short_finding_html = $templates.FindingShortTemplate
+		$long_finding_html = $templates.FindingLongTemplate
+		
+		# Insert finding name and number into template HTML
+		$short_finding_html = $short_finding_html.Replace("{{FINDING_NAME}}", $finding.FindingName)
+		$short_finding_html = $short_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
+		$long_finding_html = $long_finding_html.Replace("{{FINDING_NAME}}", $finding.FindingName)
+		$long_finding_html = $long_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
+		
+		# Finding Impact
+		$short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $finding.Impact)
+		$long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $finding.Impact)
 
-        # Insert finding name and number into template HTML
-        $short_finding_html = $short_finding_html.Replace("{{FINDING_NAME}}",$finding.FindingName)
-        $short_finding_html = $short_finding_html.Replace("{{FINDING_NUMBER}}",$findings_count.ToString())
-        $long_finding_html = $long_finding_html.Replace("{{FINDING_NAME}}",$finding.FindingName)
-        $long_finding_html = $long_finding_html.Replace("{{FINDING_NUMBER}}",$findings_count.ToString())
-
-        # Finding Impact
-        $short_finding_html = $short_finding_html.Replace("{{IMPACT}}",$finding.Impact)
-        $long_finding_html = $long_finding_html.Replace("{{IMPACT}}",$finding.Impact)
 
         # Statistics for user information
         if ($finding.Impact -like "*Critical*") {
+          $long_finding_html = $long_finding_html.Replace("{{IMPACT_COLOR}}", "8b0000")
           $critical_count += 1
         } elseif ($finding.Impact -like "*High*") {
+          $long_finding_html = $long_finding_html.Replace("{{IMPACT_COLOR}}", "ff0000")
           $high_count += 1
         } elseif ($finding.Impact -like "*Medium*") {
+          $long_finding_html = $long_finding_html.Replace("{{IMPACT_COLOR}}", "f6be00")
           $medium_count += 1
         } elseif ($finding.Impact -like "*Low*") {
+          $long_finding_html = $long_finding_html.Replace("{{IMPACT_COLOR}}", "008000")
           $low_count += 1
         } elseif ($finding.Impact -like "*Informational*") {
+          $long_finding_html = $long_finding_html.Replace("{{IMPACT_COLOR}}", "0000ff")
           $informational_count += 1
         }
-
+		
         # Finding CVS Score
-        $short_finding_html = $short_finding_html.Replace("{{CVS}}",$finding.CVS.ToString())
-        $long_finding_html = $long_finding_html.Replace("{{CVS}}",$finding.CVS.ToString())
+        ##$short_finding_html = $short_finding_html.Replace("{{CVS}}",$finding.CVS.ToString())
+        ##$long_finding_html = $long_finding_html.Replace("{{CVS}}",$finding.CVS.ToString())
 
         # Finding description
         $long_finding_html = $long_finding_html.Replace("{{DESCRIPTION}}",$finding.Description)
@@ -755,68 +762,65 @@ function ExecuteInspectors {
         $long_finding_html = $long_finding_html.Replace("{{EXPECTEDVALUE}}",$finding.ExpectedValue)
 
         # Finding Residual risk
-        $long_finding_html = $long_finding_html.Replace("{{RISKRATING}}",$finding.RiskRating)
+        ##$long_finding_html = $long_finding_html.Replace("{{RISKRATING}}",$finding.RiskRating)
+				
+		# Finding Remediation
+		If ($finding.Remediation.length -GT 300) {
+			$short_finding_text = "Complete remediation advice is provided in the body of the report. Clicking the link to the left will take you there."
+		}
+		Else {
+			$short_finding_text = $finding.Remediation
+		}
+		
+		$short_finding_html = $short_finding_html.Replace("{{REMEDIATION}}", $short_finding_text)
+		$long_finding_html = $long_finding_html.Replace("{{REMEDIATION}}", $finding.Remediation)
+		
+		# Affected Objects
+		If ($finding.AffectedObjects.Count -GT 15) {
+			$condensed = "<a href='{name}'>{count} Affected Objects Identified<a/>."
+			$condensed = $condensed.Replace("{count}", $finding.AffectedObjects.Count.ToString())
+			$condensed = $condensed.Replace("{name}", $finding.FindingName)
+			$affected_object_html = $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $condensed)
+			$fname = $finding.FindingName
+			$finding.AffectedObjects | Out-File -FilePath $out_path\$fname
+		}
+		Else {
+			$affected_object_html = ''
+			ForEach ($affected_object in $finding.AffectedObjects) {
+				$affected_object_html += $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $affected_object)
+			}
+		}
+		
+		$long_finding_html = $long_finding_html.Replace($templates.AffectedObjectsTemplate, $affected_object_html)
+		
+		# References
+		$reference_html = ''
+		ForEach ($reference in $finding.References) {
+			$this_reference = $templates.ReferencesTemplate.Replace("{{REFERENCE_URL}}", $reference.Url)
+			$this_reference = $this_reference.Replace("{{REFERENCE_TEXT}}", $reference.Text)
+			$reference_html += $this_reference
+		}
+		
+		$long_finding_html = $long_finding_html.Replace($templates.ReferencesTemplate, $reference_html)
+		
+		# Add the completed short and long findings to the running list of findings (in HTML)
+		$short_findings_html += $short_finding_html
+		$long_findings_html += $long_finding_html
+	}
+}
 
-        # Finding Remediation
-        if ($finding.Remediation.length -gt 300) {
-          $short_finding_text = "Complete remediation advice is provided in the body of the report. Clicking the link to the left will take you there."
-        }
-        else {
-          $short_finding_text = $finding.Remediation
-        }
+# Insert command line execution information. This is coupled kinda badly, as is the Affected Objects html.
+    $flags = "<b>Audited Organization:</b> <u>" + $org_name + "</u><br/><br/>"
+    $flags = $flags + "<b>Audit Executed on:</b><i> "+ (Get-Date) + "</i><br/><br/>"
+    $flags = $flags + "<b>Stats</b>:<br/> <b>" + $findings_count + "</b> out of <b>" + $inspectors.Count + "</b> executed inspector modules identified possible opportunities for improvement.<br/><br/>"  
+    $flags = $flags + "<font color='#8b0000'><b>Critical</b></font>: <b><u>" + $critical_count + "</b></u><font color='red'><b> High</b></font>: <b><u>" + $high_count + "</b></u><font color='#f6be00'><b> Medium</b></font>: <b><u>" + $medium_count + "</b></u><font color='green'><b> Low</b></font>: <b><u>" + $low_count + "</b></u><font color='blue'><b> Informational</b></font>: <b><u>" + $informational_count + "</b></u><br/><br/>"
+    $flags = $flags + "<b>Inspector Modules Executed</b>:<br/>" + [String]::Join("<br/>", $selected_inspectors)
 
-        $short_finding_html = $short_finding_html.Replace("{{REMEDIATION}}",$short_finding_text)
-        $long_finding_html = $long_finding_html.Replace("{{REMEDIATION}}",$finding.Remediation)
+$output = $templates.ReportTemplate.Replace($templates.FindingShortTemplate, $short_findings_html)
+$output = $output.Replace($templates.FindingLongTemplate, $long_findings_html)
+$output = $output.Replace($templates.ExecsumTemplate, $templates.ExecsumTemplate.Replace("{{CMDLINEFLAGS}}", $flags))
 
-        # Affected Objects
-        if ($finding.AffectedObjects.Count -gt 15) {
-          $condensed = "<a href='{name}'>{count} Affected Objects Identified<a/>."
-          $condensed = $condensed.Replace("{count}",$finding.AffectedObjects.Count.ToString())
-          $condensed = $condensed.Replace("{name}",$finding.FindingName)
-          $affected_object_html = $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}",$condensed)
-          $fname = $finding.FindingName
-          $finding.AffectedObjects | Out-File -FilePath $out_path\$fname
-        }
-        else {
-          $affected_object_html = ''
-          foreach ($affected_object in $finding.AffectedObjects) {
-            $affected_object_html += $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}",$affected_object)
-          }
-        }
-
-
-        $long_finding_html = $long_finding_html.Replace($templates.AffectedObjectsTemplate,$affected_object_html)
-
-        # References
-        $reference_html = ''
-        foreach ($reference in $finding.References) {
-          $this_reference = $templates.ReferencesTemplate.Replace("{{REFERENCE_URL}}",$reference.Url)
-          $this_reference = $this_reference.Replace("{{REFERENCE_TEXT}}",$reference.Text)
-          $reference_html += $this_reference
-        }
-
-        $long_finding_html = $long_finding_html.Replace($templates.ReferencesTemplate,$reference_html)
-
-        # Add the completed short and long findings to the running list of findings (in HTML)
-        $short_findings_html += $short_finding_html
-        $long_findings_html += $long_finding_html
-      }
-    } catch {
-      Exception
-    }
-  }
-  # Insert command line execution information. This is coupled kinda badly, as is the Affected Objects html.
-  $flags = "<b>Audited Organization:</b> <u>" + $org_name + "</u><br/><br/>"
-  $flags = $flags + "<b>Audit Executed on:</b> "+ (Get-Date) + "<br/><br/>"
-  $flags = $flags + "<b>Stats</b>:<br/> <b>" + $findings_count + "</b> out of <b>" + $inspectors.Count + "</b> executed inspector modules identified possible opportunities for improvement.<br/>"
-  $flags = $flags + "<font color='#8b0000'><b>Critical</b></font>: <b><u>" + $critical_count + "</b></u><font color='red'><b> High</b></font>: <b><u>" + $high_count + "</b></u><font color='#'><b> Medium</b></font>: <b><u>" + $medium_count + "</b></u><font color='green'><b> Low</b>: <b><u>" + $low_count + "</b></u><font color='blue'><b> Informational</b></font>: <b><u>" + $informational_count + "</b></u><br/><br/>"
-  $flags = $flags + "<b>Inspector Modules Executed</b>:<br/>" + [string]::Join("<br/>",$selected_inspectors)
-
-  $output = $templates.ReportTemplate.Replace($templates.FindingShortTemplate,$short_findings_html)
-  $output = $output.Replace($templates.FindingLongTemplate,$long_findings_html)
-  $output = $output.Replace($templates.ExecsumTemplate,$templates.ExecsumTemplate.Replace("{{CMDLINEFLAGS}}",$flags))
-
-  $output | Out-File -FilePath $out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss")_$org_name.html
+$output | Out-File -FilePath $out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss")_$org_name.html 
 }
 
 function Parse-Template {
@@ -891,7 +895,7 @@ function Banner {
 #     # #     # #     #    #            ##        ##      #   # #        #             ##      #     
  #####   #####   #####    #           ##        ##       #    ##          #                    #    
 365Inspect - The M365 Environment Audit Tool                    
-Version 0.0.4+Beta - Leonardo van de Weteringh
+Version 0.0.5+Beta - Leonardo van de Weteringh
 "@
   $banner2 = @"
 
@@ -907,7 +911,7 @@ Version 0.0.4+Beta - Leonardo van de Weteringh
 ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░▌      ▐░░▌▐░░░░░░░░░░░▌▐░▌          ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌     ▐░▌     
  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀        ▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀            ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀       ▀      
 365Inspect - The M365 Environment Audit Tool                    
-Version 0.0.4+Beta - Leonardo van de Weteringh
+Version 0.0.5+Beta - Leonardo van de Weteringh
 "@
 
   $banner3 = @"
@@ -920,7 +924,7 @@ Version 0.0.4+Beta - Leonardo van de Weteringh
 #+#    #+# #+#    #+# #+#    #+#     #+#     #+#   #+#+# #+#    #+# #+#        #+#       #+#    #+#    #+#     
  ########   ########   ########  ########### ###    ####  ########  ###        ########## ########     ###     
 365Inspect - The M365 Environment Audit Tool                    
-Version 0.0.4+Beta - Leonardo van de Weteringh
+Version 0.0.5+Beta - Leonardo van de Weteringh
 "@
   $banner = @($banner1,$banner2,$banner3)
   $bannernumber = (Get-Random -Maximum $banner.length)

@@ -1,11 +1,11 @@
-# 365Inspect+
+# 365*Inspect+*
 **De Open-Source, Geautomatiseerde Microsoft 365 Security Assessment Tool**
 
 ## Over 365*Inspect+*
 
 365*Inspect+* is een opdrachtregelprogramma dat automatisch een M365-omgeving controleert. 365*Inspect+* haalt configuratie-informatie op uit uw M365-instantie en valideert of een reeks best practices op het gebied van beveiliging is gevolgd. 365*Inspect+* maakt een eenvoudig grafisch HTML-rapport met beschrijvingen van ontdekte beveiligingsfouten en bruikbare aanbevelingen die u kunt gebruiken om de beveiligingsstatus van uw M365-instantie te verbeteren.
 
-365Inspect+ is open-source en volledig gratis. Het is geschreven in PowerShell en het enige dat u nodig hebt om het te gebruiken, zijn de juiste PowerShell-modules en referenties voor uw M365-beheerdersaccount. Voor beveiligingsanalisten ondersteunt 365Inspect ook een eenvoudig modulesysteem waarmee u eenvoudig uw eigen toevoegingen aan de auditfunctionaliteit kunt maken. Dit betekent dat je hem direct 'Out of The Box' kunt gebruiken als een krachtige M365-beveiligingsscanner. 
+365*Inspect+* is open-source en volledig gratis. Het is geschreven in PowerShell en het enige dat u nodig hebt om het te gebruiken, zijn de juiste PowerShell-modules en referenties voor uw M365-beheerdersaccount. Voor beveiligingsanalisten ondersteunt 365*Inspect+* ook een eenvoudig modulesysteem waarmee u eenvoudig uw eigen toevoegingen aan de auditfunctionaliteit kunt maken. Dit betekent dat je hem direct 'Out of The Box' kunt gebruiken als een krachtige M365-beveiligingsscanner. 
 
 ## Voordelen
 
@@ -19,25 +19,28 @@ Met 365Inspect+ is het mogelijk om:
 
 ## Verschillen Tussen De Standard en Plus Versie
 
-De volgende verschillen zijn er ten opzichte van de standaard versie:
-- Het authenticatieproces is gemakkelijker en verschillend.
-- Er is minder output tijdens het authenticeren. Er wordt nu alleen een authenticatie bericht weergegeven als authenticatie is gelukt.
-- Er is een module toegevoegd die de verreiste modules naar de meest recente versie updatet
-- Er is een module toegevoegd die de verreiste modules installeert indien niet aanwezig.
-- De error handling is verbeterd en er is minder repeterende code, waardoor de code schoner is.
-- De tool vraagt om Administrator Privileges als deze niet zijn gegeven
+De volgende verschillen zijn aanwezig:
+- De authenticatie is anders ontworpen, dus MFA is een beetje sneller als in sommige gevallen een gebruikersnaam wordt opgegeven
+- Er is minder output bij authenticatie en de authenticatie wordt gevalideerd als een bericht wordt weergegeven
+- Er is een functie waarmee de modules kunnen worden bijgewerkt naar hun nieuwste versie
+- Er is een functie die de oude modules verwijdert om alle modules up-to-date te houden
+- Er is een functie die kort controleert of een module correct is geïnstalleerd
+- De foutafhandeling is anders omdat er minder coderedundantie is
+- De tool vraagt om beheerdersrechten als de .ps1 zonder deze wordt uitgevoerd, zodat mensen geen extra prompt hoeven uit te voeren.
 
 ## Setup
 
 365*Inspect+* vereist de administratieve PowerShell-modules voor Microsoft Online, Azure AD (we raden aan om de AzureADPreview-module te installeren), Exchange Online Administration, Sharepoint Administration, Microsoft Intune, Microsoft Teams en Microsoft Graph.
 
-Het 365*Inspect*.ps1 PowerShell-script valideert de geïnstalleerde modules.
+Het 365*Inspect+*.ps1 PowerShell-script valideert de geïnstalleerde modules.
 
 Als u deze modules niet hebt geïnstalleerd, wordt u gevraagd ze te installeren en met uw goedkeuring zal het script proberen te installeren. Anders zou u ze moeten kunnen installeren met de volgende opdrachten in een beheerders-PowerShell-prompt, of door de instructies te volgen bij de onderstaande verwijzingen:
 
 	Install-Module -Name MSOnline
 
 	Install-Module -Name AzureADPreview
+
+	Install-Module -Name Az
 
 	Install-Module -Name ExchangeOnlineManagement
 
@@ -52,6 +55,8 @@ Als u deze modules niet hebt geïnstalleerd, wordt u gevraagd ze te installeren 
 [Install MSOnline PowerShell](https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-msonlinev1?view=azureadps-1.0)
 
 [Install Azure AD PowerShell](https://docs.microsoft.com/en-us/powershell/module/azuread/?view=azureadps-2.0)
+
+[Install Azure PowerShell](https://docs.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-8.0.0)
 
 [Install Exchange Online PowerShell](https://docs.microsoft.com/en-us/powershell/exchange/exchange-online-powershell-v2?view=exchange-ps)
 
@@ -69,7 +74,7 @@ git clone https://github.com/asterictnl-lvdw/365Inspect.git
 
 Aangezien u 365*Inspect+* uitvoert met beheerdersrechten, moet u het op een logische locatie plaatsen en ervoor zorgen dat de inhoud van de map met write & execute rechten voorziet voor de gebruiker met beheerdersrechten. Dit is vooral belangrijk als u 365*Inspect+* wilt installeren op een locatie waar het vaak wordt uitgevoerd of wordt gebruikt als onderdeel van een geautomatiseerd proces.
 
-## Usage
+## Gebruik
 
 Om 365*Inspect+* uit te voeren, opent u een PowerShell-console en navigeert u naar de map waarin u 365*Inspect+* hebt gedownload:
 
@@ -83,21 +88,21 @@ Het enige dat 365*Inspect+* nodig heeft om uw O365-tenant te inspecteren, is toe
 
 Uitvoering van 365*Inspect+* ziet er als volgt uit:
 
-	.\365Inspect.ps1 -OrgName <value> -OutPath <value> (-Username <username> -Password <password> -MFA -SkipUpdateCheck *parameters in de blokhaken zijnoptioneel*)
+	.\365Inspect+.ps1 -OrgName <value> -OutPath <value> (-Username <username> -Password <password> -MFA -SkipUpdateCheck *parameters in de blokhaken zijnoptioneel*)
 
 Om bijvoorbeeld in te loggen door uw inloggegevens in te voeren in een browser met MFA-ondersteuning:
 
-	.\365Inspect.ps1 -OrgName mycompany -OutPath ..\365_report -MFA
+	.\365Inspect+.ps1 -OrgName mycompany -OutPath ..\365_report -MFA
 
 365*Inspect+* kan worden uitgevoerd met alleen gespecificeerde Inspector-modules, of omgekeerd, door gespecificeerde modules uit te sluiten.
 
 Om bijvoorbeeld in te loggen door uw inloggegevens in te voeren in een browser met MFA-ondersteuning:
 
-	.\365Inspect.ps1 -OrgName mycompany -OutPath ..\365_report -MFA -SelectedInspectors inspector1, inspector2
+	.\365Inspect+.ps1 -OrgName mycompany -OutPath ..\365_report -MFA -SelectedInspectors inspector1, inspector2
 
-or
+of
 
-	.\365Inspect.ps1 -OrgName mycompany -OutPath ..\365_report -MFA -ExcludedInspectors inspector1, inspector2, inspector3
+	.\365Inspect+.ps1 -OrgName mycompany -OutPath ..\365_report -MFA -ExcludedInspectors inspector1, inspector2, inspector3
 
 Om de UpdateChecking over te slaan, voegt u gewoon de parameter *-SkipUpdateCheck* toe. Gebruik deze alleen als je de modules niet wilt updaten en alles al geïnstalleerd hebt.
 
@@ -123,14 +128,14 @@ Terwijl 365*Inspect+* wordt uitgevoerd, drukt het regelmatig statusupdates af di
 
 ## Output
 
-365*Inspect+* maakt de map aan die is opgegeven in de parameter *out_path*. Deze directory is het resultaat van de gehele 365*Inspect* inspectie. Het bevat vier aandachtspunten:
+365*Inspect+* maakt de map aan die is opgegeven in de parameter *out_path*. Deze directory is het resultaat van de gehele 365*Inspect+* inspectie. Het bevat vier aandachtspunten:
 
-* *Report.html*: grafisch rapport dat de M365-beveiligingsproblemen beschrijft die zijn geïdentificeerd door 365*Inspect*, een lijst geeft van O365-objecten die verkeerd zijn geconfigureerd, en hersteladvies geeft.
+* *Report.html*: grafisch rapport dat de M365-beveiligingsproblemen beschrijft die zijn geïdentificeerd door 365*Inspect+*, een lijst geeft van O365-objecten die verkeerd zijn geconfigureerd, en hersteladvies geeft.
 * *Verschillende tekstbestanden met de naam [Inspector-Name]*: dit zijn onbewerkte uitvoer van inspectiemodules en bevatten een lijst (één item per regel) van verkeerd geconfigureerde O365-objecten die de beschreven beveiligingsfout bevatten. Als een module Inspect-FictionalMFASettings bijvoorbeeld alle gebruikers zou detecteren die geen MFA hebben ingesteld, zou het bestand "Inspect-FictionalMFASettings" in het ZIP-rapport één gebruiker per regel bevatten die geen MFA heeft ingesteld. Deze informatie wordt alleen naar een bestand gedumpt in gevallen waarin meer dan 15 getroffen objecten worden ontdekt. Als er minder dan 15 getroffen objecten worden ontdekt, worden de objecten direct in de hoofdtekst van het HTML-rapport vermeld.
 * *Report.zip*: gezipte versie van deze volledige directory, voor gemakkelijke distributie van de resultaten in gevallen waarin sommige inspectiemodules een grote hoeveelheid bevindingen genereerden.
 * *Log directory*: 365*Inspect+* logt eventuele fouten die tijdens de uitvoering van de scripts zijn tegengekomen in een logbestand met tijdstempel in de Log-directory
 
-## Necessary Privileges
+## Noodzakelijke rechten
 
 365*Inspect+* kan niet correct worden uitgevoerd, tenzij het O365-account waarmee u authenticeert de juiste rechten heeft. 365*Inspect* vereist minimaal het volgende:
 
@@ -139,7 +144,7 @@ Terwijl 365*Inspect+* wordt uitgevoerd, drukt het regelmatig statusupdates af di
 
 We realiseren ons dat dit uiterst tolerante rollen zijn, helaas vanwege het gebruik van Microsoft Graph zijn we beperkt in het gebruik van minder rechten door Microsoft. Toepassings- en cloudtoepassingsbeheerdersrollen (gebruikt om gedelegeerde en toepassingsmachtigingen te verlenen) zijn beperkt in het verlenen van machtigingen voor Microsoft Graph- of Azure AD PowerShell-modules. [https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-administrator](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-administrator) 
 
-## Developing Additional Inspector Modules
+## Aanvullende inspectiemodules ontwikkelen
 
 365*Inspect+* is ontworpen om eenvoudig uit te breiden, in de hoop dat het individuen en organisaties in staat stelt om ofwel hun eigen 365*Inspect*-modules intern te gebruiken, of die modules te publiceren voor de O365-gemeenschap.
 
@@ -152,27 +157,51 @@ Het is eenvoudig om een inspecteur-module te maken. Inspecteurs hebben twee best
 
 De PowerShell- en JSON-bestandsnamen moeten identiek zijn voor 365*Inspect* om te herkennen dat de twee bij elkaar horen. Er zijn talloze voorbeelden in de ingebouwde reeks modules van 365*Inspect*, maar we zullen hier ook een voorbeeld geven.
 
-### Example
+### Voorbeeld
 
 Example .ps1 file, BypassingSafeAttachments.ps1:
 ```
+#Error Handling 1st part
+$ErrorActionPreference = "Stop"
+
+$errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1"
+
+. $errorHandling
+
+
 # Define a function that we will later invoke.
 # 365Inspect's built-in modules all follow this pattern.
 function Inspect-BypassingSafeAttachments {
+Try {
 	# Query some element of the O365 environment to inspect. Note that we did not have to authenticate to Exchange
 	# to fetch these transport rules within this module; assume main 365Inspect harness has logged us in already.
-	$safe_attachment_bypass_rules = (Get-TransportRule | Where { $_.SetHeaderName -eq "X-MS-Exchange-Organization-SkipSafeAttachmentProcessing" }).Identity
+	$safe_attachment_bypass_rules = (Get-TransportRule | Where-Object { $_.SetHeaderName -eq "X-MS-Exchange-Organization-SkipSafeAttachmentProcessing" }).Identity
 	
 	# If some of the parsed O365 objects were found to have the security flaw this module is inspecting for,
-	# return a list of strings representing those objects. This is what will end up as the "Affected Objects"
-	# field in the report.
+	# return a list of those objects.
 	If ($safe_attachment_bypass_rules.Count -ne 0) {
 		return $safe_attachment_bypass_rules
-	}
-	
+	}	
 	# If none of the parsed O365 objects were found to have the security flaw this module is inspecting for,
 	# returning $null indicates to 365Inspect that there were no findings for this module.
 	return $null
+}
+# Error Handling to display errors on the console
+
+Catch {
+Write-Warning "Error message: $_"
+$message = $_.ToString()
+$exception = $_.Exception
+$strace = $_.ScriptStackTrace
+$failingline = $_.InvocationInfo.Line
+$positionmsg = $_.InvocationInfo.PositionMessage
+$pscommandpath = $_.InvocationInfo.PSCommandPath
+$failinglinenumber = $_.InvocationInfo.ScriptLineNumber
+$scriptname = $_.InvocationInfo.ScriptName
+Write-Verbose "Write to log"
+Write-ErrorLog -message $message -exception $exception -scriptname $scriptname
+Write-Verbose "Errors written to log"
+}
 }
 
 # Return the results of invoking the inspector function.
@@ -183,9 +212,14 @@ Example .json file, BypassingSafeAttachments.json:
 ```
 {
 	"FindingName": "Do Not Bypass the Safe Attachments Filter",
-	"Description": "In Exchange, it is possible to create mail transport rules that bypass the Safe Attachments detection capability. The rules listed above bypass the Safe Attachments capability. Consider revie1wing these rules, as bypassing the Safe Attachments capability even for a subset of senders could be considered insecure depending on the context or may be an indicator of compromise.",
-	"Remediation": "Navigate to the Mail Flow -> Rules screen in the Exchange Admin Center. Look for the offending rules and begin the process of assessing who created them and whether they are necessary to the continued function of your organization. If they are not, remove the rules.",
-	"AffectedObjects": "",
+	"Description": "In Exchange, it is possible to create mail transport rules that bypass the Safe Attachments detection capability. The rules listed above bypass the Safe Attachments capability. Consider reviewing these rules, as bypassing the Safe Attachments capability even for a subset of senders could be considered insecure depending on the context or may be an indicator of compromise.",
+	"Remediation": "Navigate to the Mail Flow → Rules screen in the Exchange Admin Center. Look for the offending rules and begin the process of assessing who created them and whether they are necessary to the continued function of the organization. If they are not, remove the rules.",
+	"DefaultValue" : "None",
+    "ExpectedValue" : "None",
+    "ReturnedValue" : "",
+    "Impact": "Critical",
+	"RiskRating" : "",
+    "AffectedObjects": "",
 	"References": [
 		{
 			"Url": "https://docs.microsoft.com/en-us/exchange/security-and-compliance/mail-flow-rules/manage-mail-flow-rules",
@@ -205,12 +239,12 @@ U hebt zojuist de BypassingSafeAttachments Inspector-module gemaakt. Dat is alle
 
 365*Inspect+* zal een behoorlijk luide en lelijke foutmelding geven als iets in uw module niet werkt of de 365*Inspect+*-conventies niet volgt, dus controleer de uitvoer van de opdrachtregel.
 
-## About Security
+## Over de Beveiliging
 
 365*Inspect+* is een scriptharnas dat andere inspecteur-scriptmodules uitvoert die zijn opgeslagen in de map .\inspectors. Zoals bij elk ander script dat u met verhoogde bevoegdheden kunt uitvoeren, moet u bepaalde veiligheidshygiënepraktijken in acht nemen:
 
 * Geen enkele niet-vertrouwde gebruiker mag schrijftoegang hebben tot de 365*Inspect+*-map/bestanden, omdat die gebruiker dan scripts of sjablonen daarin kan overschrijven en u ertoe kan brengen kwaadaardige code uit te voeren.
 * Er mag geen scriptmodule in .\inspectors worden geplaatst, tenzij u de bron van die scriptmodule vertrouwt.
 
-## Special Thanks To...
+## Speciale Dank naar...
 * [CISSecurity](https://www.cisecurity.org/cis-benchmarks/): Voor het leveren van de M365-benchmarks om auditscripts te maken

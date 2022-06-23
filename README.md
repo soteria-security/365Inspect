@@ -5,11 +5,11 @@
 
 365*Inspect+* is a command-line utility that automatically audits an M365 environment. 365*Inspect+* retrieves configuration information from your M365 instance and validates whether or not a series of security best practices have been followed. 365*Inspect* creates a simple graphical HTML report that provides descriptions of any discovered security flaws as well as actionable recommendations you can use to improve the security state of your M365 instance.
 
-365Inspect+ is open-source and completely free. It is authored in PowerShell, and all you need to use it are the appropriate PowerShell modules and credentials to your M365 administrator account. For our fellow tinkerers and security analysts out there, 365Inspect also supports a simple module system that allows you to easily author your own additions to the audit functionality. This means you can use it out of the box as a powerful M365 security scanner, or nerd out and expand the functionality using your own or other modules. Detailed directions are provided on the project’s Github page.
+365*Inspect+* is open-source and completely free. It is authored in PowerShell, and all you need to use it are the appropriate PowerShell modules and credentials to your M365 administrator account. For our fellow tinkerers and security analysts out there, 365Inspect also supports a simple module system that allows you to easily author your own additions to the audit functionality. This means you can use it out of the box as a powerful M365 security scanner, or nerd out and expand the functionality using your own or other modules. Detailed directions are provided on the project’s Github page.
 
 ## Advantages
 
-With 365Inspect+ you can:
+With 365*Inspect+* you can:
 	
 * Audit your M365 Environments or your customer's M365 environments,
 	
@@ -20,15 +20,17 @@ With 365Inspect+ you can:
 ## Differences Between The Standard and Plus Version
 
 The following differences are existing:
-- The authentication is different and easier.
+- The authentication is differently designed so MFA is a bit faster if an username is provided in some cases
 - There is less output when authenticating and the authentication is validated as a message is displayed
 - There is an function that allows updating the modules to their latest version
+- There is an function that removes the old modules to keep all modules up-to-date
+- There is an functiont that briefly checks if any module is installed correctly
 - The error handling is different as there is less code redundancy 
-- The tool will prompt for Admin Privileges if the .ps1 is ran without it.
+- The tool will prompt for Admin Privileges if the .ps1 is ran without it, so people do not have to run an additional prompt.
 
 ## Setup
 
-365*Inspect+* requires the administrative PowerShell modules for Microsoft Online, Azure AD (We recommend installing the AzureADPreview module), Exchange Online Administration, Sharepoint Administration, Microsoft Intune,Microsoft Teams and Microsoft Graph.
+365*Inspect+* requires the administrative PowerShell modules for Microsoft Online, Azure AD (We recommend installing the AzureADPreview module), Azure Powershell, Exchange Online Administration, Sharepoint Administration, Microsoft Intune,Microsoft Teams and Microsoft Graph.
 
 The 365*Inspect+*.ps1 PowerShell script will validate the installed modules.
 
@@ -37,6 +39,8 @@ If you do not have these modules installed, you will be prompted to install them
 	Install-Module -Name MSOnline
 
 	Install-Module -Name AzureADPreview
+
+	Install-Module -Name Az
 
 	Install-Module -Name ExchangeOnlineManagement
 
@@ -51,6 +55,8 @@ If you do not have these modules installed, you will be prompted to install them
 [Install MSOnline PowerShell](https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-msonlinev1?view=azureadps-1.0)
 
 [Install Azure AD PowerShell](https://docs.microsoft.com/en-us/powershell/module/azuread/?view=azureadps-2.0)
+
+[Install Azure PowerShell](https://docs.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-8.0.0)
 
 [Install Exchange Online PowerShell](https://docs.microsoft.com/en-us/powershell/exchange/exchange-online-powershell-v2?view=exchange-ps)
 
@@ -74,7 +80,7 @@ To run 365*Inspect+*, open a PowerShell console and navigate to the folder you d
 
 You will interact with 365*Inspect+* by executing the main script file, 365Inspect.ps1, from within the PowerShell command prompt. 
 
-All 365*Inspect* requires to inspect your O365 tenant is access via an O365 account with proper permissions, so most of the command line parameters relate to the organization being assessed and the method of authentication.
+All 365*Inspect+* requires to inspect your O365 tenant is access via an O365 account with proper permissions, so most of the command line parameters relate to the organization being assessed and the method of authentication.
 
 Execution of 365*Inspect+* looks like this:
 
@@ -149,23 +155,47 @@ The PowerShell and JSON file names must be identical for 365*Inspect* to recogni
 
 Example .ps1 file, BypassingSafeAttachments.ps1:
 ```
+#Error Handling 1st part
+$ErrorActionPreference = "Stop"
+
+$errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1"
+
+. $errorHandling
+
+
 # Define a function that we will later invoke.
 # 365Inspect's built-in modules all follow this pattern.
 function Inspect-BypassingSafeAttachments {
+Try {
 	# Query some element of the O365 environment to inspect. Note that we did not have to authenticate to Exchange
 	# to fetch these transport rules within this module; assume main 365Inspect harness has logged us in already.
-	$safe_attachment_bypass_rules = (Get-TransportRule | Where { $_.SetHeaderName -eq "X-MS-Exchange-Organization-SkipSafeAttachmentProcessing" }).Identity
+	$safe_attachment_bypass_rules = (Get-TransportRule | Where-Object { $_.SetHeaderName -eq "X-MS-Exchange-Organization-SkipSafeAttachmentProcessing" }).Identity
 	
 	# If some of the parsed O365 objects were found to have the security flaw this module is inspecting for,
-	# return a list of strings representing those objects. This is what will end up as the "Affected Objects"
-	# field in the report.
+	# return a list of those objects.
 	If ($safe_attachment_bypass_rules.Count -ne 0) {
 		return $safe_attachment_bypass_rules
-	}
-	
+	}	
 	# If none of the parsed O365 objects were found to have the security flaw this module is inspecting for,
 	# returning $null indicates to 365Inspect that there were no findings for this module.
 	return $null
+}
+# Error Handling to display errors on the console
+
+Catch {
+Write-Warning "Error message: $_"
+$message = $_.ToString()
+$exception = $_.Exception
+$strace = $_.ScriptStackTrace
+$failingline = $_.InvocationInfo.Line
+$positionmsg = $_.InvocationInfo.PositionMessage
+$pscommandpath = $_.InvocationInfo.PSCommandPath
+$failinglinenumber = $_.InvocationInfo.ScriptLineNumber
+$scriptname = $_.InvocationInfo.ScriptName
+Write-Verbose "Write to log"
+Write-ErrorLog -message $message -exception $exception -scriptname $scriptname
+Write-Verbose "Errors written to log"
+}
 }
 
 # Return the results of invoking the inspector function.
@@ -176,9 +206,14 @@ Example .json file, BypassingSafeAttachments.json:
 ```
 {
 	"FindingName": "Do Not Bypass the Safe Attachments Filter",
-	"Description": "In Exchange, it is possible to create mail transport rules that bypass the Safe Attachments detection capability. The rules listed above bypass the Safe Attachments capability. Consider revie1wing these rules, as bypassing the Safe Attachments capability even for a subset of senders could be considered insecure depending on the context or may be an indicator of compromise.",
-	"Remediation": "Navigate to the Mail Flow -> Rules screen in the Exchange Admin Center. Look for the offending rules and begin the process of assessing who created them and whether they are necessary to the continued function of your organization. If they are not, remove the rules.",
-	"AffectedObjects": "",
+	"Description": "In Exchange, it is possible to create mail transport rules that bypass the Safe Attachments detection capability. The rules listed above bypass the Safe Attachments capability. Consider reviewing these rules, as bypassing the Safe Attachments capability even for a subset of senders could be considered insecure depending on the context or may be an indicator of compromise.",
+	"Remediation": "Navigate to the Mail Flow → Rules screen in the Exchange Admin Center. Look for the offending rules and begin the process of assessing who created them and whether they are necessary to the continued function of the organization. If they are not, remove the rules.",
+	"DefaultValue" : "None",
+    "ExpectedValue" : "None",
+    "ReturnedValue" : "",
+    "Impact": "Critical",
+	"RiskRating" : "",
+    "AffectedObjects": "",
 	"References": [
 		{
 			"Url": "https://docs.microsoft.com/en-us/exchange/security-and-compliance/mail-flow-rules/manage-mail-flow-rules",
@@ -194,16 +229,16 @@ Example .json file, BypassingSafeAttachments.json:
 
 Once you drop these two files in the .\inspectors folder, they are considered part of 365*Inspect+*'s module inventory and will run the next time you execute 365*Inspect+*.
 
-You have just created the BypassingSafeAttachments Inspector module. That's all!
+You have just created the BypassingSafeAttachments Inspector module. Yay!
 
-365*Inspect+* will throw a pretty loud and ugly error if something in your module doesn't work or doesn't follow 365*Inspect* conventions, so monitor the command line output.
+365*Inspect+* will throw a pretty loud and ugly error if something in your module doesn't work or doesn't follow 365*Inspect+* conventions, so monitor the command line output.
 
-## About Security
+## About Program's Security
 
 365*Inspect+* is a script harness that runs other inspector script modules stored in the .\inspectors folder. As with any other script you may run with elevated privileges, you should observe certain security hygiene practices:
 
 * No untrusted user should have write access to the 365*Inspect+* folder/files, as that user could then overwrite scripts or templates therein and induce you to run malicious code.
-* No script module should be placed in .\inspectors unless you trust the source of that script module.
+* No script module should be placed the Inspectors folder unless you trust the source of that script module.
 
 ## Special Thanks To...
 * [CISSecurity](https://www.cisecurity.org/cis-benchmarks/): For providing the M365 benchmarks to make audit scripts
