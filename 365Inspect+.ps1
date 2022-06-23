@@ -1,9 +1,9 @@
 ﻿<#
 Author: Soteria-Se, Leonardo van de Weteringh
 Copright: 2022
-Version: 0.0.3beta+
+Version: 0.0.4beta+
 Usage: ./365Inspect.ps1 or ./365Inspect.exe
-Date: 21-06-2022
+Date: 23-06-2022
 #>
 
 <#
@@ -114,7 +114,7 @@ function CheckInstalledModules {
   if (-not $SkipUpdateCheck.IsPresent) {
     Write-Warning "[?] Checking Installed Modules..."
     # Define the set of modules installed and updated from the PowerShell Gallery that we want to maintain
-    $O365Modules = @("MicrosoftTeams","MSOnline","AzureADPreview","ExchangeOnlineManagement","Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph","Microsoft.Graph.Intune")
+    $O365Modules = @("MicrosoftTeams","MSOnline","AzureADPreview","Az","ExchangeOnlineManagement","Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph","Microsoft.Graph.Intune")
     #Check which Modules are Installed Already...
     $installed = Get-InstalledModule
     foreach ($module in $O365Modules) {
@@ -228,6 +228,23 @@ function Connect-Services {
       break
     }
 
+    #Azure PowerShell (in progress)
+    try{
+    Write-Output "Connecting to Azure PowerShell..."
+    if (-not [string]::IsNullOrEmpty($Username)) {
+    Connect-AzAccount -AccountId $Username -ErrorAction Stop | Out-Null
+    }else{
+    Connect-AzAccount -ErrorAction Stop | Out-Null
+    }
+    if (Get-AzAccessToken)
+    {
+    Write-Warning "Succesfully Connected to Azure PowerShell"
+    }
+    }catch{
+        Exception
+        break
+    }
+
     #Microsoft Online Service
     try {
       Write-Output "Connecting to MSOnline Service..."
@@ -241,6 +258,7 @@ function Connect-Services {
       Exception
       break
     }
+
     #Azure-AD (Preview)
     try {
       Write-Output "Connecting to Azure Active Directory..."
@@ -257,6 +275,7 @@ function Connect-Services {
       Exception
       break
     }
+
     #Exchange Online
     try {
       Write-Output "Connecting to Exchange Online..."
@@ -273,6 +292,7 @@ function Connect-Services {
       Exception
       break
     }
+
     #Sharepoint Service
     try {
       Write-Output "Connecting to SharePoint Service"
@@ -291,7 +311,6 @@ function Connect-Services {
     try {
       Write-Output "Connecting and consenting to Microsoft Intune"
       Connect-MSGraph -AdminConsent -ErrorAction Stop | Out-Null
-      Connect-MSGraph -ErrorAction Stop | Out-Null
       if ((Get-IntuneManagedDevice -Top 1) -ne $null) {
         Write-Warning "Succesfully Connected to Microsoft InTune"
         $ConnectedServices = $ConnectedServices + "Microsoft InTune `n"
@@ -302,7 +321,6 @@ function Connect-Services {
     }
 
     #Microsoft Graph
-
     try {
       Write-Output "Connecting and consenting to Microsoft Graph"
       $MSGraph = Connect-MgGraph -ErrorAction Stop -Scopes "AuditLog.Read.All","Policy.Read.All","Directory.Read.All","IdentityProvider.Read.All","Organization.Read.All","Securityevents.Read.All","ThreatIndicators.Read.All","SecurityActions.Read.All","User.Read.All","UserAuthenticationMethod.Read.All","MailboxSettings.Read"
@@ -352,6 +370,19 @@ function Connect-Services {
     } catch {
       Exception
       break
+    }
+
+        #Azure PowerShell (in progress)
+    try{
+    Write-Output "Connecting to Azure PowerShell..."
+    Connect-AzAccount -Credential $Credential -ErrorAction Stop
+    if (Get-AzAccessToken)
+    {
+    Write-Warning "Succesfully Connected to Azure PowerShell"
+    }
+    }catch{
+        Exception
+        break
     }
 
     #Microsoft Online Service
@@ -465,6 +496,23 @@ function Connect-Services {
     } catch {
       Exception
       break
+    }
+
+            #Azure PowerShell (in progress)
+    try{
+    Write-Output "Connecting to Azure PowerShell..."
+    if (-not [string]::IsNullOrEmpty($Username)) {
+        Connect-AzAccount -AccountId $Username
+      } else {
+        Connect-AzAccount
+      }
+    if (Get-AzAccessToken)
+    {
+    Write-Warning "Succesfully Connected to Azure PowerShell"
+    }
+    }catch{
+        Exception
+        break
     }
 
     #Microsoft Online Service
@@ -656,6 +704,7 @@ function ExecuteInspectors {
   $informational_count = 0
 
   #$sortedFindings1 = $findings | Sort-Object {$_.FindingName}
+  #$sortedFindings2 = $findings | Sort-Object {$_.CVS}
   $sortedFindings = $findings | Sort-Object { switch -Regex ($_.Impact) { 'Critical' { 1 } 'High' { 2 } 'Medium' { 3 } 'Low' { 4 } 'Informational' { 5 } }; $_.FindingName }
   foreach ($finding in $sortedFindings) {
     try {
@@ -678,6 +727,8 @@ function ExecuteInspectors {
         # Finding Impact
         $short_finding_html = $short_finding_html.Replace("{{IMPACT}}",$finding.Impact)
         $long_finding_html = $long_finding_html.Replace("{{IMPACT}}",$finding.Impact)
+
+        # Statistics for user information
         if ($finding.Impact -like "*Critical*") {
           $critical_count += 1
         } elseif ($finding.Impact -like "*High*") {
@@ -690,6 +741,9 @@ function ExecuteInspectors {
           $informational_count += 1
         }
 
+        # Finding CVS Score
+        $short_finding_html = $short_finding_html.Replace("{{CVS}}",$finding.CVS.ToString())
+        $long_finding_html = $long_finding_html.Replace("{{CVS}}",$finding.CVS.ToString())
 
         # Finding description
         $long_finding_html = $long_finding_html.Replace("{{DESCRIPTION}}",$finding.Description)
@@ -699,6 +753,9 @@ function ExecuteInspectors {
 
         # Finding expected value
         $long_finding_html = $long_finding_html.Replace("{{EXPECTEDVALUE}}",$finding.ExpectedValue)
+
+        # Finding Residual risk
+        $long_finding_html = $long_finding_html.Replace("{{RISKRATING}}",$finding.RiskRating)
 
         # Finding Remediation
         if ($finding.Remediation.length -gt 300) {
@@ -749,16 +806,17 @@ function ExecuteInspectors {
     }
   }
   # Insert command line execution information. This is coupled kinda badly, as is the Affected Objects html.
-  $flags = "<b>Prepared for organization:</b><br/>" + $org_name + "<br/><br/>"
+  $flags = "<b>Audited Organization:</b> <u>" + $org_name + "</u><br/><br/>"
+  $flags = $flags + "<b>Audit Executed on:</b> "+ (Get-Date) + "<br/><br/>"
   $flags = $flags + "<b>Stats</b>:<br/> <b>" + $findings_count + "</b> out of <b>" + $inspectors.Count + "</b> executed inspector modules identified possible opportunities for improvement.<br/>"
-  $flags = $flags + "<b>Critical</b>: " + $critical_count + "<b> High</b>: " + $high_count + "<b> Medium</b>: " + $medium_count + "<b> Low</b>: " + $low_count + "<b> Informational</b>: " + $informational_count + "<br/><br/>"
+  $flags = $flags + "<font color='#8b0000'><b>Critical</b></font>: <b><u>" + $critical_count + "</b></u><font color='red'><b> High</b></font>: <b><u>" + $high_count + "</b></u><font color='#'><b> Medium</b></font>: <b><u>" + $medium_count + "</b></u><font color='green'><b> Low</b>: <b><u>" + $low_count + "</b></u><font color='blue'><b> Informational</b></font>: <b><u>" + $informational_count + "</b></u><br/><br/>"
   $flags = $flags + "<b>Inspector Modules Executed</b>:<br/>" + [string]::Join("<br/>",$selected_inspectors)
 
   $output = $templates.ReportTemplate.Replace($templates.FindingShortTemplate,$short_findings_html)
   $output = $output.Replace($templates.FindingLongTemplate,$long_findings_html)
   $output = $output.Replace($templates.ExecsumTemplate,$templates.ExecsumTemplate.Replace("{{CMDLINEFLAGS}}",$flags))
 
-  $output | Out-File -FilePath $out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss").html
+  $output | Out-File -FilePath $out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss")_$org_name.html
 }
 
 function Parse-Template {
@@ -808,18 +866,17 @@ function SaveFile {
 }
 
 function DisconnectServices {
-  Write-Output "Disconnect from MSOnline Service"
+  Write-Output "Disconnecting from MSOnline Service..."
   [Microsoft.Online.Administration.Automation.ConnectMsolService]::ClearUserSessionState()
-  Write-Output "Disconnect from Azure Active Directory"
+  Write-Output "Disconnecting from Azure Active Directory..."
   Disconnect-AzureAD
-  Write-Output "Disconnect from Exchange Online"
+  Write-Output "Disconnecting from Exchange Online..."
   Disconnect-ExchangeOnline -Confirm:$false
-  Write-Output "Disconnect from SharePoint Service"
+  Write-Output "Disconnecting from SharePoint Service..."
   Disconnect-SPOService
-  Write-Output "Disconnect from Microsoft Teams"
+  Write-Output "Disconnecting from Microsoft Teams..."
   Disconnect-MicrosoftTeams
-  Write-Output "Disconnect from Microsoft Intune"
-  Write-Output "Disconnect from Microsoft Graph"
+  Write-Output "Disconnecting from Microsoft Intune & Microsoft Graph..."
   Disconnect-MgGraph
 }
 
@@ -834,7 +891,7 @@ function Banner {
 #     # #     # #     #    #            ##        ##      #   # #        #             ##      #     
  #####   #####   #####    #           ##        ##       #    ##          #                    #    
 365Inspect - The M365 Environment Audit Tool                    
-Version 0.0.3+Beta - Leonardo van de Weteringh
+Version 0.0.4+Beta - Leonardo van de Weteringh
 "@
   $banner2 = @"
 
@@ -850,7 +907,7 @@ Version 0.0.3+Beta - Leonardo van de Weteringh
 ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░▌      ▐░░▌▐░░░░░░░░░░░▌▐░▌          ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌     ▐░▌     
  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀        ▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀            ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀       ▀      
 365Inspect - The M365 Environment Audit Tool                    
-Version 0.0.3+Beta - Leonardo van de Weteringh
+Version 0.0.4+Beta - Leonardo van de Weteringh
 "@
 
   $banner3 = @"
@@ -863,7 +920,7 @@ Version 0.0.3+Beta - Leonardo van de Weteringh
 #+#    #+# #+#    #+# #+#    #+#     #+#     #+#   #+#+# #+#    #+# #+#        #+#       #+#    #+#    #+#     
  ########   ########   ########  ########### ###    ####  ########  ###        ########## ########     ###     
 365Inspect - The M365 Environment Audit Tool                    
-Version 0.0.3+Beta - Leonardo van de Weteringh
+Version 0.0.4+Beta - Leonardo van de Weteringh
 "@
   $banner = @($banner1,$banner2,$banner3)
   $bannernumber = (Get-Random -Maximum $banner.length)

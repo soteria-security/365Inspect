@@ -575,6 +575,7 @@
             </span>
             <span class="c14"></span>
         </p>
+        <center><img src="https://upload.wikimedia.org/wikipedia/commons/8/85/Microsoft_365_logo.png" height="150" width="750"></center>
         <p class="c21 title" id="h.gan1mgr3c5k5" style="text-align:center;">
             <span class="c14">Microsoft 365 Security Inspection Report</span>
         </p>
@@ -619,7 +620,7 @@
                     </td>
                     <td class="c11" colspan="1" rowspan="1">
                         <p class="c8">
-                            <span class="c23">Residual Risk</span>
+                            <span class="c23">CVS Score</span>
                         </p>
                     </td>
 					<!--
@@ -631,22 +632,24 @@
                 </tr>
 <!--BEGIN_FINDING_SHORT_REPEATER-->
                 <tr class="c9">
-                    <td class="c3" colspan="1" rowspan="1" style="class-align:center;">
+                    <td class="c3" colspan="1" rowspan="1" align="center">
                         <span class="c8 c13">
                             <span class="table-detail-light">{{FINDING_NUMBER}}</span>
                         </span>
                     </td>
-                    <td class="c11" colspan="1" rowspan="1" style="">
+                    <td class="c11" colspan="1" rowspan="1">
                         <a class="c0" href="#finding_{{FINDING_NUMBER}}">
                             <span class="table-detail-light">{{FINDING_NAME}}</span>
                         </a>
                     </td>
-                    <td class="c11" colspan="1" rowspan="1" style="">
+                    <td class="c11" colspan="1" rowspan="1" align="center">
                         <span class="table-detail-light">{{IMPACT}}</span>
                     </a>
                     </td>
-                    <td class="c11" colspan="1" rowspan="1" style="">
-                        <span class="table-detail-light">{{RISKRATING}}</span>
+                    <td class="c3" colspan="1" rowspan="1" align="center">
+                        <span class="c8 c13">
+                        <span class="table-detail-light">{{CVS}}</span>
+                        </span>
                     </td>
                 </td>
                 <!--
@@ -678,7 +681,7 @@
     
     <!--BEGIN_FINDING_LONG_REPEATER-->
 		<h2 class="c19" id="finding_{{FINDING_NUMBER}}" style="text-align:left">
-            <span class="c2" style="font-size:20">{{FINDING_NUMBER}}: {{FINDING_NAME}}</span>
+            <span class="c2" style="font-size:20">{{FINDING_NUMBER}}: {{FINDING_NAME}} {{IMPACT}} [{{CVS}}]</span>
         </h1>
         <p class="c20">
             <span class="finding-detail-heading">Returned Value:</span>
