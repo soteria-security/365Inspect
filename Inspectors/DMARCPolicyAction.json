@@ -6,7 +6,6 @@
     "ExpectedValue" : "'p=quarantine' or 'p=reject'",
     "ReturnedValue" : "",
     "Impact": "High",
-	"RiskRating" : "",
     "AffectedObjects": "",
 	"References": [
 		{

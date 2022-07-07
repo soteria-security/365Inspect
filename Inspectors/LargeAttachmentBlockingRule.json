@@ -6,7 +6,6 @@
     "ExpectedValue" : "Configured Transport Rule",
     "ReturnedValue" : "",
     "Impact": "Critical",
-	"RiskRating" : "",
     "AffectedObjects": "",
 	"References": [
 		{

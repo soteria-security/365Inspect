@@ -8,7 +8,7 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 function Inspect-DKIMRecordsSelector1 {
 Try {
 
-	$domains = Get-MgDomain | Where-Object {$_.Id -notlike "*.onmicrosoft.com"}
+	$domains = Get-MgDomain | Where-Object {$_.Id -notlike "*.*microsoft*.com"}
 	$domains_without_records = @()
 	
 	ForEach($domain in $domains.Id) {

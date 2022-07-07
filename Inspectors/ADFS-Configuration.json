@@ -6,7 +6,6 @@
     "ExpectedValue" : "Not applicable",
     "ReturnedValue" : "",
     "Impact": "Informational",
-	"RiskRating" : "Informational",
     "AffectedObjects": "",
 	"References": [
 		{
@@ -15,3 +14,4 @@
 		}
 	]
 }
+

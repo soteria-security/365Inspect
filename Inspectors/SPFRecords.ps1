@@ -8,7 +8,7 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 function Inspect-SPFRecords {
 Try {
 
-	$domains = Get-MgDomain | Where-Object {$_.Id -notlike "*.onmicrosoft.com"}
+	$domains = Get-MgDomain | Where-Object {$_.Id -notlike "*.*microsoft*.com"}
 	$domains_without_records = @()
 	
 	# The redirection is kind of a cheesy hack to prevent the output from
