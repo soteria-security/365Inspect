@@ -6,7 +6,6 @@
     "ExpectedValue" : "SafeLinks Enabled",
     "ReturnedValue" : "",
     "Impact": "Critical",
-	"RiskRating" : "",
     "AffectedObjects": "",
 	"References": [
 		{

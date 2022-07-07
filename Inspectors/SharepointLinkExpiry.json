@@ -6,7 +6,6 @@
     "ExpectedValue" : "Value of 1 or higher",
     "ReturnedValue" : "",
     "Impact": "Critical",
-	"RiskRating" : "",
     "AffectedObjects": "",
 	"References": [
 		{

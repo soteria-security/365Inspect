@@ -6,7 +6,6 @@
     "ExpectedValue" : "A configured mailbox recipient",
     "ReturnedValue" : "",
     "Impact": "High",
-	"RiskRating" : "",
     "AffectedObjects": "",
 	"References": [
 		{

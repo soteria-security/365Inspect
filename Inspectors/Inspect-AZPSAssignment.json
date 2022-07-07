@@ -6,7 +6,6 @@
     "ExpectedValue" : "Assigned Users, Groups, or Directory Roles",
     "ReturnedValue" : "",
     "Impact": "Critical",
-	"RiskRating" : "",
     "AffectedObjects": "",
 	"References": [
 		{

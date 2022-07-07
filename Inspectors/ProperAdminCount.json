@@ -6,7 +6,6 @@
     "ExpectedValue" : "Between two and four",
     "ReturnedValue" : "",
     "Impact": "High",
-	"RiskRating" : "",
     "AffectedObjects": "",
 	"References": [
 		{

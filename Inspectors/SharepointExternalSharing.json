@@ -6,7 +6,6 @@
     "ExpectedValue" : "ExternalUserSharingOnly (New and Existing Guests)",
     "ReturnedValue" : "",
     "Impact": "Critical",
-	"RiskRating" : "",
     "AffectedObjects": "",
 	"References": [
 		{

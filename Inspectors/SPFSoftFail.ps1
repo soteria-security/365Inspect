@@ -8,7 +8,7 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 function Inspect-SPFSoftFail {
 Try {
 
-	$domains = Get-MgDomain | Where-Object {$_.Id -notlike "*.onmicrosoft.com"}
+	$domains = Get-MgDomain | Where-Object {$_.Id -notlike "*.*microsoft*.com"}
     $domains_with_soft_fail = @()
 	
     ForEach($domain in $domains.name) {

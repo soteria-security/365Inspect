@@ -6,7 +6,6 @@
     "ExpectedValue" : "Azure AD Service Principal objects for Microsoft Graph PowerShell and Azure Active Directory PowerShell.",
     "ReturnedValue" : "",
     "Impact": "Critical",
-	"RiskRating" : "",
     "AffectedObjects": "",
 	"References": [
 		{
