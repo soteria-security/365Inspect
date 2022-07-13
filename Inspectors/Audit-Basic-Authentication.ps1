@@ -7,7 +7,7 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 function Audit-Basic-Authentication{
 try{
 $basicauthdata = @()
-$basicauth1 = Get-OrganizationConfig | Select-Object -ExpandProperty DefaultAuthenticationPolicy | ForEach { Get-AuthenticationPolicy $_ | Select- Object AllowBasicAuth* }
+$basicauth1 = Get-OrganizationConfig | Select-Object -ExpandProperty DefaultAuthenticationPolicy | ForEach { Get-AuthenticationPolicy $_ | Select-Object AllowBasicAuth* }
 $basicauth2 = Get-OrganizationConfig | Select-Object DefaultAuthenticationPolicy
 $basicauth3 = Get-User -ResultSize Unlimited | Select-Object UserPrincipalName, AuthenticationPolicy
 if($basicauth1.DefaultAuthenticationPolicy -contains "" -and $basicauth2.DefaultAuthenticationPolicy -contains "" -and $basicauth3.AuthenticationPolicy -contains ""){

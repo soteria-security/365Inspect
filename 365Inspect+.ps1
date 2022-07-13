@@ -647,6 +647,7 @@ function Connect-Services {
 }
 
 function ExecuteInspectors {
+  $startdate = (Get-Date)
   # Get a list of every available detection module by parsing the PowerShell
   # scripts present in the .\inspectors folder. 
   #Exclude specified Inspectors
@@ -835,7 +836,8 @@ ForEach ($finding in $sortedFindings) {
 
 # Insert command line execution information. This is coupled kinda badly, as is the Affected Objects html.
     $flags = "<b>Audited Organization:</b> <u>" + $org_name + "</u><br/><br/>"
-    $flags = $flags + "<b>Audit Executed on:</b><i> "+ (Get-Date) + "</i><br/><br/>"
+    $flags = $flags + "<b>Audit Started on:</b><i>"+ $startdate + "</i><br/>"
+    $flags = $flags + "<b>Audit Finished on:</b><i> "+ (Get-Date) + "</i><br/><br/>"
     $flags = $flags + "<b>Stats</b>:<br/> <b>" + $findings_count + "</b> out of <b>" + $inspectors.Count + "</b> executed inspector modules identified possible opportunities for improvement.<br/><br/>"  
     $flags = $flags + "<font color='#8b0000'><b>Critical</b></font>: <b><u>" + $critical_count + "</b></u><font color='red'><b> High</b></font>: <b><u>" + $high_count + "</b></u><font color='#f6be00'><b> Medium</b></font>: <b><u>" + $medium_count + "</b></u><font color='green'><b> Low</b></font>: <b><u>" + $low_count + "</b></u><font color='blue'><b> Informational</b></font>: <b><u>" + $informational_count + "</b></u><br/><br/>"
     $flags = $flags + "<b>Inspector Modules Executed</b>:<br/>" + [String]::Join("<br/>", $selected_inspectors)
@@ -896,6 +898,8 @@ function SaveFile {
 function DisconnectServices {
   Write-Output "Disconnecting from MSOnline Service..."
   [Microsoft.Online.Administration.Automation.ConnectMsolService]::ClearUserSessionState()
+  Write-Output "Disconnecting from Azure Powershell..."
+  Disconnect-AzAccount
   Write-Output "Disconnecting from Azure Active Directory..."
   Disconnect-AzureAD
   Write-Output "Disconnecting from Exchange Online..."
