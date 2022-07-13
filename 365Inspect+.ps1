@@ -1,9 +1,9 @@
 ﻿<#
 Author: Soteria-Se, Leonardo van de Weteringh
 Copright: 2022
-Version: 0.0.5beta+
+Version: 0.0.6beta+
 Usage: ./365Inspect.ps1 or ./365Inspect.exe
-Date: 23-06-2022
+Date: 13-07-2022
 #>
 
 <#
@@ -28,7 +28,7 @@ Date: 23-06-2022
   Username of O365 account.
   e.g. example@yourcompany.com
 
-  .PARAMETER Password (NOT YET IMPLEMENTED)
+  .PARAMETER Password
   Password of O365 account.
 
   .PARAMETER SkipUpdateCheck
@@ -114,7 +114,7 @@ function CheckInstalledModules {
   if (-not $SkipUpdateCheck.IsPresent) {
     Write-Warning "[?] Checking Installed Modules..."
     # Define the set of modules installed and updated from the PowerShell Gallery that we want to maintain
-    $O365Modules = @("MicrosoftTeams","MSOnline","AzureADPreview","Az","ExchangeOnlineManagement","Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph","Microsoft.Graph.Intune")
+    $O365Modules = @("MicrosoftTeams","MSOnline","Az","AzureADPreview","ExchangeOnlineManagement","Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph","Microsoft.Graph.Intune")
     #Check which Modules are Installed Already...
     $installed = Get-InstalledModule
     foreach ($module in $O365Modules) {
@@ -131,57 +131,81 @@ function CheckInstalledModules {
         $count++
       }
     }
-    Write-Host "[?] Checking Installed Modules Updates..." -ForegroundColor Yellow
-    foreach ($module in $O365Modules) {
-      $onversion = Find-Module -Name $module -ErrorAction Stop -AllowPrerelease
-      $localversion = Get-InstalledModule -Name $module -ErrorAction Stop
-      #compare versions
-      if ($localversion.Version -ilt $onversion.Version -or $localversion.Version -ne $onversion.Version) {
-        Write-Warning ($onversion.Version + ' != ' + $localversion.Version)
-        Write-Host "Trying to update $module ..."
-        Update-Module -Name $module -AllowPrerelease -Force
-      }
-      if ($onversion.Version -ige $localversion.Version) {
-        Write-Warning ($module + ' is up-to-date!')
-      }
-    }
-    #Check if PowerShellGet is on Version 3 instead of 2
+
+    # Get all installed modules that have a newer version available
+    $Modules = @("MicrosoftTeams","MSOnline","Az","AzureADPreview","ExchangeOnlineManagement","Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph","Microsoft.Graph.Intune")
     $PowerShellGetVersion = Get-InstalledModule -Name "PowerShellGet" -ErrorAction Stop
-    if ($PowerShellGetVersion.Version -igt 2.2.5) {
-      foreach ($module in $O365Modules) {
-        Write-Host "[?] Checking for older versions of" $module
-        $AllVersions = Get-InstalledModule -Name $module -AllVersions -AllowPrerelease | Measure-Object
-        if ($AllVersions.Count -igt 1)
-        {
-          $AllVersions = Get-InstalledModule -Name $module -AllVersions -AllowPrerelease | Sort Version
-          $MostRecentVersion = $AllVersions[0].Version
-          Write-Host "Most recent version of" $module "is" $MostRecentVersion
-          foreach ($Version in $AllVersions) { #Check each version and remove old versions
-            if ($Version.Version -ilt $MostRecentVersion -or $Version.Version -ne $MostRecentVersion) { # Old version - remove
-              Write-Host "Uninstalling version" $Version.Version "of Module" $module "..." -ForegroundColor Red
-              Uninstall-PSResource -Name $module -Version $Version.Version -Force
-            }
-          }
+    Write-Host "Checking all installed modules for available updates."
+    $CurrentModules = Get-InstalledModule | Where-Object { $Modules -contains $_.Name}
+
+    # Walk through the Installed modules and check if there is a newer version
+    $CurrentModules | ForEach-Object {
+        Write-Host "[>] Checking $($_.Name) ..."
+        Try {
+            $GalleryModule = Find-Module -Name $_.Name -Repository PSGallery -ErrorAction Stop
         }
-      }
-    } else {
-      # Check and remove older versions of the modules from the PC (Classic Method)
-      foreach ($module in $O365Modules) {
-        Write-Host "[?] Checking for older versions of" $module
-        $AllVersions = Get-InstalledModule -Name $module -AllVersions -AllowPrerelease | Measure-Object
-        if ($AllVersions.Count -igt 1) {
-          $AllVersions = Get-InstalledModule -Name $module -AllVersions -AllowPrerelease | Sort Version
-          $MostRecentVersion = $AllVersions[0].Version
-          Write-Host "Most recent version of" $module "is" $MostRecentVersion
-          foreach ($Version in $AllVersions) { #Check each version and remove old versions
-            if ($Version.Version -ilt $MostRecentVersion) { # Old version - remove
-              Write-Host "Uninstalling version" $Version.Version "of Module" $module "..." -ForegroundColor Red
-              Uninstall-Module -Name $module -RequiredVersion $Version.Version -Force
-            } #End if
-          } #End ForEach
-        } #End If
-      } #End ForEach
-    }
+        Catch {
+            Write-Error "Module $($_.Name) not found in gallery $_"
+            $GalleryModule = $null
+        }
+        if ($GalleryModule.Version -gt $_.Version) {
+            if ($SkipMajorVersion -and $GalleryModule.Version.Split('.')[0] -gt $_.Version.Split('.')[0]) {
+                Write-Warning "Skipping major version update for module $($_.Name). Galleryversion: $($GalleryModule.Version), local version $($_.Version)"
+            }
+            else {
+                Write-Host "$($_.Name) will be updated. Galleryversion: $($GalleryModule.Version), local version $($_.Version)"
+                try {
+                    if ($PSCmdlet.ShouldProcess(
+                        ("Module {0} will be updated to version {1}" -f $_.Name, $GalleryModule.Version),
+                            $_.Name,
+                            "Update-Module"
+                        )
+                    ) {
+                        Update-Module $_.Name -ErrorAction Stop -Force
+                        Write-Host "$($_.Name)  has been updated!" -ForegroundColor Green
+                    }
+                }
+                Catch {
+                    Write-Error "$($_.Name) failed: $_ "
+                    continue
+
+                }
+                }
+            }
+                    elseif ($null -ne $GalleryModule) {
+            Write-Warning "$($_.Name) is up to date!"
+        }
+        }
+
+        #Uninstall Modules
+        Write-Host "Checking all installed modules for multiple versions..."
+        $CurrentModules | ForEach-Object {
+        if ((Get-InstalledModule -Name $_.Name -AllVersions).Count -igt 1){
+        $getallversions = @(Get-InstalledModule -Name $_.Name -AllVersions | Select Version)
+        #Unused parts of script need to be eliminated later
+                        try {
+                                $GalleryModule = Find-Module -Name $_.Name -ErrorAction Stop         
+                                if ($PowerShellGetVersion.Version -igt 2.2.5) {
+                                foreach ($version in $getallversions){
+                                if ($version.Version -ne $GalleryModule.Version){
+                                Write-host "Trying to Uninstall version $($version.Version) of $($_.Name)..."
+                                Uninstall-PSResource -Name $_.Name -Version $version.Version -ErrorAction Stop
+                                Write-Host "Version $($version.Version) of $($_.Name) has been removed!" -ForegroundColor Green
+                                }
+                                }
+                                }else{
+                                Write-host "Trying to Uninstall $($_.Name)..."
+                                Get-InstalledModule -Name $_.Name -AllVersions | Where-Object { $_.version -ne $GalleryModule.Version } | Uninstall-Module -Force -ErrorAction Stop
+                                Write-Host "Old versions of $($_.Name) have been removed!" -ForegroundColor Green
+                                }
+                        }
+                        catch {
+                            Write-Error "Uninstalling old module $($_.Name) failed: $_"
+                        }
+                        }else{
+                        Write-Warning "Module $($_.Name) has no multiple versions!"
+                        }
+                        }
     #END SCRIPT
   }
 }
@@ -895,7 +919,7 @@ function Banner {
 #     # #     # #     #    #            ##        ##      #   # #        #             ##      #     
  #####   #####   #####    #           ##        ##       #    ##          #                    #    
 365Inspect - The M365 Environment Audit Tool                    
-Version 0.0.5+Beta - Leonardo van de Weteringh
+Version 0.0.6+Beta - Leonardo van de Weteringh
 "@
   $banner2 = @"
 
@@ -911,7 +935,7 @@ Version 0.0.5+Beta - Leonardo van de Weteringh
 ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░▌      ▐░░▌▐░░░░░░░░░░░▌▐░▌          ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌     ▐░▌     
  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀        ▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀            ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀       ▀      
 365Inspect - The M365 Environment Audit Tool                    
-Version 0.0.5+Beta - Leonardo van de Weteringh
+Version 0.0.6+Beta - Leonardo van de Weteringh
 "@
 
   $banner3 = @"
@@ -924,7 +948,7 @@ Version 0.0.5+Beta - Leonardo van de Weteringh
 #+#    #+# #+#    #+# #+#    #+#     #+#     #+#   #+#+# #+#    #+# #+#        #+#       #+#    #+#    #+#     
  ########   ########   ########  ########### ###    ####  ########  ###        ########## ########     ###     
 365Inspect - The M365 Environment Audit Tool                    
-Version 0.0.5+Beta - Leonardo van de Weteringh
+Version 0.0.6+Beta - Leonardo van de Weteringh
 "@
   $banner = @($banner1,$banner2,$banner3)
   $bannernumber = (Get-Random -Maximum $banner.length)
