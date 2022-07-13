@@ -93,3 +93,32 @@ Removed some non-functional things inside the template that were not displaying 
 - CVSS Score implementation
 - More professional cosmetic changes to the report
 - Simplified authentication mechanism (prototype is ready)
+
+
+# v0.0.6beta+ 13-07-2022
+## Added:
+- The Az (Azure PowerShell) module 
+- Added an audit started and finished timestamp to the report
+- Added a brief overview 
+
+## Changed:
+- Merged the Soteria Inspectors with the CIS Inspectors to remove duplicates
+- Changed the Update and Removal engine for the 365 Modules
+
+## Fixed:
+- An issue where the incorrect version would be removed leading to a update loop. This has been fixed by implementing the new update en removal engine
+- An issue where Azure Powershell would not disconnect at the end. This has been added to the Disconnect function.
+
+## Removed:
+- Duplicate CIS Modules to merge with the Soteria Inspectors
+
+## Common Issues/remarks:
+- Updating modules (especially the Az module) could take a while, please be patient.
+- The new update engine has not been tested properly yet, it could have some issues. Bugs can be reported in the issue tab!
+- When removing a module it could take some time until it is removed, please be patient.
+- When generating an error it would generate multiple logs. The goal is to append to this log afterwards so no multiple logs are created. This will be looked into later.
+
+## Expected in the future:
+- CVSS Score implementation
+- More professional cosmetic changes to the report
+- Simplified authentication mechanism (prototype is ready)
