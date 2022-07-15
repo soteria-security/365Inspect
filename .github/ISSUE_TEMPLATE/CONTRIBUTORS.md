@@ -22,3 +22,5 @@ Your feedback has been amazing and we greatly appreciate it!
 [mlinton](https://github.com/mlinton):
     - Enhancing our Secure Defaults checks and all other affected configurations Secure Defaults supersedes
 
+[PaulaSillars](https://github.com/PaulaSillars):
+    - Additional Report Formats
