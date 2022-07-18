@@ -117,7 +117,6 @@ Function Confirm-InstalledModules{
 
     $modules = @($AzureADPreview,$ExchangeOnlineManagement,$SharePoint,$Graph,$Intune,$PnP,$MSTeams)
     $count = 0
-    $installed = Get-InstalledModule
 
     foreach ($module in $modules){
         $installedVersion = [Version](((Get-InstalledModule -Name $module.Name).Version -split "-")[0])
@@ -137,10 +136,6 @@ Function Confirm-InstalledModules{
                 Import-Module -Name $module.Name -MinimumVersion $module.MinimumVersion
                 $count ++
             }
-        }
-        Else {
-            Write-Output "$module is installed."
-            $count ++
         }
     }
 
