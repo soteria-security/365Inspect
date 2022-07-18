@@ -1,7 +1,7 @@
 {
 	"FindingName": "Do Not Bypass the Safe Links Feature",
 	"Description": "In Exchange, it is possible to create mail transport rules that bypass the Safe Links detection capability. The rules listed above bypass the Safe Links capability. Consider reviewing these rules, as bypassing the Safe Links capability even for a subset of senders should be considered dangerous.",
-	"Remediation": "Navigate to the Mail Flow → Rules screen in the Exchange Admin Center. Look for the offending rules and begin the process of assessing who created them and whether they are necessary to the continued function of the organization. If they are not, remove the rules.",
+	"Remediation": "Navigate to the Mail Flow &rarr; Rules screen in the Exchange Admin Center. Look for the offending rules and begin the process of assessing who created them and whether they are necessary to the continued function of the organization. If they are not, remove the rules.",
 	"DefaultValue" : "None",
     "ExpectedValue" : "None",
     "ReturnedValue" : "",

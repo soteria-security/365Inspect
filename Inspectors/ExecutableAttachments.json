@@ -1,7 +1,7 @@
 {
 	"FindingName": "No Transport Rules to Block Executable Attachments",
 	"Description": "No Exchange Online Transport Rules are in place to block email containing executable attachments. Executable attachments can be used to deliver malicious payloads and exfiltrate company data.",
-	"Remediation": "Navigate to the Mail Flow → Rules screen in the Exchange Admin Center. Add a rule that applies when the message contains executable attachments and takes the action of blocking the message. An article in the References section also describes this process.",
+	"Remediation": "Navigate to the Mail Flow &rarr; Rules screen in the Exchange Admin Center. Add a rule that applies when the message contains executable attachments and takes the action of blocking the message. An article in the References section also describes this process.",
 	"DefaultValue" : "None",
     "ExpectedValue" : "Configured Transport Rule",
     "ReturnedValue" : "",
