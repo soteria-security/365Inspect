@@ -17,7 +17,7 @@ Try {
         $members = Get-MgDirectoryRoleMember -DirectoryRoleId $role.Id
         $roleMembers = @()
         Foreach ($member in $members){
-            $roleMembers += Get-MgUser -UserId $member.Id | Select-Object CompanyName, Department, DisplayName, JobTitle, Mail -ErrorAction SilentlyContinue
+            $roleMembers += Get-AzureADObjectByObjectId -ObjectIds $member.Id 
         }
         $roleMembers | Export-CSV "$($path)\$($role.DisplayName)_AzureDirectoryRoleMembers.csv" -Force -NoTypeInformation
         $message = Write-Output "$($role.DisplayName) - $(@($roleMembers).count) members found"
@@ -38,12 +38,10 @@ $pscommandpath = $_.InvocationInfo.PSCommandPath
 $failinglinenumber = $_.InvocationInfo.ScriptLineNumber
 $scriptname = $_.InvocationInfo.ScriptName
 Write-Verbose "Write to log"
-Write-ErrorLog -message $message -exception $exception -scriptname $scriptname
+Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
 Write-Verbose "Errors written to log"
 }
 
 }
 
 Return Inspect-AADRoles
-
-

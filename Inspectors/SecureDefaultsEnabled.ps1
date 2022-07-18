@@ -24,7 +24,7 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 function Inspect-SecureDefaults {
 Try {
 
-    $conditionalAccess = Get-AzureADMSConditionalAccessPolicy
+    $conditionalAccess = Get-MgIdentityConditionalAccessPolicy #Get-AzureADMSConditionalAccessPolicy
 
     If (($conditionalAccess | Measure-Object).Count -eq 0) {
         $SDCreationDate = "October 22, 2019"
@@ -55,7 +55,7 @@ $pscommandpath = $_.InvocationInfo.PSCommandPath
 $failinglinenumber = $_.InvocationInfo.ScriptLineNumber
 $scriptname = $_.InvocationInfo.ScriptName
 Write-Verbose "Write to log"
-Write-ErrorLog -message $message -exception $exception -scriptname $scriptname
+Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
 Write-Verbose "Errors written to log"
 }
 
