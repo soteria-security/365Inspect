@@ -105,7 +105,7 @@ Function Confirm-Close{
 }
 
 Function Confirm-InstalledModules{
-    #Check for required Modules and prompt for install if missing
+    #Check for required Modules and versions; Prompt for install if missing and import.
 	
 	$AzureADPreview = @{ Name="AzureADPreview"; MinimumVersion="2.0.2.149" }
     $ExchangeOnlineManagement = @{ Name="ExchangeOnlineManagement"; MinimumVersion="2.0.5" }
@@ -149,7 +149,6 @@ Function Confirm-InstalledModules{
     Else {
         Connect-Services
     }
-
 }
 
 
