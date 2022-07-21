@@ -1,7 +1,7 @@
 {
 	"FindingName": "No Transport Rules to Block Exchange Auto-Forwarding",
 	"Description": "No Exchange Online Transport Rules are in place to block email auto-forwarding. Cyber adversaries often configure compromised Office 365 accounts to forward emails to external persons. It is therefore advisable to configure an Exchange transport rule that blocks auto-forwarded emails.",
-	"Remediation": "Navigate to the Mail Flow → Rules screen in the Exchange Admin Center. Add a rule that applies when the message is auto-forwarded and takes the action of blocking the message. An article in the References section also describes this process. There are additional steps below that detail how to stop email forwarding.",
+	"Remediation": "Navigate to the Mail Flow &rarr; Rules screen in the Exchange Admin Center. Add a rule that applies when the message is auto-forwarded and takes the action of blocking the message. An article in the References section also describes this process. There are additional steps below that detail how to stop email forwarding.",
 	"DefaultValue" : "None",
     "ExpectedValue" : "Configured Transport Rule",
     "ReturnedValue" : "",

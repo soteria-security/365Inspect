@@ -105,7 +105,7 @@ Function Confirm-Close{
 }
 
 Function Confirm-InstalledModules{
-    #Check for required Modules and prompt for install if missing
+    #Check for required Modules and versions; Prompt for install if missing and import.
 	
 	$AzureADPreview = @{ Name="AzureADPreview"; MinimumVersion="2.0.2.149" }
     $ExchangeOnlineManagement = @{ Name="ExchangeOnlineManagement"; MinimumVersion="2.0.5" }
@@ -117,7 +117,6 @@ Function Confirm-InstalledModules{
 
     $modules = @($AzureADPreview,$ExchangeOnlineManagement,$SharePoint,$Graph,$Intune,$PnP,$MSTeams)
     $count = 0
-    $installed = Get-InstalledModule
 
     foreach ($module in $modules){
         $installedVersion = [Version](((Get-InstalledModule -Name $module.Name).Version -split "-")[0])
@@ -138,10 +137,6 @@ Function Confirm-InstalledModules{
                 $count ++
             }
         }
-        Else {
-            Write-Output "$module is installed."
-            $count ++
-        }
     }
 
     If ($count -lt 7){
@@ -154,7 +149,6 @@ Function Confirm-InstalledModules{
     Else {
         Connect-Services
     }
-
 }
 
 

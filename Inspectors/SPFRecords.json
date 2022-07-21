@@ -3,7 +3,7 @@
 	"Description": "The domains listed above do not have Sender Policy Framework (SPF) records. SPF records can be used by receiving mail servers to identify whether mail that purports to be from the organization's domains is actually from the organization's domains, or spoofed by an adversary. This helps defeat common tactics adversaries use during phishing and other offensive activities such as spoofing email addresses that mimic the organization's domain.",
 	"Remediation": "Create an SPF TXT DNS record as described in the references below. Remember that configuring SPF may affect the deliverability of mail from that domain. An SPF rollout should be measured and gradual.",
 	"DefaultValue" : "Null for all custom domains",
-    "ExpectedValue" : "v=spf1 include:spf.protection.outlook.com include:<domain name> -all",
+    "ExpectedValue" : "v=spf1 include:spf.protection.outlook.com include:<domain name&rarr; -all",
     "ReturnedValue" : "",
     "Impact": "High",
     "AffectedObjects": "",
