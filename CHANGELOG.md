@@ -122,3 +122,34 @@ Removed some non-functional things inside the template that were not displaying 
 - CVSS Score implementation
 - More professional cosmetic changes to the report
 - Simplified authentication mechanism (prototype is ready)
+
+
+# v0.0.7 beta 29-07-2022
+## Added:
+- Added new values such as ProductFamily and CVS Score to the template and the 365Inspect script
+
+## Changed:
+- Changed the lay-out of the template and ordered some things differently in the template
+- Optimized the template and removed unnecessary classes
+- Renamed all the inspectors so the productfamily could be determined 
+
+## Fixed:
+- Fixed an issue with the updating module where the module encountered an error during the update process
+- Fixed an issue with the removing module where the module encountered an error during the removing process
+
+## Removed:
+- Duplicate CIS Modules to merge with the Soteria Inspectors again
+- Removed an old MSTeams module which was for Skype for Business.
+
+## Common Issues/remarks:
+- Updating modules (especially the Az module) could take a while, please be patient.
+- There could be issues with the updating and removing module. This is being investigated and eventually a fix will be issued in the next release.
+- When removing a module it could take some time until it is removed, please be patient.
+- When generating an error it would generate multiple logs. The goal is to append to this log afterwards so no multiple logs are created. This will be looked into later.
+- There is an issue with the DomainExpiration inspector, this will be investigated and in the next release it will be fixed.
+- Removing a module with PowerShellGetVersion version less than 2.2.5 could result into errors because the old PowerShellGet version has a bug in the uninstall module. Recommended is to update to the latest version of PowerShellGet to fix this issue.
+
+## Expected in the future:
+- More professional cosmetic changes to the report
+- Simplified authentication mechanism
+- More Inspectors!!!

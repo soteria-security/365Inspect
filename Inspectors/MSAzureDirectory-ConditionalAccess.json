@@ -1,0 +1,27 @@
+{
+	"FindingName": "Incorrect Conditional Access Policies / No Conditional Access Policies Enabled",
+	"ProductFamily": "Microsoft Azure Directory",
+	"CVS": "4.6",
+	"Description": "Conditional Access Policy review. If False was returned, no Conditional Access policies were found and Secure Defaults have been disabled. This leaves the Tenant extremely vulnerable to various attacks. If True was returned, existing Conditional Access Policies will be exported for review.",
+	"Remediation": "If False was returned, consider creating Conditional Access policies or re-enabling Secure Defaults. If the tenant is not licensed for Conditional Access, consider enabling Secure Defaults. Microsoft will force-enable Secure Defaults on all tenants beginning in late June 2022.",
+	"DefaultValue" : "False",
+    "ExpectedValue" : "True",
+    "ReturnedValue" : "",
+    "Impact": "Medium",
+	"RiskRating" : "Medium",
+    "AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/overview",
+			"Text": "What is Conditional Access in Azure Active Directory?"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/concept-conditional-access-policy-common",
+			"Text": "Common Conditional Access Policies"
+		},
+		{
+			"Url": "https://techcommunity.microsoft.com/t5/azure-active-directory-identity/raising-the-baseline-security-for-all-organizations-in-the-world/ba-p/3299048",
+			"Text": "Raising the Baseline Security for all Organizations in the World"
+		}
+	]
+}

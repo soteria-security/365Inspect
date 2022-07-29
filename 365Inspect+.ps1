@@ -142,7 +142,7 @@ function CheckInstalledModules {
     $CurrentModules | ForEach-Object {
         Write-Host "[>] Checking $($_.Name) ..."
         Try {
-            $GalleryModule = Find-Module -Name $_.Name -Repository PSGallery -ErrorAction Stop
+            $GalleryModule = Find-Module -Name $_.Name -Repository PSGallery -ErrorAction Stop #-AllowPreRelease
         }
         Catch {
             Write-Error "Module $($_.Name) not found in gallery $_"
@@ -155,14 +155,11 @@ function CheckInstalledModules {
             else {
                 Write-Host "$($_.Name) will be updated. Galleryversion: $($GalleryModule.Version), local version $($_.Version)"
                 try {
-                    if ($PSCmdlet.ShouldProcess(
-                        ("Module {0} will be updated to version {1}" -f $_.Name, $GalleryModule.Version),
-                            $_.Name,
-                            "Update-Module"
-                        )
-                    ) {
+                    if ($PSCmdlet.ShouldProcess(("Module {0} will be updated to version {1}" -f $_.Name, $GalleryModule.Version),$_.Name,"Update-Module"))
+                    {
                         Update-Module $_.Name -ErrorAction Stop -Force
                         Write-Host "$($_.Name)  has been updated!" -ForegroundColor Green
+                        continue
                     }
                 }
                 Catch {
@@ -731,8 +728,10 @@ $templates = Parse-Template
 
 
 #Sort Object on CVS Score
-#$sortedFindings = $findings | Sort-Object {$_.CVS}
-$sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Impact){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}};$_.FindingName} 
+$sortedFindings = $findings | Sort-Object {$_.CVS} -Descending
+#Sort Object based on Impact
+##$sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Impact){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}};$_.FindingName} 
+
 ForEach ($finding in $sortedFindings) {
 	# If the result from the inspector was not $null,
 	# it identified a real finding that we must process.
@@ -774,8 +773,11 @@ ForEach ($finding in $sortedFindings) {
         }
 		
         # Finding CVS Score
-        ##$short_finding_html = $short_finding_html.Replace("{{CVS}}",$finding.CVS.ToString())
-        ##$long_finding_html = $long_finding_html.Replace("{{CVS}}",$finding.CVS.ToString())
+        $short_finding_html = $short_finding_html.Replace("{{CVS}}",$finding.CVS.ToString())
+        $long_finding_html = $long_finding_html.Replace("{{CVS}}",$finding.CVS.ToString())
+
+        #Finding Product Family
+        $long_finding_html = $long_finding_html.Replace("{{PRODUCT_FAMILY}}",$finding.ProductFamily)
 
         # Finding description
         $long_finding_html = $long_finding_html.Replace("{{DESCRIPTION}}",$finding.Description)
@@ -923,7 +925,7 @@ function Banner {
 #     # #     # #     #    #            ##        ##      #   # #        #             ##      #     
  #####   #####   #####    #           ##        ##       #    ##          #                    #    
 365Inspect - The M365 Environment Audit Tool                    
-Version 0.0.6+Beta - Leonardo van de Weteringh
+Version 0.0.7 Beta - Leonardo van de Weteringh
 "@
   $banner2 = @"
 
@@ -939,7 +941,7 @@ Version 0.0.6+Beta - Leonardo van de Weteringh
 ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░▌      ▐░░▌▐░░░░░░░░░░░▌▐░▌          ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌     ▐░▌     
  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀        ▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀            ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀       ▀      
 365Inspect - The M365 Environment Audit Tool                    
-Version 0.0.6+Beta - Leonardo van de Weteringh
+Version 0.0.7 Beta - Leonardo van de Weteringh
 "@
 
   $banner3 = @"
@@ -952,7 +954,7 @@ Version 0.0.6+Beta - Leonardo van de Weteringh
 #+#    #+# #+#    #+# #+#    #+#     #+#     #+#   #+#+# #+#    #+# #+#        #+#       #+#    #+#    #+#     
  ########   ########   ########  ########### ###    ####  ########  ###        ########## ########     ###     
 365Inspect - The M365 Environment Audit Tool                    
-Version 0.0.6+Beta - Leonardo van de Weteringh
+Version 0.0.7 Beta - Leonardo van de Weteringh
 "@
   $banner = @($banner1,$banner2,$banner3)
   $bannernumber = (Get-Random -Maximum $banner.length)

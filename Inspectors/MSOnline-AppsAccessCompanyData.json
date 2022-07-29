@@ -1,0 +1,27 @@
+{
+	"FindingName": "Apps can Access Sensitive Company Data.",
+	"ProductFamily": "Microsoft Exchange",
+	"CVS": "9.6",
+	"Description": "Attackers can commonly use custom applications to trick users into granting them access to company data.",
+	"Remediation": "1. Connect to Microsoft Online service using Connect-MSOLService. > 2. Run the following Microsoft Online PowerShell command: Set-MsolCompanySettings -UsersPermissionToUserConsentToAppEnabled $False ",
+	"DefaultValue": "True",
+	"ExpectedValue": "False",
+	"ReturnedValue" : "",
+	"Impact": "Critical",
+	"RiskRating": "Critical",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "3.3 Configure Data Access Control Lists"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "3.8 Document Data Flows"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "14.6 Protect Information through Access Control Lists"
+		}
+	]
+}

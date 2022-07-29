@@ -1,0 +1,19 @@
+{
+	"FindingName": " Admins contain a license!",
+	"ProductFamily": "Microsoft Online",
+	"CVS": "9.1",
+	"Description": "Admin accounts should not have licenses for Office applications, due the risk of accessing somebody else's data could have a potential impact on your organisation and so that they have no access to potentially vulnerable services (EX. email, Teams, Sharepoint, etc.) and only access to perform tasks as needed for Administrative purposes.",
+	"Remediation": "1. Log in to https://admin.microsoft.com as a Global Administrator. > Azure Active Directory > Users > Active Users > Add a User 2. Fill out the information > 3. When prompted to assign licenses select Create user without product license (not recommended), then click Next > 4. Under the Option settings screen you may choose from several types of Administrative access roles. Choose Admin center access followed by the appropriate role. ",
+	"DefaultValue": "N/A",
+	"ExpectedValue": "isLicensed: False",
+	"ReturnedValue" : "",
+	"Impact": "Critical",
+	"RiskRating": "Critical",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/admin/add-users/add-users?view=o365-worldwide",
+			"Text": "Add users and assign licenses at the same time"
+		}
+	]
+}

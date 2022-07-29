@@ -1,0 +1,19 @@
+{
+	"FindingName": "Exchange Mailboxes with FullAccess Delegates Found",
+	"ProductFamily": "Microsoft Exchange",
+	"CVS": "7.5",
+	"Description": "The Exchange Online mailboxes listed above have delegated Full Access permissions to another account.",
+	"Remediation": "This finding refers to individual mailboxes that have Full Access delegated permissions. For these mailboxes, verify that the delegate access is expected, appropriate, and do not violate company policy. Remediation can be accomplished by running the following PowerShell command:  Remove-MailboxPermission -Identity $mailbox -AccessRights FullAccess -Confirm:$false -User $member. A list of affected email addresses is included in this report.",
+	"DefaultValue" : "None",
+    "ExpectedValue" : "None",
+    "ReturnedValue" : "",
+    "Impact": "High",
+	"RiskRating" : "High",
+    "AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/powershell/module/exchange/remove-mailboxpermission?view=exchange-ps",
+			"Text": "Remove-MailboxPermission Commandlet Reference"
+		}
+	]
+}

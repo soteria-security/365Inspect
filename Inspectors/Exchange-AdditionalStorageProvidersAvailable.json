@@ -1,0 +1,19 @@
+{
+	"FindingName": "Additional Storage Providers are Enabled",
+	"ProductFamily": "Microsoft Exchange",
+	"CVS": "7.6",
+	"Description": "You should restrict storage providers that are integrated with Outlook on the Web. Not Restricting this could lead to information leakage and additional risk of infection from organizational non-trusted storage providers.",
+	"Remediation": "1. Connect to Exchange Online using Connect-ExchangeOnline > 2. Run the following Powershell Command: Set-OwaMailboxPolicy -Identity OwaMailboxPolicy-Default -AdditionalStorageProvidersAvailable $false > 3. Audit by verifying the value is False: Get-OwaMailboxPolicy | Format-Table Name, AdditionalStorageProvidersAvailable ",
+	"DefaultValue": "True",
+	"ExpectedValue": "False",
+	"ReturnedValue": "",
+	"Impact": "High",
+	"RiskRating": "High",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/powershell/module/exchange/set-owamailboxpolicy?view=exchange-ps",
+			"Text": "Set-OwaMailboxPolicy"
+		}
+	]
+}

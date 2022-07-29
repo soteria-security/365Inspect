@@ -1,0 +1,23 @@
+{
+	"FindingName": "eDiscovery Case Administrators",
+	"ProductFamily": "Microsoft Exchange",
+	"CVS": "6.5",
+	"Description": "Microsoft Compliance Center eDiscovery provides a method for organizations to search and export content from Microsoft 365 and Office 365. eDiscovery searches are able to access all sources of information, including users’ mailboxes to return the requested content. By default, no users are assigned the eDiscovery Administrator role and users may only access cases and searches that they have created.",
+	"Remediation": "Review the list of users who are assigned this role, determine if these assignments are appropriate for the tenant and remove any users who should not hold this role.",
+	"DefaultValue" : "None",
+    "ExpectedValue" : "Approved, designated users",
+    "ReturnedValue" : "",
+    "Impact": "Medium",
+	"RiskRating" : "Medium",
+    "AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/compliance/get-started-core-ediscovery?view=o365-worldwide",
+			"Text": "Get started with Core eDiscovery in Microsoft 365"
+		},
+        {
+            "Url": "https://docs.microsoft.com/en-us/microsoft-365/compliance/get-started-core-ediscovery?view=o365-worldwide#more-information-about-the-ediscovery-manager-role-group",
+            "Text": "More information about the eDiscovery Manager role group"
+        }
+	]
+}

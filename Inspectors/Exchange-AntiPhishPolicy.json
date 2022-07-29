@@ -1,0 +1,23 @@
+{
+	"FindingName": "No Phishing Policy Detected!",
+	"ProductFamily": "Microsoft Exchange",
+	"CVS": "9.3",
+	"Description": "Your organization is not protecting users from phishing attacks (like impersonation and spoofing) at the moment. This could lead to possible phishing and serious damage to your organization, enabling should display safety tips to warn users about potentially harmful messages.",
+	"Remediation": "1. Connect-ExchangeOnline > 2. New-AntiPhishPolicy -Name 'Office365 AntiPhish Policy'",
+	"DefaultValue": "N/A",
+	"ExpectedValue": "A Policy",
+    "ReturnedValue" : "",	
+	"Impact": "Critical",
+	"RiskRating": "Critical",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "9.7 Deploy and Maintain Email Server Anti-Malware Protections"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "7 Email and Web Browser Protections"
+		}
+	]
+}

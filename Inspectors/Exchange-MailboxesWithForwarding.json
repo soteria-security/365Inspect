@@ -1,0 +1,23 @@
+{
+	"FindingName": "Exchange Mailboxes with Forwarding Rules Enabled",
+	"ProductFamily": "Microsoft Exchange",
+	"CVS": "5.7",
+	"Description": "The Exchange Online mailboxes listed above have Forwarding rules configured enabled. Attackers commonly create hidden forwarding rules in compromised mailboxes. These rules may be exfiltrating data with or without the user's knowledge.",
+	"Remediation": "This finding refers to individual mailboxes that have forwarding rules enabled. For these mailboxes, verify that the forwarding rules do not violate company policy, are expected and allowed. Remediation can be accomplished by running 'Remove-InboxRule -Mailbox <email address> -Identity 'Rule Name'' A list of affected email addresses is included in this report.",
+	"DefaultValue": "NULL",
+	"ExpectedValue": "No Forwarding Rules",
+    "ReturnedValue" : "",
+	"Impact": "Medium",
+	"RiskRating": "Medium",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://geekshangout.com/office-365-powershell-list-email-forwarding-rules-mailboxes/",
+			"Text": "Office 365 - List all email forwarding rules (PowerShell)"
+		},
+		{
+			"Url": "https://docs.microsoft.com/en-us/powershell/module/exchange/get-mailbox?view=exchange-ps",
+			"Text": "Get-Mailbox Commandlet Reference"
+		}
+	]
+}

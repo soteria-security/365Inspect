@@ -1,0 +1,23 @@
+{
+	"FindingName": "No Policy Detected for Multiple Accounts.  Basic Authentication exists for multiple accounts! Or there is not policy available at the moment.",
+	"ProductFamily": "Microsoft Exchange",
+	"CVS": "9.1",
+	"Description": "Legacy authentication protocols do not support multi-factor authentication. These protocols are often used by attackers because of this deficiency.",
+	"Remediation": "1. Login to Azure Active Directory portal.azure.com > 2. Select Azure Active Directory > Security > Conditional Access > 3. Create a New Policy > 4. Set the following conditions: Client apps: Exchange ActiveSync clients and other clients > Access Controls: Grant -> Block Aceess > Assignments: All users > Assignments: Users and groeps: exclude to be at least one low risk account or directory role.",
+	"DefaultValue": "NULL",
+	"ExpectedValue": "A policy",
+	"ReturnedValue" : "",
+	"Impact": "Critical",
+	"RiskRating" : "Critical",
+	"AffectedObjects": "",
+	"References": [
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf",
+			"Text": "6.3 - Require MFA for Externally-Exposed Applications"
+		},
+		{
+			"Url": "CIS_Microsoft_365_Foundations_Benchmark_v1.4.0.pdf > Page 30",
+			"Text": "9.2 - Ensure Only Approved Ports, Protocols and Services Are Running"
+		}
+	]
+}
