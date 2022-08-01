@@ -13,18 +13,25 @@ Try {
     $results = @()
 
     foreach ($domain in $domains.DomainName){
+    try{
         $expDate = (Invoke-WebRequest "https://whois.com/whois/$domain" -UseBasicParsing | Select-Object -ExpandProperty RawContent | Select-String -Pattern "Registry Expiry Date: (.*)" -ErrorAction SilentlyContinue).Matches.Groups[1].Value
-
+    }catch{
+    $expDate = $null
+    }finally{       
+        if ($expDate -ne $null){
         $expDate = ($expDate).Split('T')[0]
-        
         $today = Get-Date -Format yyyy/MM/dd
-
         If ($expDate -lt $today){
             $results += "$domain - $expDate"
         }
+        }
+        }
     }
-
+    if ($results -eq $null){
+    Return $null
+    }else{
     Return $results
+    }
 
 }
 Catch {
@@ -43,7 +50,6 @@ Write-Verbose "Errors written to log"
 }
 
 }
-
 Return Inspect-DomainExpiration
 
 

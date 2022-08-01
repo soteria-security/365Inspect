@@ -30,7 +30,7 @@ The following differences are existing:
 
 ## Setup
 
-365*Inspect+* requires the administrative PowerShell modules for Microsoft Online, Azure AD (We recommend installing the AzureADPreview module), Azure Powershell, Exchange Online Administration, Sharepoint Administration, Microsoft Intune,Microsoft Teams and Microsoft Graph.
+365*Inspect+* requires the administrative PowerShell modules for Microsoft Online, Azure AD (We recommend installing the AzureADPreview module), Azure Powershell, Exchange Online Administration, Sharepoint Administration, Microsoft Intune,Microsoft Teams, Microsoft Graph and PnP SharePoint.
 
 The 365*Inspect+*.ps1 PowerShell script will validate the installed modules.
 
@@ -48,6 +48,8 @@ If you do not have these modules installed, you will be prompted to install them
 
 	Install-Module -Name Microsoft.Graph
 
+ 	Install-Module -Name PnP.PowerShell
+
 	Install-Module -Name MicrosoftTeams
 
 	Install-Module -Name Microsoft.Graph.Intune
@@ -57,6 +59,8 @@ If you do not have these modules installed, you will be prompted to install them
 [Install Azure AD PowerShell](https://docs.microsoft.com/en-us/powershell/module/azuread/?view=azureadps-2.0)
 
 [Install Azure PowerShell](https://docs.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-8.0.0)
+
+[Install PnP SharePoint](https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-pnp/sharepoint-pnp-cmdlets)
 
 [Install Exchange Online PowerShell](https://docs.microsoft.com/en-us/powershell/exchange/exchange-online-powershell-v2?view=exchange-ps)
 

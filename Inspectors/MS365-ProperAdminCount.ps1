@@ -8,8 +8,8 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 function Inspect-ProperAdminCount {
 Try {
 
-	$global_admins = (Get-MsolRoleMember -RoleObjectId (Get-MsolRole -RoleName "Company Administrator").ObjectId).EmailAddress
-	$num_global_admins = $global_admins.Count
+	$global_admins = (Get-MgDirectoryRoleMember -DirectoryRoleId (Get-MgDirectoryRole -Filter "DisplayName eq 'Global Administrator'").id | ForEach-Object {Get-AzureADObjectByObjectId -ObjectIds $_.id}).DisplayName
+	$num_global_admins = ($global_admins | Measure-Object).Count
 
 	If (($num_global_admins -lt 2) -or ($num_global_admins -gt 4)) {
 		return $global_admins
@@ -29,7 +29,7 @@ $pscommandpath = $_.InvocationInfo.PSCommandPath
 $failinglinenumber = $_.InvocationInfo.ScriptLineNumber
 $scriptname = $_.InvocationInfo.ScriptName
 Write-Verbose "Write to log"
-Write-ErrorLog -message $message -exception $exception -scriptname $scriptname
+Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
 Write-Verbose "Errors written to log"
 }
 

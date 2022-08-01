@@ -1,9 +1,9 @@
 ﻿<#
 Author: Soteria-Se, Leonardo van de Weteringh
 Copright: 2022
-Version: 0.0.6beta+
-Usage: ./365Inspect.ps1 or ./365Inspect.exe
-Date: 13-07-2022
+Version: 0.0.8+ beta
+Usage: ./365Inspect+.ps1 or ./365Inspect+.exe
+Date: 01-08-2022
 #>
 
 <#
@@ -57,6 +57,11 @@ param(
   [Parameter(Mandatory = $false,
     HelpMessage = 'Password')]
   [string]$Password,
+  [Parameter(Mandatory = $true,
+    HelpMessage = "ReportTypeFormat")]
+  [ValidateSet("HTML", "CSV", "XML",
+    IgnoreCase = $true)]
+  [string] $reportType = "HTML",
   [Parameter(Mandatory = $false,
     HelpMessage = 'Skip Update Check')]
   [switch]$SkipUpdateCheck,
@@ -83,7 +88,7 @@ function CheckAdminPrivBeta {
   if (-not $IsAdmin) {
     Write-Host "[!] The script is NOT running as Administrator, restarting PowerShell as Administrator..." -ForegroundColor Red
     try {
-      $cmd = $PSCommandPath + " -OrgName $OrgName -OutPath $OutPath"
+      $cmd = $PSCommandPath + " -OrgName $OrgName -OutPath $OutPath -reportType $reportType"
       if (-not [string]::IsNullOrEmpty($user_name)) {
         $cmd = $cmd + " -username " + $Username
       }
@@ -114,7 +119,7 @@ function CheckInstalledModules {
   if (-not $SkipUpdateCheck.IsPresent) {
     Write-Warning "[?] Checking Installed Modules..."
     # Define the set of modules installed and updated from the PowerShell Gallery that we want to maintain
-    $O365Modules = @("MicrosoftTeams","MSOnline","Az","AzureADPreview","ExchangeOnlineManagement","Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph","Microsoft.Graph.Intune")
+    $O365Modules = @("MicrosoftTeams","MSOnline","Az","AzureADPreview","ExchangeOnlineManagement","Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph","Microsoft.Graph.Intune","PnP.PowerShell")
     #Check which Modules are Installed Already...
     $installed = Get-InstalledModule
     foreach ($module in $O365Modules) {
@@ -133,7 +138,7 @@ function CheckInstalledModules {
     }
 
     # Get all installed modules that have a newer version available
-    $Modules = @("MicrosoftTeams","MSOnline","Az","AzureADPreview","ExchangeOnlineManagement","Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph","Microsoft.Graph.Intune")
+    $Modules = @("MicrosoftTeams","MSOnline","Az","AzureADPreview","ExchangeOnlineManagement","Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph","Microsoft.Graph.Intune","PnP.PowerShell")
     $PowerShellGetVersion = Get-InstalledModule -Name "PowerShellGet" -ErrorAction Stop
     Write-Host "Checking all installed modules for available updates."
     $CurrentModules = Get-InstalledModule | Where-Object { $Modules -contains $_.Name}
@@ -354,6 +359,23 @@ function Connect-Services {
       break
     }
 
+    #PnP Powershell
+    try {
+      Write-Output "Connecting to PnP PowerShell"
+      if (-not [string]::IsNullOrEmpty($Username)) {
+        Connect-PnPOnline -ErrorAction Stop -Url "https://$org_name.sharepoint.com" -Interactive
+      } else {
+        Connect-PnPOnline -ErrorAction Stop -Url "https://$org_name.sharepoint.com" -Interactive
+      }
+      if (Get-PnpTenantInstance)
+    {
+    Write-Warning "Succesfully Connected to PnP PowerShell"
+    }
+    }catch{
+        Exception
+        break
+    }
+
     #Security & Compliance Center IPPSSession
     try {
       Write-Output "Connecting to IPPSSession..."
@@ -461,7 +483,6 @@ function Connect-Services {
     try {
       Write-Output "Connecting and consenting to Microsoft Intune"
       Connect-MSGraph -AdminConsent -ErrorAction Stop | Out-Null
-      Connect-MSGraph -ErrorAction Stop | Out-Null
       if ((Get-IntuneManagedDevice -Top 1) -ne $null) {
         Write-Warning "Succesfully Connected to Microsoft InTune"
         $ConnectedServices = $ConnectedServices + "Microsoft InTune `n"
@@ -469,6 +490,19 @@ function Connect-Services {
     } catch {
       Exception
       break
+    }
+
+    #PnP Powershell
+    try {
+      Write-Output "Connecting to PnP PowerShell"
+        Connect-PnPOnline -ErrorAction Stop -Url "https://$org_name.sharepoint.com" -Credentials $Credential
+      if (Get-PnpTenantInstance)
+    {
+    Write-Warning "Succesfully Connected to PnP PowerShell"
+    }
+    }catch{
+        Exception
+        break
     }
 
     #Microsoft Graph
@@ -622,6 +656,23 @@ function Connect-Services {
       break
     }
 
+        #PnP Powershell
+    try {
+      Write-Output "Connecting to PnP PowerShell"
+      if (-not [string]::IsNullOrEmpty($Username)) {
+        Connect-PnPOnline -ErrorAction Stop -Url "https://$org_name.sharepoint.com" -Interactive
+      } else {
+        Connect-PnPOnline -ErrorAction Stop -Url "https://$org_name.sharepoint.com" -Interactive
+      }
+      if (Get-PnpTenantInstance)
+    {
+    Write-Warning "Succesfully Connected to PnP PowerShell"
+    }
+    }catch{
+        Exception
+        break
+    }
+
     #Security & Compliance Center IPPSSession
     try {
       Write-Output "Connecting to IPPSSession..."
@@ -712,6 +763,8 @@ function ExecuteInspectors {
       Exception
     }
   }
+
+If ($reportType -eq "HTML"){
 $templates = Parse-Template
 
 # Maintain a running list of each finding, represented as HTML
@@ -848,7 +901,82 @@ $output = $templates.ReportTemplate.Replace($templates.FindingShortTemplate, $sh
 $output = $output.Replace($templates.FindingLongTemplate, $long_findings_html)
 $output = $output.Replace($templates.ExecsumTemplate, $templates.ExecsumTemplate.Replace("{{CMDLINEFLAGS}}", $flags))
 
-$output | Out-File -FilePath $out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss")_$org_name.html 
+$output | Out-File -FilePath $out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss")_$org_name.html
+}
+Elseif ($reportType -eq "CSV"){
+    $sortedFindings = $findings | Sort-Object {$_.CVS} -Descending
+    #$sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Impact){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}};$_.FindingName}
+
+    $results = @()
+
+    $findings_count = 0
+
+    foreach ($finding in $sortedFindings){
+        If ($null -NE $finding.AffectedObjects) {
+            $findings_count += 1
+
+            $refs = @()
+
+            foreach ($ref in $finding.References){
+                $refs += "$($ref.Text) : $($ref.Url)"
+            }
+            # Finding, AffectedObjects and References are buggy. Delimitation and splitting the rows is not working well. Because the string is too long!
+            ## This is because of a 255 character limit per column
+            $result = New-Object PSObject
+            $result | Add-Member -MemberType NoteProperty -name ID -Value $findings_count.ToString() -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name FindingName -Value $finding.FindingName -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name ProductFamily -Value $finding.ProductFamily -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name Impact -Value $finding.Impact -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name CVS -Value $finding.CVS.ToString() -ErrorAction SilentlyContinue
+            #$result | Add-Member -MemberType NoteProperty -name Finding -Value $finding.Description -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name DefaultValue -Value $finding.DefaultValue -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name ExpectedValue -Value $finding.ExpectedValue -ErrorAction SilentlyContinue
+            #$result | Add-Member -MemberType NoteProperty -name AffectedObjects -Value $("$($finding.AffectedObjects)" | Out-String).Trim() -ErrorAction SilentlyContinue
+            #$result | Add-Member -MemberType NoteProperty -name Remediation -Value $finding.Remediation -ErrorAction SilentlyContinue
+            #$result | Add-Member -MemberType NoteProperty -name References -Value $($refs | Out-String)  -ErrorAction SilentlyContinue
+            $results += $result
+        }
+    }
+
+    $results | Export-Csv "$out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss")_$org_name.csv" -NoTypeInformation -Append -Force
+
+}
+Elseif ($reportType -eq "XML"){
+    $sortedFindings = $findings | Sort-Object {$_.CVS} -Descending
+    #$sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Impact){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}};$_.FindingName}
+
+    $results = @()
+
+    $findings_count = 0
+
+    foreach ($finding in $sortedFindings){
+        If ($null -NE $finding.AffectedObjects) {
+            $findings_count += 1
+
+            $refs = @()
+
+            foreach ($ref in $finding.References){
+                $refs += "$($ref.Text) : $($ref.Url)"
+            }
+
+            $result = New-Object psobject
+            $result | Add-Member -MemberType NoteProperty -name ID -Value $findings_count.ToString() -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name FindingName -Value $finding.FindingName -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name ProductFamily -Value $finding.ProductFamily -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name Impact -Value $finding.Impact -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name CVS -Value $finding.CVS.ToString() -ErrorAction SilentlyContinue
+            #$result | Add-Member -MemberType NoteProperty -name Finding -Value $finding.Description -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name DefaultValue -Value $finding.DefaultValue -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name ExpectedValue -Value $finding.ExpectedValue -ErrorAction SilentlyContinue
+            #$result | Add-Member -MemberType NoteProperty -name AffectedObjects -Value $("$($finding.AffectedObjects)" | Out-String).Trim() -ErrorAction SilentlyContinue
+            #$result | Add-Member -MemberType NoteProperty -name Remediation -Value $finding.Remediation -ErrorAction SilentlyContinue
+            #$result | Add-Member -MemberType NoteProperty -name References -Value $($refs | Out-String)  -ErrorAction SilentlyContinue
+            $results += $result
+        }
+    }
+
+    $results | Export-Clixml -Depth 3 -Path "$out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss")_$org_name.xml"
+} 
 }
 
 function Parse-Template {
@@ -925,7 +1053,7 @@ function Banner {
 #     # #     # #     #    #            ##        ##      #   # #        #             ##      #     
  #####   #####   #####    #           ##        ##       #    ##          #                    #    
 365Inspect - The M365 Environment Audit Tool                    
-Version 0.0.7 Beta - Leonardo van de Weteringh
+Version 0.0.8 Beta - Leonardo van de Weteringh
 "@
   $banner2 = @"
 
@@ -941,7 +1069,7 @@ Version 0.0.7 Beta - Leonardo van de Weteringh
 ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░▌      ▐░░▌▐░░░░░░░░░░░▌▐░▌          ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌     ▐░▌     
  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀        ▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀            ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀       ▀      
 365Inspect - The M365 Environment Audit Tool                    
-Version 0.0.7 Beta - Leonardo van de Weteringh
+Version 0.0.8 Beta - Leonardo van de Weteringh
 "@
 
   $banner3 = @"
@@ -954,7 +1082,7 @@ Version 0.0.7 Beta - Leonardo van de Weteringh
 #+#    #+# #+#    #+# #+#    #+#     #+#     #+#   #+#+# #+#    #+# #+#        #+#       #+#    #+#    #+#     
  ########   ########   ########  ########### ###    ####  ########  ###        ########## ########     ###     
 365Inspect - The M365 Environment Audit Tool                    
-Version 0.0.7 Beta - Leonardo van de Weteringh
+Version 0.0.8 Beta - Leonardo van de Weteringh
 "@
   $banner = @($banner1,$banner2,$banner3)
   $bannernumber = (Get-Random -Maximum $banner.length)

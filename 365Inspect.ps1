@@ -41,6 +41,11 @@ param (
 	[Parameter(Mandatory = $true,
 		HelpMessage = 'UserPrincipalName required for Exchange Connection')]
 	[string] $UserPrincipalName,
+    [Parameter(Mandatory = $false,
+        HelpMessage = "Report Output Format")]
+    [ValidateSet("HTML", "CSV", "XML",
+        IgnoreCase = $true)]
+    [string] $reportType = "HTML",
 	[Parameter(Mandatory = $true,
 		HelpMessage = 'Auth type')]
 	[ValidateSet('ALREADY_AUTHED', 'MFA',
@@ -100,34 +105,37 @@ Function Confirm-Close{
 }
 
 Function Confirm-InstalledModules{
-    #Check for required Modules and prompt for install if missing
+    #Check for required Modules and versions; Prompt for install if missing and import.
 	
-	#A little trickery to get the Azure AD Module version installed
-	If ($null -eq ($AAD = Get-InstalledModule | Where-Object {$_.name -like "AzureAd*"} | Select-Object Name)){
-		$AAD = "AzureADPreview"
-		} Else {
-		$AAD = $AAD.Name
-		}
+	$AzureADPreview = @{ Name="AzureADPreview"; MinimumVersion="2.0.2.149" }
+    $ExchangeOnlineManagement = @{ Name="ExchangeOnlineManagement"; MinimumVersion="2.0.5" }
+    $SharePoint = @{ Name="Microsoft.Online.SharePoint.PowerShell"; MinimumVersion="16.0.22601.12000" }
+    $Graph = @{ Name="Microsoft.Graph"; MinimumVersion="1.9.6" }
+    $Intune = @{ Name="Microsoft.Graph.Intune"; MinimumVersion="6.1907.1.0" }
+    $PnP = @{ Name="PnP.PowerShell"; MinimumVersion="1.10.0" }
+    $MSTeams = @{ Name="MicrosoftTeams"; MinimumVersion="4.4.1" }
 
-    $modules = @("MSOnline",$AAD,"ExchangeOnlineManagement","Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph","MicrosoftTeams", "Microsoft.Graph.Intune")
+    $modules = @($AzureADPreview,$ExchangeOnlineManagement,$SharePoint,$Graph,$Intune,$PnP,$MSTeams)
     $count = 0
-    $installed = Get-InstalledModule
 
     foreach ($module in $modules){
-        if ($installed.Name -notcontains $module){
-            $message = Write-Output "`n$module is not installed."
-            $message1 = Write-Output 'The module may be installed by running "Install-Module $module -Force -Scope CurrentUser -Confirm:$false" in an elevated PowerShell window.'
+        $installedVersion = [Version](((Get-InstalledModule -Name $module.Name).Version -split "-")[0])
+
+        If (($module.Name -eq (Get-InstalledModule -Name $module.Name).Name) -and (([Version]$module.MinimumVersion -lt $installedVersion) -or ([Version]$module.MinimumVersion -eq $installedVersion))){
+            Write-Output "$($module.Name) is installed."
+            $count ++
+        }
+        Else {
+            $message = Write-Output "`n$($module.Name) is not installed."
+            $message1 = Write-Output "The module may be installed by running `"Install-Module -Name $($module.Name) -AllowPrerelease -AllowClobber -Force -RequiredVersion $($module.MinimumVersion)`" in an elevated PowerShell window."
             Colorize Red ($message)
             Colorize Yellow ($message1)
             $install = Read-Host -Prompt "Would you like to attempt installation now? (Y|N)"
             If ($install -eq 'y') {
-                Install-Module $module -Scope CurrentUser -Force -Confirm:$false
+                Install-Module -Name $module.Name -AllowPrerelease -AllowClobber -Force -RequiredVersion $module.MinimumVersion
+                Import-Module -Name $module.Name -MinimumVersion $module.MinimumVersion
                 $count ++
             }
-        }
-        Else {
-            Write-Output "$module is installed."
-            $count ++
         }
     }
 
@@ -141,7 +149,6 @@ Function Confirm-InstalledModules{
     Else {
         Connect-Services
     }
-
 }
 
 
@@ -217,128 +224,200 @@ ForEach ($selected_inspector in $selected_inspectors) {
 }
 
 # Function that retrieves templating information from 
-function Parse-Template {
-	$template = (Get-Content ".\365InspectDefaultTemplate.html") -join "`n"
-	$template -match '\<!--BEGIN_FINDING_LONG_REPEATER-->([\s\S]*)\<!--END_FINDING_LONG_REPEATER-->'
-	$findings_long_template = $matches[1]
-	
-	$template -match '\<!--BEGIN_FINDING_SHORT_REPEATER-->([\s\S]*)\<!--END_FINDING_SHORT_REPEATER-->'
-	$findings_short_template = $matches[1]
-	
-	$template -match '\<!--BEGIN_AFFECTED_OBJECTS_REPEATER-->([\s\S]*)\<!--END_AFFECTED_OBJECTS_REPEATER-->'
-	$affected_objects_template = $matches[1]
-	
-	$template -match '\<!--BEGIN_REFERENCES_REPEATER-->([\s\S]*)\<!--END_REFERENCES_REPEATER-->'
-	$references_template = $matches[1]
-	
-	$template -match '\<!--BEGIN_EXECSUM_TEMPLATE-->([\s\S]*)\<!--END_EXECSUM_TEMPLATE-->'
-	$execsum_template = $matches[1]
-	
-	return @{
-		FindingShortTemplate    = $findings_short_template;
-		FindingLongTemplate     = $findings_long_template;
-		AffectedObjectsTemplate = $affected_objects_template;
-		ReportTemplate          = $template;
-		ReferencesTemplate      = $references_template;
-		ExecsumTemplate         = $execsum_template
-	}
+If ($reportType -eq "HTML"){
+    # Function that retrieves templating information from 
+    function Parse-Template {
+        $template = (Get-Content ".\365InspectDefaultTemplate.html") -join "`n"
+        $template -match '\<!--BEGIN_FINDING_LONG_REPEATER-->([\s\S]*)\<!--END_FINDING_LONG_REPEATER-->'
+        $findings_long_template = $matches[1]
+        
+        $template -match '\<!--BEGIN_FINDING_SHORT_REPEATER-->([\s\S]*)\<!--END_FINDING_SHORT_REPEATER-->'
+        $findings_short_template = $matches[1]
+        
+        $template -match '\<!--BEGIN_AFFECTED_OBJECTS_REPEATER-->([\s\S]*)\<!--END_AFFECTED_OBJECTS_REPEATER-->'
+        $affected_objects_template = $matches[1]
+        
+        $template -match '\<!--BEGIN_REFERENCES_REPEATER-->([\s\S]*)\<!--END_REFERENCES_REPEATER-->'
+        $references_template = $matches[1]
+        
+        $template -match '\<!--BEGIN_EXECSUM_TEMPLATE-->([\s\S]*)\<!--END_EXECSUM_TEMPLATE-->'
+        $execsum_template = $matches[1]
+        
+        return @{
+            FindingShortTemplate    = $findings_short_template;
+            FindingLongTemplate     = $findings_long_template;
+            AffectedObjectsTemplate = $affected_objects_template;
+            ReportTemplate          = $template;
+            ReferencesTemplate      = $references_template;
+            ExecsumTemplate         = $execsum_template
+        }
+    }
+    
+    $templates = Parse-Template
+    
+    # Maintain a running list of each finding, represented as HTML
+    $short_findings_html = '' 
+    $long_findings_html = ''
+    
+    $findings_count = 0
+    
+    #$sortedFindings1 = $findings | Sort-Object {$_.FindingName}
+    $sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Impact){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}};$_.FindingName} 
+    ForEach ($finding in $sortedFindings) {
+        # If the result from the inspector was not $null,
+        # it identified a real finding that we must process.
+        If ($null -NE $finding.AffectedObjects) {
+            # Increment total count of findings
+            $findings_count += 1
+            
+            # Keep an HTML variable representing the current finding as HTML
+            $short_finding_html = $templates.FindingShortTemplate
+            $long_finding_html = $templates.FindingLongTemplate
+            
+            # Insert finding name and number into template HTML
+            $short_finding_html = $short_finding_html.Replace("{{FINDING_NAME}}", $finding.FindingName)
+            $short_finding_html = $short_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
+            $long_finding_html = $long_finding_html.Replace("{{FINDING_NAME}}", $finding.FindingName)
+            $long_finding_html = $long_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
+            
+            # Finding Impact
+            $short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $finding.Impact)
+            $long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $finding.Impact)
+            
+            # Finding description
+            $long_finding_html = $long_finding_html.Replace("{{DESCRIPTION}}", $finding.Description)
+    
+            # Finding default value
+            $long_finding_html = $long_finding_html.Replace("{{DEFAULTVALUE}}", $finding.DefaultValue)
+    
+            # Finding expected value
+            $long_finding_html = $long_finding_html.Replace("{{EXPECTEDVALUE}}", $finding.ExpectedValue)
+                    
+            # Finding Remediation
+            If ($finding.Remediation.length -GT 300) {
+                $short_finding_text = "Complete remediation advice is provided in the body of the report. Clicking the link to the left will take you there."
+            }
+            Else {
+                $short_finding_text = $finding.Remediation
+            }
+            
+            $short_finding_html = $short_finding_html.Replace("{{REMEDIATION}}", $short_finding_text)
+            $long_finding_html = $long_finding_html.Replace("{{REMEDIATION}}", $finding.Remediation)
+            
+            # Affected Objects
+            If ($finding.AffectedObjects.Count -GT 25) {
+                $condensed = "<a href='{name}'>{count} Affected Objects Identified<a/>."
+                $condensed = $condensed.Replace("{count}", $finding.AffectedObjects.Count.ToString())
+                $condensed = $condensed.Replace("{name}", $finding.FindingName)
+                $affected_object_html = $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $condensed)
+                $fname = $finding.FindingName
+                $finding.AffectedObjects | Out-File -FilePath "$out_path\$fname.txt"
+            }
+            Else {
+                $affected_object_html = ''
+                ForEach ($affected_object in $finding.AffectedObjects) {
+                    $affected_object_html += $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $affected_object)
+                }
+            }
+            
+            $long_finding_html = $long_finding_html.Replace($templates.AffectedObjectsTemplate, $affected_object_html)
+            
+            # References
+            $reference_html = ''
+            ForEach ($reference in $finding.References) {
+                $this_reference = $templates.ReferencesTemplate.Replace("{{REFERENCE_URL}}", $reference.Url)
+                $this_reference = $this_reference.Replace("{{REFERENCE_TEXT}}", $reference.Text)
+                $reference_html += $this_reference
+            }
+            
+            $long_finding_html = $long_finding_html.Replace($templates.ReferencesTemplate, $reference_html)
+            
+            # Add the completed short and long findings to the running list of findings (in HTML)
+            $short_findings_html += $short_finding_html
+            $long_findings_html += $long_finding_html
+        }
+    }
+    
+    # Insert command line execution information. This is coupled kinda badly, as is the Affected Objects html.
+    $flags = "<b>Prepared for organization:</b><br/>" + $org_name + "<br/><br/>"
+    $flags = $flags + "<b>Stats</b>:<br/> <b>" + $findings_count + "</b> out of <b>" + $inspectors.Count + "</b> executed inspector modules identified possible opportunities for improvement.<br/><br/>"  
+    $flags = $flags + "<b>Inspector Modules Executed</b>:<br/>" + [String]::Join("<br/>", $selected_inspectors)
+    
+    $output = $templates.ReportTemplate.Replace($templates.FindingShortTemplate, $short_findings_html)
+    $output = $output.Replace($templates.FindingLongTemplate, $long_findings_html)
+    $output = $output.Replace($templates.ExecsumTemplate, $templates.ExecsumTemplate.Replace("{{CMDLINEFLAGS}}", $flags))
+    
+    $output | Out-File -FilePath $out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss").html
 }
+Elseif ($reportType -eq "CSV"){
+    $sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Impact){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}};$_.FindingName}
 
-$templates = Parse-Template
+    $results = @()
 
-# Maintain a running list of each finding, represented as HTML
-$short_findings_html = '' 
-$long_findings_html = ''
+    $findings_count = 0
 
-$findings_count = 0
+    foreach ($finding in $sortedFindings){
+        If ($null -NE $finding.AffectedObjects) {
+            $findings_count += 1
 
-#$sortedFindings1 = $findings | Sort-Object {$_.FindingName}
-$sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Impact){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}};$_.FindingName} 
-ForEach ($finding in $sortedFindings) {
-	# If the result from the inspector was not $null,
-	# it identified a real finding that we must process.
-	If ($null -NE $finding.AffectedObjects) {
-		# Increment total count of findings
-		$findings_count += 1
-		
-		# Keep an HTML variable representing the current finding as HTML
-		$short_finding_html = $templates.FindingShortTemplate
-		$long_finding_html = $templates.FindingLongTemplate
-		
-		# Insert finding name and number into template HTML
-		$short_finding_html = $short_finding_html.Replace("{{FINDING_NAME}}", $finding.FindingName)
-		$short_finding_html = $short_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
-		$long_finding_html = $long_finding_html.Replace("{{FINDING_NAME}}", $finding.FindingName)
-		$long_finding_html = $long_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
-		
-		# Finding Impact
-		$short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $finding.Impact)
-		$long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $finding.Impact)
-		
-		# Finding description
-		$long_finding_html = $long_finding_html.Replace("{{DESCRIPTION}}", $finding.Description)
+            $refs = @()
 
-		# Finding default value
-		$long_finding_html = $long_finding_html.Replace("{{DEFAULTVALUE}}", $finding.DefaultValue)
+            foreach ($ref in $finding.References){
+                $refs += "$($ref.Text) : $($ref.Url)"
+            }
 
-		# Finding expected value
-		$long_finding_html = $long_finding_html.Replace("{{EXPECTEDVALUE}}", $finding.ExpectedValue)
-				
-		# Finding Remediation
-		If ($finding.Remediation.length -GT 300) {
-			$short_finding_text = "Complete remediation advice is provided in the body of the report. Clicking the link to the left will take you there."
-		}
-		Else {
-			$short_finding_text = $finding.Remediation
-		}
-		
-		$short_finding_html = $short_finding_html.Replace("{{REMEDIATION}}", $short_finding_text)
-		$long_finding_html = $long_finding_html.Replace("{{REMEDIATION}}", $finding.Remediation)
-		
-		# Affected Objects
-		If ($finding.AffectedObjects.Count -GT 15) {
-			$condensed = "<a href='{name}'>{count} Affected Objects Identified<a/>."
-			$condensed = $condensed.Replace("{count}", $finding.AffectedObjects.Count.ToString())
-			$condensed = $condensed.Replace("{name}", $finding.FindingName)
-			$affected_object_html = $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $condensed)
-			$fname = $finding.FindingName
-			$finding.AffectedObjects | Out-File -FilePath $out_path\$fname
-		}
-		Else {
-			$affected_object_html = ''
-			ForEach ($affected_object in $finding.AffectedObjects) {
-				$affected_object_html += $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $affected_object)
-			}
-		}
-		
-		$long_finding_html = $long_finding_html.Replace($templates.AffectedObjectsTemplate, $affected_object_html)
-		
-		# References
-		$reference_html = ''
-		ForEach ($reference in $finding.References) {
-			$this_reference = $templates.ReferencesTemplate.Replace("{{REFERENCE_URL}}", $reference.Url)
-			$this_reference = $this_reference.Replace("{{REFERENCE_TEXT}}", $reference.Text)
-			$reference_html += $this_reference
-		}
-		
-		$long_finding_html = $long_finding_html.Replace($templates.ReferencesTemplate, $reference_html)
-		
-		# Add the completed short and long findings to the running list of findings (in HTML)
-		$short_findings_html += $short_finding_html
-		$long_findings_html += $long_finding_html
-	}
+            $result = New-Object psobject
+            $result | Add-Member -MemberType NoteProperty -name ID -Value $findings_count.ToString() -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name FindingName -Value $finding.FindingName -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name AffectedObjects -Value $("$($finding.AffectedObjects)" | Out-String).Trim() -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name Finding -Value $finding.Description -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name DefaultValue -Value $finding.DefaultValue -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name ExpectedValue -Value $finding.ExpectedValue -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name InherentRisk -Value $finding.Impact -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name Remediation -Value $finding.Remediation -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name References -Value $($refs | Out-String)  -ErrorAction SilentlyContinue
+            
+            $results += $result
+        }
+    }
+
+    $results | Export-Csv "$out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss").csv" -NoTypeInformation -Append -Force
+
 }
+Elseif ($reportType -eq "XML"){
+    $sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Impact){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}};$_.FindingName}
 
-# Insert command line execution information. This is coupled kinda badly, as is the Affected Objects html.
-$flags = "<b>Prepared for organization:</b><br/>" + $org_name + "<br/><br/>"
-$flags = $flags + "<b>Stats</b>:<br/> <b>" + $findings_count + "</b> out of <b>" + $inspectors.Count + "</b> executed inspector modules identified possible opportunities for improvement.<br/><br/>"  
-$flags = $flags + "<b>Inspector Modules Executed</b>:<br/>" + [String]::Join("<br/>", $selected_inspectors)
+    $results = @()
 
-$output = $templates.ReportTemplate.Replace($templates.FindingShortTemplate, $short_findings_html)
-$output = $output.Replace($templates.FindingLongTemplate, $long_findings_html)
-$output = $output.Replace($templates.ExecsumTemplate, $templates.ExecsumTemplate.Replace("{{CMDLINEFLAGS}}", $flags))
+    $findings_count = 0
 
-$output | Out-File -FilePath $out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss").html
+    foreach ($finding in $sortedFindings){
+        If ($null -NE $finding.AffectedObjects) {
+            $findings_count += 1
+
+            $refs = @()
+
+            foreach ($ref in $finding.References){
+                $refs += "$($ref.Text) : $($ref.Url)"
+            }
+
+            $result = New-Object psobject
+            $result | Add-Member -MemberType NoteProperty -name ID -Value $findings_count.ToString() -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name FindingName -Value $finding.FindingName -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name AffectedObjects -Value $("$($finding.AffectedObjects)" | Out-String).Trim() -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name Finding -Value $finding.Description -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name DefaultValue -Value $finding.DefaultValue -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name ExpectedValue -Value $finding.ExpectedValue -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name InherentRisk -Value $finding.Impact -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name Remediation -Value $finding.Remediation -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name References -Value $($refs | Out-String)  -ErrorAction SilentlyContinue
+            
+            $results += $result
+        }
+    }
+
+    $results | Export-Clixml -Depth 3 -Path "$out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss").xml"
+}
 
 $compress = @{
 	Path = $out_path

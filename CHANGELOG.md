@@ -127,11 +127,14 @@ Removed some non-functional things inside the template that were not displaying 
 # v0.0.7 beta 29-07-2022
 ## Added:
 - Added new values such as ProductFamily and CVS Score to the template and the 365Inspect script
+- Added the column for CVS Scores
+- Added the CVS Score to the description as well
 
 ## Changed:
 - Changed the lay-out of the template and ordered some things differently in the template
 - Optimized the template and removed unnecessary classes
 - Renamed all the inspectors so the productfamily could be determined 
+- Changed the filtering as it now filters on CVS score instead of impact!
 
 ## Fixed:
 - Fixed an issue with the updating module where the module encountered an error during the update process
@@ -153,3 +156,34 @@ Removed some non-functional things inside the template that were not displaying 
 - More professional cosmetic changes to the report
 - Simplified authentication mechanism
 - More Inspectors!!!
+- Integration PnP Powershell
+- Merging new inspectors with 
+
+# v0.0.8 beta 01-08-2022
+## Added:
+- Merged the latest version changes from the primary github repo to Inspect365+
+- Added the changes to enable CSV, XML or HTML reporting (Thanks to Soteria's new version)
+- Added Powershell PnP module and the mechanism to actually login to the Powershell PnP
+- Added all MFA, Regular and Credential Authentication methods for Powershell PnP and tested them succesfully
+
+## Changed:
+- Some code in the update / removal mechanism to make it work properly
+- Changed MailboxeswithIMAPEnabled, MailboxesWithPOPEnabled, ProperAdminCount, SecureDefaultsEnabled, ThirdPartyIntegratedAppPermission, UsersWithNoMFAConfigured and UsersWithNoMFAEnforced to Soteria's version which uses partially Graph now to get better processing results
+- Updated the README.md and Dutch version so PnP SharePoint is added to the list. 
+
+## Fixed:
+- Fixed an issue with the DomainValidation.ps1 script by first merging it with the Soteria's version. This is done by adding another try & catch within the process to not output an nullarray error.
+
+## Removed
+- Nothing removed this time!
+
+## Common Issues/remarks:
+- Updating modules (especially the Az module) could take a while, please be patient.
+- There could be issues with the updating and removing module. This is being investigated further and a definitive fix will be in the stable version
+- When removing a module it could take some time until it is removed, please be patient.
+- When generating an error it would generate multiple logs. The goal is to append to this log afterwards so no multiple logs are created. This will be fixed in the stable version
+- Removing a module with PowerShellGetVersion version less than 2.2.5 could result into errors because the old PowerShellGet version has a bug in the uninstall module. Recommended is to update to the latest version of PowerShellGet to fix this issue.
+
+# Coming soon in v0.0.9
+- Proper CVS score calculation
+- More NEW Inspector modules
