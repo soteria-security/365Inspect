@@ -381,7 +381,7 @@ Elseif ($reportType -eq "CSV"){
         }
     }
 
-    $results | Export-Csv "$out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss").csv" -NoTypeInformation -Append -Force
+    $results | Export-Csv "$out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss").csv" -Delimiter '^' -NoTypeInformation -Append -Force
 
 }
 Elseif ($reportType -eq "XML"){
