@@ -5,7 +5,7 @@
 	"DefaultValue" : "No restrictions are in place for communication with public Skype or Teams users",
     "ExpectedValue" : "Not applicable",
     "ReturnedValue" : "",
-    "Impact": "High",
+    "Impact": "<span style=\"color:DarkOrange;\"><strong>High</strong></span>",
     "AffectedObjects": "",
 	"References": [
 		{

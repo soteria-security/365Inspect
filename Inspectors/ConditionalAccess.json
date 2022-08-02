@@ -1,11 +1,11 @@
 {
 	"FindingName": "Conditional Access Policies",
 	"Description": "Conditional Access Policy review. If False was returned, no Conditional Access policies were found and Secure Defaults have been disabled. This leaves the Tenant extremely vulnerable to various attacks. If True was returned, existing Conditional Access Policies will be exported for review.",
-	"Remediation": "If False was returned, consider creating Conditional Access policies or re-enabling Secure Defaults. If the tenant is not licensed for Conditional Access, consider enabling Secure Defaults. Microsoft will force-enable Secure Defaults on all tenants beginning in late June 2022.",
+	"Remediation": "If False was returned, consider creating Conditional Access policies or re-enabling Secure Defaults. If the Tenant is not licensed for Conditional Access, consider enabling Secure Defaults. Microsoft will force-enable Secure Defaults on all tenants beginning in late June 2022.",
 	"DefaultValue" : "False",
     "ExpectedValue" : "True",
     "ReturnedValue" : "",
-    "Impact": "Critical",
+    "Impact": "<span style=\"color:Crimson;\"><strong>Critical</strong></span>",
     "AffectedObjects": "",
 	"References": [
 		{

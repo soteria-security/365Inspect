@@ -5,7 +5,7 @@
 	"DefaultValue" : "False on all custom domains",
     "ExpectedValue" : "None",
     "ReturnedValue" : "",
-    "Impact": "High",
+    "Impact": "<span style=\"color:DarkOrange;\"><strong>High</strong></span>",
     "AffectedObjects": "",
 	"References": [
 		{

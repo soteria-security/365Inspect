@@ -5,7 +5,7 @@
 	"DefaultValue" : "ExternalUserAndGuestSharing (Anyone)",
     "ExpectedValue" : "ExternalUserSharingOnly (New and Existing Guests)",
     "ReturnedValue" : "",
-    "Impact": "Critical",
+    "Impact": "<span style=\"color:Crimson;\"><strong>Critical</strong></span>",
     "AffectedObjects": "",
 	"References": [
 		{

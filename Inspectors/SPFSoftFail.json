@@ -5,7 +5,7 @@
 	"DefaultValue" : "Null for all custom domains",
     "ExpectedValue" : "v=spf1 include:spf.protection.outlook.com include:<domain name&rarr; -all",
     "ReturnedValue" : "",
-    "Impact": "High",
+    "Impact": "<span style=\"color:DarkOrange;\"><strong>High</strong></span>",
     "AffectedObjects": "",
 	"References": [
 		{
