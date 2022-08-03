@@ -5,7 +5,7 @@
 	"DefaultValue" : "ace, ani, app, docm, exe, jar, reg, scr, vbe, vbs",
     "ExpectedValue" : "None",
     "ReturnedValue" : "",
-    "Impact": "Critical",
+    "Impact": "<span style=\"color:Crimson;\"><strong>Critical</strong></span>",
     "AffectedObjects": "",
 	"References": [
 		{

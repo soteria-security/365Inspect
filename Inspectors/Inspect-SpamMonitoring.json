@@ -1,11 +1,11 @@
 {
 	"FindingName": "Suspicious Outgoing Spam Messages Not Monitored",
 	"Description": "The Outbound Spam Policy allows for admins to be sent copies of suspected/suspicious outbound messages that may be spam. This configuration can be used to detect and alert administrators to potentially compromised or abused accounts.",
-	"Remediation": "This setting is most easily accessible via the Set-HostedOutboundSpamFilterPolicy function in the Exchange Online PowerShell module. Use the Set-HostedOutboundSpamFilterPolicy function as follows:\nSet-HostedOutboundSpamFilterPolicy -BccSuspiciousOutboundMail $true -BccSuspiciousOutboundAdditionalRecipients \"administrator@yourdomain\"",
+	"Remediation": "This setting is most easily accessible via the Set-HostedOutboundSpamFilterPolicy function in the Exchange Online PowerShell module. Use the Set-HostedOutboundSpamFilterPolicy function as follows: Set-HostedOutboundSpamFilterPolicy -BccSuspiciousOutboundMail $true -BccSuspiciousOutboundAdditionalRecipients \"administrator@yourdomain\"",
 	"DefaultValue" : "None",
     "ExpectedValue" : "A configured recipient mailbox",
     "ReturnedValue" : "",
-    "Impact": "High",
+    "Impact": "<span style=\"color:DarkOrange;\"><strong>High</strong></span>",
     "AffectedObjects": "",
 	"References": [
 		{

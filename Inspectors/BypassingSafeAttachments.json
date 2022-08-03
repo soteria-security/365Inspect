@@ -5,7 +5,7 @@
 	"DefaultValue" : "None",
     "ExpectedValue" : "None",
     "ReturnedValue" : "",
-    "Impact": "Critical",
+    "Impact": "<span style=\"color:Crimson;\"><strong>Critical</strong></span>",
     "AffectedObjects": "",
 	"References": [
 		{
