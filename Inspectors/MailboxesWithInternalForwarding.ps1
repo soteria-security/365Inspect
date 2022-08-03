@@ -16,16 +16,32 @@ Try {
 
     $rulesEnabled = @()
 
-    foreach ($mailbox in $mailboxes){
-        $rulesEnabled += Get-InboxRule -Mailbox $mailbox.UserPrincipalName | Where-Object {($null -ne $_.ForwardTo) -or ($null -ne $_.ForwardAsAttachmentTo) -or ($null -ne $_.RedirectTo)} | Select-Object MailboxOwnerId, RuleIdentity, Name, ForwardTo, RedirectTo
+    $internalRulesEnabled = @()
+
+    if ((Test-path "$path\Exchange") -eq $true){
+        $path = "$path\Exchange"
     }
+    Else {
+        $path = New-Item -ItemType Directory -Force -Path "$($path)\Exchange"
+    }
+
+    foreach ($mailbox in $mailboxes){
+        $rulesEnabled += Get-InboxRule -Mailbox $mailbox.UserPrincipalName | Where-Object {($null -ne $_.ForwardTo) -or ($null -ne $_.ForwardAsAttachmentTo) -or ($null -ne $_.RedirectTo)} | Select-Object MailboxOwnerId, RuleIdentity, Name, ForwardTo, RedirectTo, ForwardAsAttachmentTo
+    }
+    
     if ($rulesEnabled.Count -gt 0) {
         foreach ($domain in $knownDomains){
-            $rulesEnabled | Where-Object {($_.ForwardTo -match "EX:/o=") -or ($_.ForwardAsAttachmentTo -match "EX:/o=") -or ($_.RedirectTo -match "EX:/o=")} | Out-File -FilePath "$($path)\ExchangeMailboxeswithInternalForwardingRules.txt" -Append
-            Return $rulesenabled.MailboxOwnerID | Select-Object -Unique
+            $internalRulesEnabled += $rulesEnabled | Where-Object {($_.ForwardTo -match "EX:/o=") -or ($_.ForwardAsAttachmentTo -match "EX:/o=") -or ($_.RedirectTo -match "EX:/o=") -or ($_.ForwardTo -match $domain) -or ($_.ForwardAsAttachmentTo -match $domain) -or ($_.RedirectTo -match $domain)}
         }
     }
-    Return $null
+
+    if ($internalRulesEnabled.count -gt 0) {
+        $internalRulesEnabled | Export-Csv "$($path)\ExchangeMailboxeswithInternalForwardingRules.csv" -Delimiter ';' -NoTypeInformation -Append
+        Return $internalRulesenabled.MailboxOwnerID | Select-Object -Unique
+    }
+    Else {
+        Return $null
+    }
 
 }
 Catch {
@@ -39,12 +55,10 @@ $pscommandpath = $_.InvocationInfo.PSCommandPath
 $failinglinenumber = $_.InvocationInfo.ScriptLineNumber
 $scriptname = $_.InvocationInfo.ScriptName
 Write-Verbose "Write to log"
-Write-ErrorLog -message $message -exception $exception -scriptname $scriptname
+Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
 Write-Verbose "Errors written to log"
 }
 
 }
 
 Get-InternalMailboxForwarding
-
-
