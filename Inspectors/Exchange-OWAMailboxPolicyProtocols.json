@@ -1,0 +1,19 @@
+{
+	"FindingName": "Multiple Weak Protocols in Outlook Web Application Enabled",
+	"ProductFamily": "Microsoft Exchange - Outlook Web Application",
+	"CVS": "7.5",
+	"Description": "Some protocols could lead to information exposure towards public areas. ",
+	"Remediation": "Disable the following protocols of OWAMailboxPolicy: ActiveSyncIntegrationEnabled,SilverlightEnabled,FacebookEnabled,LinkedInEnabled",
+	"DefaultValue" : "All enabled",
+    "ExpectedValue" : "All disabled",
+    "ReturnedValue" : "",
+    "Impact": "High",
+	"RiskRating" : "High",
+    "AffectedObjects": "",
+	"References": [
+		{
+			"Url": "",
+			"Text": ""
+		}
+	]
+}

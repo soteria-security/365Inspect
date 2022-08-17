@@ -1,0 +1,23 @@
+{
+	"FindingName": "Outlook Web Application Offline Mode Enabled",
+	"ProductFamily": "Microsoft Exchange: Outlook Web Application",
+	"CVS": "9.6",
+	"Description": "One of the oft-overlooked features of web mail, known as OWA, is the offline mode feature. This feature leaves an unencrypted copy of the last 500 emails on your device for easy access while you are not connected.",
+	"Remediation": "Disable the feature by: Get-OwaMailboxPolicy | Set-OwaMailboxPolicy -AllowOfflineOn NoComputers",
+	"DefaultValue" : "No restrictions",
+    "ExpectedValue" : "NoComputers are allowed to AllowOfflineOn",
+    "ReturnedValue" : "",
+    "Impact": "Critical",
+	"RiskRating" : "Critical",
+    "AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://social.technet.microsoft.com/Forums/en-US/d2c2ff3f-232b-496b-a1dc-f2f402ae5c0a/disable-offline-access-in-outlook-on-the-web-at-a-global-level?forum=Exch2016Adm",
+			"Text": "Disable offline access in Outlook on the Web at a global level"
+		},
+		{
+			"Url":"https://blogs.perficient.com/2016/03/07/office-365-have-you-evaluated-these-exchange-online-features/",
+			"Text":"Office 365 – Have You Evaluated These Exchange Online Features?"
+		}
+	]
+}

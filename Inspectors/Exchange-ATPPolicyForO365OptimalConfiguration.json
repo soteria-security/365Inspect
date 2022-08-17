@@ -1,0 +1,19 @@
+{
+	"FindingName": "ATP Policy Not Optimally Configured",
+	"ProductFamily": "Microsoft Exchange",
+	"CVS": "9.6",
+	"Description": "By using Office 365 Advanced Threat Protection you can add additional protection to the email filtering service available in Office 365 called Exchange Online Protection (EOP).",
+	"Remediation": "Set-AtpPolicyForO365 -Identity <id> -EnableATPForSPOTeamsODB $true -AllowClickThrough $false -AllowSafeDocsOpen $false -EnableSafeDocs $true -TrackClicks $true -EnableMailboxIntelligence $true -EnableSafeLinksForO365Clients $true",
+	"DefaultValue" : "AllowClickThrough: True; AllowSafeDocsOpen: True;",
+    "ExpectedValue" : "AllowClickThrough: False; AllowSafeDocsOpen: False; Rest of the options must be true!",
+    "ReturnedValue" : "",
+    "Impact": "Critical",
+	"RiskRating" : "Critical",
+    "AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/configure-global-settings-for-safe-links?view=o365-worldwide",
+			"Text": "Configure global settings for Safe Links in Microsoft Defender for Office 365"
+		}
+	]
+}

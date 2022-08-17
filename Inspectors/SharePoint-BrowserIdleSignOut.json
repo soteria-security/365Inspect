@@ -1,0 +1,19 @@
+{
+	"FindingName": "Sharepoint has no Idle Browser SignOut Configuration Configured",
+	"ProductFamily": "Microsoft Sharepoint",
+	"CVS": "9.1",
+	"Description": "Idle session timeout in SharePoint Online is a security mechanism that warns and sign-outs the user after a period of inactivity. By default, idle session timeout settings are disabled in SharePoint Online. Not enabling leaves the user at risk for step-by attacks.",
+	"Remediation": "Execute the following command to enable Idle Session Timeout: <b> Set-SPOBrowserIdleSignOut -Enabled $true -WarnAfter (New-TimeSpan -Minutes 30) -SignOutAfter (New-TimeSpan -Minutes 60) </b>",
+	"DefaultValue" : "Enabled: False, WarnAfter: 0, SignOutAfter: 0",
+    "ExpectedValue" : "Enabled: True, WarnAfter: 30, SignOutAfter 60",
+    "ReturnedValue" : "",
+    "Impact": "Critical",
+	"RiskRating" : "Critical",
+    "AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/windows-server/identity/active-directory-federation-services",
+			"Text": "Active Directory Federation Services"
+		}
+	]
+}

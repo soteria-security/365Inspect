@@ -1,0 +1,19 @@
+{
+	"FindingName": "Non MFA - Admin Accounts Found!",
+	"ProductFamily": "Microsoft Azure Directory",
+	"CVS": "8.2",
+	"Description": "Some of the Admin Accounts are not compliant. Admins must have MFA enabled to not be targeted by password spraying attacks",
+	"Remediation": "Require MFA for all Admin accounts by enabling a Conditional Access Policy. Use the reference to configure the conditional access policy.",
+	"DefaultValue" : "Not MFA Enabled",
+    "ExpectedValue" : "MFA Enabled for all Admins",
+    "ReturnedValue" : "",
+    "Impact": "High",
+	"RiskRating" : "High",
+    "AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://janbakker.tech/microsoft-secure-score-series-02-require-mfa-for-administrative-roles/",
+			"Text": "Microsoft Secure Score Series – 02 – Require MFA for administrative roles"
+		}
+	]
+}

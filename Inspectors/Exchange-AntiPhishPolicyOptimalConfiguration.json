@@ -1,0 +1,19 @@
+{
+	"FindingName": "Anti Phish Policy Not Configured Properly",
+	"ProductFamily": "Microsoft Exchange",
+	"CVS": "9.3",
+	"Description": "Your organization is not protecting users properly from phishing attacks (like impersonation and spoofing) at the moment. This could lead to possible phishing and serious damage to your organization, enabling should display safety tips to warn users about potentially harmful messages.",
+	"Remediation": "Execute the following command: Get-AntiPhishPolicy | Set-AntiPhishPolicy -EnableTargetedUserProtection $true -EnableMailboxIntelligenceProtection $true -EnableTargetedDomainsProtection $true -EnableOrganizationDomainsProtection $true -EnableMailboxIntelligence $true -EnableFirstContactSafetyTips $true -EnableSimilarUsersSafetyTips $true -EnableSimilarDomainsSafetyTips $true -EnableUnusualCharactersSafetyTips $true",
+	"DefaultValue" : "Disabled all",
+    "ExpectedValue" : "Enabled all",
+    "ReturnedValue" : "",
+    "Impact": "Critical",
+	"RiskRating" : "Critical",
+    "AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/powershell/module/exchange/set-antiphishpolicy?view=exchange-ps",
+			"Text": "Set-AntiPhishPolicy"
+		}
+	]
+}

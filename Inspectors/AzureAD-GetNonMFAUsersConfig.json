@@ -1,0 +1,19 @@
+{
+	"FindingName": "Non MFA - Admin Accounts Found!",
+	"ProductFamily": "Microsoft Azure Directory",
+	"CVS": "8.2",
+	"Description": "Some of the Admin Accounts are not compliant. Users must have MFA enabled to not be targeted by password spraying attacks",
+	"Remediation": "Require MFA for all User accounts by enabling a Conditional Access Policy. Use the reference to configure the conditional access policy.",
+	"DefaultValue" : "Not MFA Enabled",
+    "ExpectedValue" : "MFA Enabled for all Users",
+    "ReturnedValue" : "",
+    "Impact": "High",
+	"RiskRating" : "High",
+    "AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/azure/security/fundamentals/identity-management-best-practices",
+			"Text": "Azure Identity Management and access control security best practices"
+		}
+	]
+}

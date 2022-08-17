@@ -1,0 +1,19 @@
+{
+	"FindingName": "Multiple Policies Not Enabled found by ConfigAnalyzerPolicyRecommendations",
+	"ProductFamily": "Microsoft Exchange",
+	"CVS": "9.3",
+	"Description": "Anti-Spam, Anti-Phishing and Anti-Malware Policies are recommended to have an existing policy configured to minimize impact from spam and phishing and malware within your organization",
+	"Remediation": "Configure the Anti-Spam, Anti-Phishing and Anti-Malware policy according to the recommendations. Please consult the text file for further information.",
+	"DefaultValue" : "More than 0 Recommendations",
+    "ExpectedValue" : "0 Recommandations",
+    "ReturnedValue" : "",
+    "Impact": "Critical",
+	"RiskRating" : "Critical",
+    "AffectedObjects": "",
+	"References": [
+		{
+			"Url": "file://ConfigAnalyzerPolicyRecommendations.txt",
+			"Text": "ConfigAnalyzerPolicyRecommendations.txt"
+		}
+	]
+}

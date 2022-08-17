@@ -1,0 +1,19 @@
+{
+	"FindingName": "Security Score is not Maximum Value",
+	"ProductFamily": "Microsoft Azure",
+	"CVS": "0.0",
+	"Description": "Depending on what configuration ",
+	"Remediation": "Please check the references URL for the score and what to fix.",
+	"DefaultValue" : "Variable",
+    "ExpectedValue" : "Variable",
+    "ReturnedValue" : "",
+    "Impact": "Informational",
+	"RiskRating" : "Informational",
+    "AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://security.microsoft.com/securescore",
+			"Text": "Security Microsoft - SecureScore"
+		}
+	]
+}

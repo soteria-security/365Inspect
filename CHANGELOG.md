@@ -159,6 +159,7 @@ Removed some non-functional things inside the template that were not displaying 
 - Integration PnP Powershell
 - Merging new inspectors with 
 
+
 # v0.0.8 beta 01-08-2022
 ## Added:
 - Merged the latest version changes from the primary github repo to Inspect365+
@@ -184,6 +185,56 @@ Removed some non-functional things inside the template that were not displaying 
 - When generating an error it would generate multiple logs. The goal is to append to this log afterwards so no multiple logs are created. This will be fixed in the stable version
 - Removing a module with PowerShellGetVersion version less than 2.2.5 could result into errors because the old PowerShellGet version has a bug in the uninstall module. Recommended is to update to the latest version of PowerShellGet to fix this issue.
 
-# Coming soon in v0.0.9
-- Proper CVS score calculation
-- More NEW Inspector modules
+
+# v0.0.9 beta 15-08-2022
+## Added:
+- Added 15 new Inspectors:
+    - AzureAD-GetNonMFAAdminsConfig: Which checks for NonMFAAdmins only in the 365 Environment
+    - AzureAD-GetNonMFAUserConfig: Which checks for NonMFAUsers only in the 365 Environment
+    - AzureAD-MicrosoftDefenderSubscriptionsEnabled: Checks if MicrosoftDefender subscriptions are enabled. (BETA)
+    - AzureAD-SecurityEnabledGroups: Checks if Security is Enabled in Azure Groups
+    - Exchange-AntiPhishPolicyOptimalConfiguration: Checks if AntiPhishPolicies are existing and configured correctly
+    - Exchange-ATPPolicyForO365OptimalConfiguration: Checks if ATPPolicy for O365 is existing and configured correctly
+    - Exchange-AuthenticationPolicyExistenceCheck: Checks if the AuthenticationPolicy in Exchange is existing and configured correctly
+    - Exchange-BasicAuthCheckMobileDevice: Checks if Basic Authentication is enabled on Mobile Devices regarding Outlook Applications 
+    - Exchange-ConfigAnalyzerPolicyRecommendation: Checks if the PolicyRecommendation has any reports of policies that must be configured
+    - Exchange-MailboxPlanProtocolChecks: Checks if the MailboxPlanProtocols do not contain vulnerable protocols
+    - Exchange-OWAMailboxPolicyOfflineMailEnabled: Checks if the OfflineMail option is enabled within OWA
+    - Exchange-OWAMailboxPolicyProtocols: Check if any vulnerable or weak protocols are enabled in OWA regarding the policy
+    - MSGraph-MgSecuritySecureScore: Checks if the SecureScore is maxscore
+    - MSTeams-EnhancedEncryptionCheck: Checks if MSTeams has End-To-End encryption enabled
+    - SharePoint-BrowserIdleSignOut: Checks if Sharepoint has the BrowserIdleSignOut option enabled and correctly configured
+- The .html report is opened after execution so the user can directly see the results instead of opening it self. Thanks to a change in the script and adding a new variable that saves the .html/xml/csv text into it so it can be invoked afterwards at the end.
+- Added new banners and modified the banners so they look fancy! :D
+
+## Changed:
+- Changed the labels of all inspectors to categorize them properly. This is handy if someone only wants to execute a Exchange audit to run only the Exchange audits
+- Recalculation of the CVS score changed the risk rating of multiple inspectors
+- Changed the mechanism of authentication
+- Changed some Write-Output to Write-Host, mainly because some Pipelining issues when returning objects within a command. Write-Output does not seem to work in return environments
+- Categorized some functions because other parts of the code did perform a different function, thus the code is now an individual function. This does not impact the program itself
+
+## Fixed:
+- Fixed the issue again with the update module where the update break because of unknown reasons. Eventually an alternative script is written in case there are issues with the script as a fallback. The feature has been tested succesfully now and reported to work now correctly. The code does not break now.
+- Fixed an issue where PnP Powershell would not have been disconnected after the audit has been executed, resulting into a open session.
+- Fixed an issue where the Directory creation script did not work properly. Thanks to the new script a directory within the directory is created or the directory if it not exists is created and another directory is created within.
+
+## Removed:
+- Removed the MFA parameter, because it is merged with the regular authentication now. The regular authentication supports both normal and MFA authentication.
+
+## Common Issues/remarks:
+- The MicrosoftDefenderSubscriptionsEnabled script does not check if the subscription itself is enabled. This will be supported in the future
+- One inspector has not been implemented yet, due an issue with the script. I am looking into this and provide a fix in v0.9.1 
+- After v0.0.9 minor releases will only fix bugs and not add any features. New features will be released in v1.0.0
+- When updating the modules. Please DO NOT open PowerShell ISE, because it will conflict with the update process. Make sure also to be disconnected every module before updating the modules to their latest version.
+
+# Coming in v1.0.0 stable
+- Rename to 365InspectPlus
+- Engine based on ORCA and MCCA
+- Installable from Powershell Gallery via Install-Module via a psm1 file.
+- Brand new beautiful report structure
+- HTML within the Powershell script instead of an standalone HTML 
+- No need for JSON anymore as the data can be included in the ps1 files.
+- Specific audit choices (e.g. Azure, O365, Sharepoint, Exchange, etc)
+- A much faster engine than currently
+- Progress bar and much cleaner output 

@@ -1,0 +1,23 @@
+{
+	"FindingName": "Basic Authentication Possible on Mobile Devices",
+	"ProductFamily": "Microsoft Exchange",
+	"CVS": "7.5",
+	"Description": "Basic Authentication on Mobile Devices is possible with Basic Authentication. This leaves mobile devices vulnerable to attacks from outside",
+	"Remediation": "Require modern authentication, even more mobile devices. Please consult the references for configuration instructions",
+	"DefaultValue" : "More than 0 devices",
+    "ExpectedValue" : "0 devices",
+    "ReturnedValue" : "",
+    "Impact": "High",
+	"RiskRating" : "High",
+    "AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/exchange/clients-and-mobile-in-exchange-online/outlook-for-ios-and-android/setup-with-modern-authentication",
+			"Text": "Account setup with modern authentication in Exchange Online"
+		},
+		{
+			"Url":"https://docs.microsoft.com/en-us/exchange/clients-and-mobile-in-exchange-online/outlook-for-ios-and-android/secure-outlook-for-ios-and-android",
+			"Text":"Securing Outlook for iOS and Android in Exchange Online"
+		}
+	]
+}

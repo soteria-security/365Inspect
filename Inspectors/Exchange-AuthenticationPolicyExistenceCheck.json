@@ -1,0 +1,19 @@
+{
+	"FindingName": "Exchange does not have a Authentication Policy Enabled",
+	"ProductFamily": "Microsoft Exchange",
+	"CVS": "9.1",
+	"Description": "Exchange Online faces a lot of attacks, attack vectors and malicious actors. Having BasicAuthenitcation not disabled leaves the M365 vulnerable for brute force attacks and weak security of accounts",
+	"Remediation": "Set-AuthenticationPolicy -Identity '<id>' -AllowBasicAuthActiveSync:$False -AllowBasicAuthAutodiscover:$False -AllowBasicAuthImap:$False -AllowBasicAuthMapi:$False -AllowBasicAuthOfflineAddressBook:$False -AllowBasicAuthOutlookService:$False -AllowBasicAuthPop:$False -AllowBasicAuthReportingWebServices:$False -AllowBasicAuthRest:$False -AllowBasicAuthRpc:$False -AllowBasicAuthSmtp:$False -AllowBasicAuthWebServices:$False -AllowBasicAuthPowershell:$FalsengWebServices $False -AllowBasicAuthRpc $False -AllowBasicAuthSmtp $False -AllowBasicAuthWebServices $False -AllowBasicAuthPowershell $False",
+	"DefaultValue" : "None",
+    "ExpectedValue" : "Correct Configured AuthenticationPolicy",
+    "ReturnedValue" : "",
+    "Impact": "Critical",
+	"RiskRating" : "Critical",
+    "AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://www.scriptrunner.com/en/blog/powershell-and-exchange-online-security/",
+			"Text": "PowerShell and Exchange Online Security"
+		}
+	]
+}

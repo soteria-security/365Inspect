@@ -1,0 +1,27 @@
+{
+	"FindingName": "MailboxPlans Have Legacy Protocols Enabled",
+	"ProductFamily": "Microsoft Exchange",
+	"CVS": "8.2",
+	"Description": "For Exchange Online, Microsoft provides many protocols for end users to connect to their mailbox. We have IMAP, POP, ActiveSync, ECP, MAPI, OWA and more. Typically, we want to block less secure protocols like IMAP4 and POP3 so that users will not use these to connect a mailbox to.",
+	"Remediation": "Execute the following command to disable the legacy protocols ",
+	"DefaultValue" : "ActiveSyncEnabled,PopEnabled,ImapEnabled,EwsEnabled,MapiEnabled = True",
+    "ExpectedValue" : "ActiveSyncEnabled,PopEnabled,ImapEnabled,EwsEnabled,MapiEnabled = False",
+    "ReturnedValue" : "",
+    "Impact": "High",
+	"RiskRating" : "High",
+    "AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/block-legacy-authentication",
+			"Text": "How to: Block legacy authentication access to Azure AD with Conditional Access"
+		},
+		{
+			"Url":"https://thesysadminchannel.com/use-conditional-access-to-block-legacy-authentication-in-office-365/",
+			"Text":"How To Block Legacy Authentication Office 365"
+		},
+		{
+			"Url":"https://jeffreyappel.nl/block-legacy-authentication-now-and-dont-wait-for-microsoft/",
+			"Text":"Block Legacy Authentication now, and don’t wait for Microsoft"
+		}
+	]
+}

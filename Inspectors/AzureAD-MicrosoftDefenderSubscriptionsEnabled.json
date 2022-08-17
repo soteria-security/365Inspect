@@ -1,0 +1,19 @@
+{
+	"FindingName": "Multiple MicrosoftDefender Subscription Not Enabled",
+	"ProductFamily": "Microsoft Azure Directory",
+	"CVS": "0.0",
+	"Description": "MicrosoftDefender are disabled, this could lead to potentional weakness of the cloud systems.",
+	"Remediation": "Consider enabling the subscriptions for the services your M365 environment is using",
+	"DefaultValue" : "Disabled",
+    "ExpectedValue" : "Enabled",
+    "ReturnedValue" : "",
+    "Impact": "Informational",
+	"RiskRating" : "Informational",
+    "AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://docs.microsoft.com/en-us/azure/defender-for-cloud/enable-enhanced-security",
+			"Text": "Quickstart: Enable enhanced security features"
+		}
+	]
+}

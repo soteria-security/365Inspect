@@ -1,0 +1,19 @@
+{
+	"FindingName": "Multiple Groups Security Disabled",
+	"ProductFamily": "Microsoft Azure Directory",
+	"CVS": "0.0",
+	"Description": "Multiple Groups in Azure Directory do not have any security restrictions enabled.",
+	"Remediation": "Consider enabling Azure Directory Security for Groups to the respective groups",
+	"DefaultValue" : "-",
+    "ExpectedValue" : "-",
+    "ReturnedValue" : "",
+    "Impact": "Informational",
+	"RiskRating" : "Informational",
+    "AffectedObjects": "",
+	"References": [
+		{
+			"Url": "https://byteben.com/bb/azure-ad-groups-in-a-nutshell/",
+			"Text": "Azure AD Groups – in a nutshell"
+		}
+	]
+}
