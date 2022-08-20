@@ -4,48 +4,39 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 . $errorHandling
 
-
 $path = @($out_path)
-
 Function Inspect-AllUsersNonMFAStatus {
 Try {
-    $NonMFACount = 0
-    $AllUsersNonMFAStatusResults = @()
+    
+$Users = Get-MsolUser -All
+$NonMFAUsers = @()
+$Results = @()
 
-    foreach ($MsolUser in $MsolUsers) {
+foreach ($User in $Users){
+$Roles = Get-AzureADUserMembership -ObjectId $User.UserPrincipalName -All $true | Where-Object { $_.ObjectType -eq "Role"}
+if (($Roles.Count -eq 0) -and ($User.StrongAuthenticationRequirements.State -eq $Null) -and ($_.StrongAuthenticationMethods.MethodType -eq $Null)){
+$NonMFAUsers += $User
+}
+}
 
-      $MFAMethod = $MsolUser.StrongAuthenticationMethods | Where-Object {$_.IsDefault -eq $true} | Select-Object -ExpandProperty MethodType
-      $Method = ""
 
-      If (($MsolUser.StrongAuthenticationRequirements) -or ($MsolUser.StrongAuthenticationMethods)) {
-        Switch ($MFAMethod) {
-            "OneWaySMS" { $Method = "SMS token" }
-            "TwoWayVoiceMobile" { $Method = "Phone call verification" }
-            "PhoneAppOTP" { $Method = "Hardware token or authenticator app" }
-            "PhoneAppNotification" { $Method = "Authenticator app" }
-        }
-      }
-        # List only the user that don't have MFA enabled
-        if (-not($MsolUser.StrongAuthenticationMethods) -or -not($MsolUser.StrongAuthenticationRequirements)) {
+foreach ($User in $NonMFAUsers){
+$Result = New-Object -TypeName PSObject -Property @{
+ DisplayName = $User.DisplayName
+ UserName = $User.UserPrincipalName
+ Role = "User"
+ Licensed = $User.IsLicensed
+ BlockedFromSignIn = $User.BlockCredential
+}
+$Results += $Result
+}
 
-          $object = [PSCustomObject]@{
-            DisplayName       = $MsolUser.DisplayName
-            UserPrincipalName = $MsolUser.UserPrincipalName
-            isAdmin           = if ($listAdmins -and ($admins.EmailAddress -match $MsolUser.UserPrincipalName)) {$true} else {"-"}
-            MFAEnabled        = $false
-            MFAType           = "-"
-			MFAEnforced       = if ($MsolUser.StrongAuthenticationRequirements) {$true} else {"-"}
-            "Email Verification" = if ($msoluser.StrongAuthenticationUserDetails.Email) {$msoluser.StrongAuthenticationUserDetails.Email} else {"-"}
-            "Registered phone" = if ($msoluser.StrongAuthenticationUserDetails.PhoneNumber) {$msoluser.StrongAuthenticationUserDetails.PhoneNumber} else {"-"}
-          }
-          $NonMFACount++
-        }
-        $AllUsersNonMFAStatusResults += $object
-      }
+if ($Results.Count -ne 0){
+$Results | Format-Table -AutoSize | Out-File "$path\GetAllNonAdminsNonMFAStatus.txt"
+return "Number of Users (Non-Admins) without MFA: $($Results.Count)"
+}
 
-    $AllUsersNonMFAStatusResults | Format-Table -AutoSize | Out-File "$path\GetAllUsersNonMFAStatus.txt" 
 
-    Return "Number of Non MFA Accounts Found: $($NonMFACount.ToString())"
 
 }
 Catch {

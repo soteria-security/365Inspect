@@ -228,6 +228,18 @@ Removed some non-functional things inside the template that were not displaying 
 - After v0.0.9 minor releases will only fix bugs and not add any features. New features will be released in v1.0.0
 - When updating the modules. Please DO NOT open PowerShell ISE, because it will conflict with the update process. Make sure also to be disconnected every module before updating the modules to their latest version.
 
+# v0.1.0 beta 19-08-2022
+## Fixed:
+- Fixed an issue where some values where not displayed after the audit was completed.
+- Fixed the issue with Azure-AD-GetNonMFAUsersConfig which did not display any users and would return Null anyway. I used a different code to make sure the code is working.
+- Fixed the issue with ProperAdminCount by changing a piece of the code. The previous code errored because of an issue with the -search parameter. I used the -Filter paramter instead.
+
+## Changed:
+- Changed the structure of the code of PSObjects in CSV and XML reporting. The behaviour is the same still
+
+## Removed:
+- Removed old commented code that is not necessary anymore
+
 # Coming in v1.0.0 stable
 - Rename to 365InspectPlus
 - Engine based on ORCA and MCCA

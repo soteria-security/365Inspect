@@ -140,31 +140,6 @@ function CheckInstalledModules {
     Write-Host "Checking all installed modules for available updates."
     $CurrentModules = Get-InstalledModule | Where-Object { $Modules -contains $_.Name}
 
-    # Walk through the Installed modules and check if there is a newer version
-
-    <#
-    foreach($Module in $CurrentModules){
-    Write-Host "[>] Checking $($Module.Name) ..."
-                Try {
-            $GalleryModule = Find-Module -Name $Module.Name -Repository PSGallery -ErrorAction Stop #-AllowPreRelease
-        }
-        Catch {
-            Write-Error "Module $($Module.Name) not found in gallery $_"
-            $GalleryModule = $null
-        }
-        if ($GalleryModule.Version -gt $Module.Version){
-        try{
-        Write-Host "$($Module.Name) will be updated. Galleryversion: $($GalleryModule.Version), Local version $($Module.Version)"
-        Update-Module $Module.Name -ErrorAction SilentlyContinue -Force
-        Write-Host "$($Module.Name)  has been updated!" -ForegroundColor Green
-        }catch{
-            Write-Error "$($Module.Name) failed: $_ "
-        }
-        }
-    }#For-Each Loop
-    
-    #>
-
     $CurrentModules | ForEach-Object {
     Write-Host "[>] Checking $($_.Name) ..."
             Try {
@@ -305,12 +280,19 @@ if (iex $validation[$j]){
 Write-Host "Connected to: $($programs[$i])!" -ForegroundColor DarkYellow -BackgroundColor Black
 $i++
 $j++
+}else{
+Write-Error "Could not Connect!"
+$i++
+$j++
+break
 }
 }
 
 }
+
 
 function ExecuteInspectors() {
+  
   $startdate = (Get-Date)
   # Get a list of every available detection module by parsing the PowerShell
   # scripts present in the .\inspectors folder. 
@@ -366,11 +348,21 @@ function ExecuteInspectors() {
       Exception
     }
   }
-  return $findings
+  $executeinspectorsobject = New-Object PSObject -Property @{
+  Findings = $findings
+  StartDate = $startdate
+  Inspectors = $selected_inspectors
+  }
+  return $executeinspectorsobject
   }
 
+function GenerateReport($object){
+# Define the Object values
+$findings = $object.Findings
+$startdate = $object.StartDate
+$inspectors = $object.Inspectors
+$selected_inspectors = $object.Inspectors
 
-function GenerateReport($findings){
 If ($reportType -eq "HTML"){
 $templates = Parse-Template
 
@@ -379,7 +371,6 @@ $templates = Parse-Template
   $long_findings_html = ''
 
   $findings_count = 0
-
   $critical_count = 0
   $high_count = 0
   $medium_count = 0
@@ -529,8 +520,20 @@ Elseif ($reportType -eq "CSV"){
             foreach ($ref in $finding.References){
                 $refs += "$($ref.Text) : $($ref.Url)"
             }
+
+             $result = New-Object PSObject -ErrorAction SilentlyContinue -Property @{
+             ID = $findings_count.ToString()
+             FindingName = $finding.FindingName
+             ProductFamily = $finding.ProductFamily
+             Impact = $finding.Impact
+             CVS = $finding.CVS.ToString()
+             DefaultValue = $finding.DefaultValue
+             ExpectedValue = $finding.ExpectedValue
+            }
+            $results += $result
             # Finding, AffectedObjects and References are buggy. Delimitation and splitting the rows is not working well. Because the string is too long!
             ## This is because of a 255 character limit per column
+            <#
             $result = New-Object PSObject
             $result | Add-Member -MemberType NoteProperty -name ID -Value $findings_count.ToString() -ErrorAction SilentlyContinue
             $result | Add-Member -MemberType NoteProperty -name FindingName -Value $finding.FindingName -ErrorAction SilentlyContinue
@@ -544,6 +547,7 @@ Elseif ($reportType -eq "CSV"){
             #$result | Add-Member -MemberType NoteProperty -name Remediation -Value $finding.Remediation -ErrorAction SilentlyContinue
             #$result | Add-Member -MemberType NoteProperty -name References -Value $($refs | Out-String)  -ErrorAction SilentlyContinue
             $results += $result
+            #>
         }
     }
 
@@ -569,7 +573,24 @@ Elseif ($reportType -eq "XML"){
                 $refs += "$($ref.Text) : $($ref.Url)"
             }
 
-            $result = New-Object psobject
+            $executeinspectorsobject = New-Object PSObject -Property @{
+              Findings = $findings
+              StartDate = $startdate
+              Inspectors = $selected_inspectors
+              }
+
+            $result = New-Object PSObject -ErrorAction SilentlyContinue -Property @{
+             ID = $findings_count.ToString()
+             FindingName = $finding.FindingName
+             ProductFamily = $finding.ProductFamily
+             Impact = $finding.Impact
+             CVS = $finding.CVS.ToString()
+             DefaultValue = $finding.DefaultValue
+             ExpectedValue = $finding.ExpectedValue
+            }
+            $results += $result
+            <#
+            $result = New-Object PSObject
             $result | Add-Member -MemberType NoteProperty -name ID -Value $findings_count.ToString() -ErrorAction SilentlyContinue
             $result | Add-Member -MemberType NoteProperty -name FindingName -Value $finding.FindingName -ErrorAction SilentlyContinue
             $result | Add-Member -MemberType NoteProperty -name ProductFamily -Value $finding.ProductFamily -ErrorAction SilentlyContinue
@@ -582,6 +603,7 @@ Elseif ($reportType -eq "XML"){
             #$result | Add-Member -MemberType NoteProperty -name Remediation -Value $finding.Remediation -ErrorAction SilentlyContinue
             #$result | Add-Member -MemberType NoteProperty -name References -Value $($refs | Out-String)  -ErrorAction SilentlyContinue
             $results += $result
+            #>
         }
     }
 $filename = "$out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss")_$org_name.xml"
@@ -695,7 +717,7 @@ function Banner {
      *** ***  ***      ***   ****    ****   *****         **** ****         ***          ***              ****         ****
 -------- ---  --- -------- --------  ----    ---- ------------ ----         ------------ ------------     ----         ----
 ******** ******** ******** ********  ****    **** ************ ****         ************ ************     ****                                                                    
-365Inspect - The M365 Environment Audit Tool - Version 0.0.9 Beta - Leonardo van de Weteringh
+365Inspect - The M365 Environment Audit Tool - Version 0.1.0 Beta - Leonardo van de Weteringh
 "@
   $banner2 = @"
 ........................................................................................
@@ -705,7 +727,7 @@ function Banner {
 .....##..##..##......##....##....##..##......##..##......##......##..##....##......##...
 .#####....####...#####...######..##..##...####...##......######...####.....##......##...
 ........................................................................................ 
-365Inspect - The M365 Environment Audit Tool - Version 0.0.9 Beta - Leonardo van de Weteringh                    
+365Inspect - The M365 Environment Audit Tool - Version 0.1.0 Beta - Leonardo van de Weteringh                    
 "@
 
   $banner3 = @"
@@ -717,7 +739,7 @@ function Banner {
        +#+ +#+    +#+        +#+     +#+     +#+  +#+#+#        +#+ +#+        +#+       +#+           +#+     #:#+#+#:#
 #+#    #+# #+#    #+# #+#    #+#     #+#     #+#   #+#+# #+#    #+# #+#        #+#       #+#    #+#    #+#        #+#
  ########   ########   ########  ########### ###    ####  ########  ###        ########## ########     ###        ###
-365Inspect - The M365 Environment Audit Tool - Version 0.0.9 Beta - Leonardo van de Weteringh                  
+365Inspect - The M365 Environment Audit Tool - Version 0.1.0 Beta - Leonardo van de Weteringh                  
 "@
 
   $banner4 = @"
@@ -728,7 +750,7 @@ function Banner {
  |:  1   |:  1   |:  1   |:  |           |__|                          
  |::.. . |::.. . |::.. . |::.|                                         
  `-------`-------`-------`---'                                         
-365Inspect - The M365 Environment Audit Tool - Version 0.0.9 Beta - Leonardo van de Weteringh
+365Inspect - The M365 Environment Audit Tool - Version 0.1.0 Beta - Leonardo van de Weteringh
 "@
 
   $banner5 = @"                                                 
@@ -742,7 +764,7 @@ function Banner {
     :!:  :!:  !:!      !:!  :!:  :!:  !:!      !:!   :!:       :!:       :!:         :!:       :::     
 :: ::::  :::: :::  :::: ::   ::   ::   ::  :::: ::    ::        :: ::::   ::: :::     ::        :       
  : : :    :: : :   :: : :   :    ::    :   :: : :     :        : :: ::    :: :: :     :                 
-365Inspect - The M365 Environment Audit Tool - Version 0.0.9 Beta - Leonardo van de Weteringh
+365Inspect - The M365 Environment Audit Tool - Version 0.1.0 Beta - Leonardo van de Weteringh
 "@
   $banner = @($banner1,$banner2,$banner3,$banner4,$banner5)
   $bannernumber = (Get-Random -Maximum $banner.length)
