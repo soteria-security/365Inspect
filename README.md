@@ -7,15 +7,13 @@
   </p>
 </div>
 
-
-<center>
 [![OS](https://img.shields.io/badge/OS-Windows-blue?style=flat&logo=Windows)](https://www.microsoft.com/en-gb/windows/?r=1)
 [![made-with-powershell](https://img.shields.io/badge/Made%20with-Powershell-1f425f.svg?logo=Powershell)](https://github.com/powershell/powershell)
 [![Docker](https://img.shields.io/badge/Docker-Coming_Soon-red.svg?style=flat&logo=docker)](https://github.com/asterictnl-lvdw/365Inspect)
 [![Maintenance](https://img.shields.io/badge/Maintained-yes-green.svg)](https://github.com/asterictnl-lvdw/365Inspect)
 [![GitHub](https://img.shields.io/github/license/asterictnl-lvdw/365inspect)](https://github.com/asterictnl-lvdw/365Inspect/blob/main/LICENSE)
 [![Documentation](https://img.shields.io/badge/Documentation-complete-green.svg?style=flat)](https://github.com/asterictnl-lvdw/365Inspect/)
-</center>
+	
 
 ## 1. Table of contents
 
