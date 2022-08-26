@@ -1,8 +1,8 @@
 {
-	"FindingName": "Non MFA - Admin Accounts Found!",
+	"FindingName": "Non MFA - User Accounts Found!",
 	"ProductFamily": "Microsoft Azure Directory",
 	"CVS": "8.2",
-	"Description": "Some of the Admin Accounts are not compliant. Users must have MFA enabled to not be targeted by password spraying attacks",
+	"Description": "Some of the User Accounts are not compliant. Users must have MFA enabled to not be targeted by password spraying attacks",
 	"Remediation": "Require MFA for all User accounts by enabling a Conditional Access Policy. Use the reference to configure the conditional access policy.",
 	"DefaultValue" : "Not MFA Enabled",
     "ExpectedValue" : "MFA Enabled for all Users",

@@ -1,38 +1,58 @@
-# 365Inspect+
-**The Open-Source, Automated Microsoft 365 Security Assessment Tool**
+# (365)Inspect+
 
-## About 365*Inspect+*
+<div>
+  <p align="center">
+    <b>The Open-Source, Automated Microsoft 365 Security Assessment Tool</b> </br></br>
+    <img src="https://i.imgur.com/yLZ9SCp.png" width="800"> 
+  </p>
+</div>
+
+
+<center>
+[![OS](https://img.shields.io/badge/OS-Windows-blue?style=flat&logo=Windows)](https://www.microsoft.com/en-gb/windows/?r=1)
+[![made-with-powershell](https://img.shields.io/badge/Made%20with-Powershell-1f425f.svg?logo=Powershell)](https://github.com/powershell/powershell)
+[![Docker](https://img.shields.io/badge/Docker-Coming_Soon-red.svg?style=flat&logo=docker)](https://github.com/asterictnl-lvdw/365Inspect)
+[![Maintenance](https://img.shields.io/badge/Maintained-yes-green.svg)](https://github.com/asterictnl-lvdw/365Inspect)
+[![GitHub](https://img.shields.io/github/license/asterictnl-lvdw/365inspect)](https://github.com/asterictnl-lvdw/365Inspect/blob/main/LICENSE)
+[![Documentation](https://img.shields.io/badge/Documentation-complete-green.svg?style=flat)](https://github.com/asterictnl-lvdw/365Inspect/)
+</center>
+
+## Table of contents
+
+<!-- TOC -->
+
+- [365Inspect+](#365inspect)
+    - [1. Table of contents](#1-table-of-contents)
+    - [2. Purpose](#2-purpose)
+    - [3. About 365Inspect+](#3-about-365inspect)
+    - [4. Configuration:](#4-configuration)
+    - [5. How-To-Use](#5-how-to-use)
+    - [6. Output](#6-output)
+    - [7. Necessary Privileges](#7-necessary-privileges)
+    - [8. Developing Additional Inspector Modules](#8-developing-additional-inspector-modules)
+        - [8.1. Example](#81-example)
+    - [9. About Program's Security](#9-about-programs-security)
+    - [10. License](#10-license)
+    - [11. Who talks about 365Inspect+](#11-who-talks-about-365inspect)
+    - [12. Special Thanks To...](#12-special-thanks-to)
+
+<!-- /TOC -->
+
+## Purpose
+
+Further the state of M365 security by authoring a PowerShell script that automates the security assessment of Microsoft 365 environments.
+
+## About 365Inspect+
 
 365*Inspect+* is a command-line utility that automatically audits an M365 environment. 365*Inspect+* retrieves configuration information from your M365 instance and validates whether or not a series of security best practices have been followed. 365*Inspect* creates a simple graphical HTML report that provides descriptions of any discovered security flaws as well as actionable recommendations you can use to improve the security state of your M365 instance.
 
 365*Inspect+* is open-source and completely free. It is authored in PowerShell, and all you need to use it are the appropriate PowerShell modules and credentials to your M365 administrator account. For our fellow tinkerers and security analysts out there, 365Inspect also supports a simple module system that allows you to easily author your own additions to the audit functionality. This means you can use it out of the box as a powerful M365 security scanner, or nerd out and expand the functionality using your own or other modules. Detailed directions are provided on the project’s Github page.
 
-## Advantages
+## Configuration:
 
-With 365*Inspect+* you can:
-	
-* Audit your M365 Environments or your customer's M365 environments,
-	
-* Create additional modules called 'Inspectors' to expand the depth of assessing an M365 environment,
+365Inspect+ requires the administrative PowerShell modules for Azure AD (We recommend installing the AzureADPreview module), Exchange administration, Microsoft Graph, Microsoft Intune, Microsoft Teams, and both the Sharepoint and PnP SharePoint administration modules.
 
-* Create a clear report with the vulnerabilities and misconfigurations regarding the M365 environment,
-
-## Differences Between The Standard and Plus Version
-
-The following differences are existing:
-- The authentication is differently designed so MFA is a bit faster if an username is provided in some cases
-- There is less output when authenticating and the authentication is validated as a message is displayed
-- There is an function that allows updating the modules to their latest version
-- There is an function that removes the old modules to keep all modules up-to-date
-- There is an functiont that briefly checks if any module is installed correctly
-- The error handling is different as there is less code redundancy 
-- The tool will prompt for Admin Privileges if the .ps1 is ran without it, so people do not have to run an additional prompt.
-
-## Setup
-
-365*Inspect+* requires the administrative PowerShell modules for Microsoft Online, Azure AD (We recommend installing the AzureADPreview module), Azure Powershell, Exchange Online Administration, Sharepoint Administration, Microsoft Intune,Microsoft Teams, Microsoft Graph and PnP SharePoint.
-
-The 365*Inspect+*.ps1 PowerShell script will validate the installed modules.
+The 365Inspect+.ps1 PowerShell script will validate the installed modules and minimum version of the modules necessary for the Inspectors to function.
 
 If you do not have these modules installed, you will be prompted to install them, and with your approval, the script will attempt installation. Otherwise, you should be able to install them with the following commands in an administrative PowerShell prompt, or by following the instructions at the references below:
 
@@ -54,29 +74,36 @@ If you do not have these modules installed, you will be prompted to install them
 
 	Install-Module -Name Microsoft.Graph.Intune
 
-[Install MSOnline PowerShell](https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-msonlinev1?view=azureadps-1.0)
+References:
 
-[Install Azure AD PowerShell](https://docs.microsoft.com/en-us/powershell/module/azuread/?view=azureadps-2.0)
+* [Install MSOnline PowerShell](https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-msonlinev1?view=azureadps-1.0)
 
-[Install Azure PowerShell](https://docs.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-8.0.0)
+* [Install Azure AD PowerShell](https://docs.microsoft.com/en-us/powershell/module/azuread/?view=azureadps-2.0)
 
-[Install PnP SharePoint](https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-pnp/sharepoint-pnp-cmdlets)
+* [Install Azure PowerShell](https://docs.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-8.0.0)
 
-[Install Exchange Online PowerShell](https://docs.microsoft.com/en-us/powershell/exchange/exchange-online-powershell-v2?view=exchange-ps)
+* [Install PnP SharePoint](https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-pnp/sharepoint-pnp-cmdlets)
 
-[Install SharePoint](https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-online/connect-sharepoint-online?view=sharepoint-ps)
+* [Install Exchange Online PowerShell](https://docs.microsoft.com/en-us/powershell/exchange/exchange-online-powershell-v2?view=exchange-ps)
 
-[Install Microsoft Graph SDK](https://docs.microsoft.com/en-us/graph/powershell/installation)
+* [Install SharePoint](https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-online/connect-sharepoint-online?view=sharepoint-ps)
 
-[Install Microsoft Teams PowerShell Module](https://docs.microsoft.com/en-us/microsoftteams/teams-powershell-install)
+* [Install Microsoft Graph SDK](https://docs.microsoft.com/en-us/graph/powershell/installation)
 
-[Install Microsoft Intune PowerShell SDK](https://github.com/microsoft/Intune-PowerShell-SDK)
+* [Install Microsoft Teams PowerShell Module](https://docs.microsoft.com/en-us/microsoftteams/teams-powershell-install)
 
-Once the above are installed, download the 365*Inspect+* source code folder from Github using your browser or by using *git clone*.
+* [Install Microsoft Intune PowerShell SDK](https://github.com/microsoft/Intune-PowerShell-SDK)
 
-As you will run 365*Inspect+* with administrative privileges, you should place it in a logical location and make sure the contents of the folder are readable and writable only by the administrative user. This is especially important if you intend to install 365*Inspect* in a location where it will be executed frequently or used as part of an automated process.
+Once the above are installed, download the 365*Inspect* source code folder from Github using your browser or by using *git clone*.
 
-## Usage
+As you will run 365*Inspect* with administrative privileges, you should place it in a logical location and make sure the contents of the folder are readable and writable only by the administrative user. This is especially important if you intend to install 365*Inspect+* in a location where it will be executed frequently or used as part of an automated process.
+
+To make sure you will not encounter any issues run the following commands:
+
+	Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
+	Get-ChildItem -Path 'Directoryof365Inspect+' -Recurse | Unblock-File
+
+## How-To-Use
 
 To run 365*Inspect+*, open a PowerShell console and navigate to the folder you downloaded 365*Inspect+* into:
 
@@ -88,28 +115,26 @@ All 365*Inspect+* requires to inspect your O365 tenant is access via an O365 acc
 
 Execution of 365*Inspect+* looks like this:
 
-	.\365Inspect+.ps1 -OrgName <value> -OutPath <value> (-Username <username> -Password <password> -MFA -SkipUpdateCheck *these are optional*)
+	.\365Inspect+.ps1 -OrgName <value> -OutPath <value> -reportType <HTML/CSV/XML> (-Username <username> -Password <password> -SkipUpdateCheck *these are optional*)
 
-For example, to log in by entering your credentials in a browser with MFA support:
+For example, to log in by entering your credentials in a browser with MFA support and exporting an HTML report:
 
-	.\365Inspect+.ps1 -OrgName mycompany -OutPath ..\365_report -MFA
+	.\365Inspect+.ps1 -OrgName mycompany -OutPath ..\365_report -reportType HTML
 
 365*Inspect+* can be run with only specified Inspector modules, or conversely, by excluding specified modules.
 
-For example, to log in by entering your credentials in a browser with MFA support:
+For example, to log in by entering your credentials in a browser with MFA support and exporting an HTML report:
 
-	.\365Inspect+.ps1 -OrgName mycompany -OutPath ..\365_report -MFA -SelectedInspectors inspector1, inspector2
+	.\365Inspect+.ps1 -OrgName mycompany -OutPath ..\365_report -reportType HTML -SelectedInspectors inspector1, inspector2
 
 or
 
-	.\365Inspect+.ps1 -OrgName mycompany -OutPath ..\365_report -MFA -ExcludedInspectors inspector1, inspector2, inspector3
-
-To break down the parameters further:
+	.\365Inspect+.ps1 -OrgName mycompany -OutPath ..\365_report -reportType HTML -ExcludedInspectors inspector1, inspector2, inspector3
 
 * *OrgName* is the name of the core organization or "company" of your O365 instance, which will be inspected. 
 	* If you do not know your organization name, you can navigate to the list of all Exchange domains in O365. The topmost domain should be named *domain_name*.onmicrosoft.com. In that example, *domain_name* is your organization name and should be used when executing 365*Inspect*.
 * *OutPath* is the path to a folder where the report generated by 365*Inspect* will be placed.
-* *MFA* is an switch parameter that is optional and could be used if authentication requires MFA
+* *reportType* is an choice paramers where users can specify the output of the report. Choices are HTML, CSV or XML format.
 * *Username* is an string paramter that could be provided if the Username is constantly the same for authentication
 	* The *Password* parameter is optional to use if you use it with the *Username* parameter.
 * *Password* is an string parameter that allows the user to authenticate with their password.
@@ -118,7 +143,7 @@ To break down the parameters further:
 * *ExcludedInspectors*  is the name or names of the inspector or inspectors you wish to prevent from running with 365*Inspect*. If multiple inspectors are selected they must be comma separated. All modules other included modules will be run.
 * *SkipUpdateCheck* allows the user to skip the update and installation check. Only use this parameter if you know that your modules are up-to-date and are all installed correctly. 
 
-When you execute 365*Inspect+* with *-MFA*, it may produce several graphical login prompts that you must sequentially log into. This is normal behavior as Exchange, SharePoint etc. have separate administration modules and each requires a different login session. If you simply log in the requested number of times, 365*Inspect+* should begin to execute. This is the opposite of fun and we're seeking a workaround, but needless to say we feel the results are worth the minute spent looking at MFA codes.
+When you execute 365*Inspect+* normally, it may produce several graphical login prompts that you must sequentially log into. This is normal behavior as Exchange, SharePoint etc. have separate administration modules and each requires a different login session. If you simply log in the requested number of times, 365*Inspect+* should begin to execute. For semi-automation you should specify the -Username parameter that would allow logging in into some of the modules automatically. Sadly there are some modules where it is required to login with full credentials, we cannot mitigate this issue. So we have to wait for an update in the future to allow the support of this functionality.
 
 As 365*Inspect+* executes, it will steadily print status updates indicating which inspection task is running.
 
@@ -126,12 +151,11 @@ As 365*Inspect+* executes, it will steadily print status updates indicating whic
 
 ## Output
 
-365*Inspect+* creates the directory specified in the out_path parameter. This directory is the result of the entire 365*Inspect* inspection. It contains four items of note:
-
-* *Report.html*: graphical report that describes the M365 security issues identified by 365*Inspect*, lists O365 objects that are misconfigured, and provides remediation advice.
+365*Inspect+* creates a directory specified in the out_path parameter e.g. (orgname_timestamp). This directory is the result of the entire 365*Inspect* inspection. The following items are included:
+* *Report_timestamp_orgname.html/csv/xml*: graphical report that describes the M365 security issues identified by 365*Inspect+*, lists O365 objects that are misconfigured, and provides remediation advice.
 * *Various text files named [Inspector-Name]*: these are raw output from inspector modules and contain a list (one item per line) of misconfigured O365 objects that contain the described security flaw. For example, if a module Inspect-FictionalMFASettings were to detect all users who do not have MFA set up, the file "Inspect-FictionalMFASettings" in the report ZIP would contain one user per line who does not have MFA set up. This information is only dumped to a file in cases where more than 15 affected objects are discovered. If less than 15 affected objects are discovered, the objects are listed directly in the main HTML report body.
-* *Report.zip*: zipped version of this entire directory, for convenient distribution of the results in cases where some inspector modules generated a large amount of findings.
-* *Log directory*: 365*Inspect+* logs any errors encountered during the scripts execution to a timestamped log file found in the Log directory
+* *Report_timestamp_orgname.zip*: zipped version of this entire directory, for convenient distribution of the results in cases where some inspector modules generated a large amount of findings.
+* *Log directory*: 365*Inspect+* logs any errors encountered during the scripts execution to a timestamped log file found in the Log directory.
 
 ## Necessary Privileges
 
@@ -140,7 +164,7 @@ As 365*Inspect+* executes, it will steadily print status updates indicating whic
 * Global Administrator
 * SharePoint Administrator
 
-We realize that these are extremely permissive roles, unfortunately due to the use of Microsoft Graph, we are restricted from using lesser prileges by Microsoft. Application and Cloud Application Administrator roles (used to grant delegated and application permissions) are restricted from granting permissions for Microsoft Graph or Azure AD PowerShell modules. [https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-administrator](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-administrator) 
+We realize that these are extremely permissive roles, unfortunately due to the use of Microsoft Graph, we are restricted from using lesser prileges by Microsoft. Application and Cloud Application Administrator roles (used to grant delegated and application permissions) are restricted from granting permissions for Microsoft Graph or Azure AD PowerShell modules. [https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-administrator](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-administrator)
 
 ## Developing Additional Inspector Modules
 
@@ -157,9 +181,8 @@ The PowerShell and JSON file names must be identical for 365*Inspect* to recogni
 
 ### Example
 
-Example .ps1 file, BypassingSafeAttachments.ps1:
+Example .ps1 file, Exchange-BypassingSafeAttachments.ps1:
 ```
-#Error Handling 1st part
 $ErrorActionPreference = "Stop"
 
 $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1"
@@ -171,6 +194,7 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 # 365Inspect's built-in modules all follow this pattern.
 function Inspect-BypassingSafeAttachments {
 Try {
+
 	# Query some element of the O365 environment to inspect. Note that we did not have to authenticate to Exchange
 	# to fetch these transport rules within this module; assume main 365Inspect harness has logged us in already.
 	$safe_attachment_bypass_rules = (Get-TransportRule | Where-Object { $_.SetHeaderName -eq "X-MS-Exchange-Organization-SkipSafeAttachmentProcessing" }).Identity
@@ -179,13 +203,13 @@ Try {
 	# return a list of those objects.
 	If ($safe_attachment_bypass_rules.Count -ne 0) {
 		return $safe_attachment_bypass_rules
-	}	
+	}
+	
 	# If none of the parsed O365 objects were found to have the security flaw this module is inspecting for,
 	# returning $null indicates to 365Inspect that there were no findings for this module.
 	return $null
-}
-# Error Handling to display errors on the console
 
+}
 Catch {
 Write-Warning "Error message: $_"
 $message = $_.ToString()
@@ -200,23 +224,26 @@ Write-Verbose "Write to log"
 Write-ErrorLog -message $message -exception $exception -scriptname $scriptname
 Write-Verbose "Errors written to log"
 }
+
 }
 
 # Return the results of invoking the inspector function.
 return Inspect-BypassingSafeAttachments
 ```
 
-Example .json file, BypassingSafeAttachments.json:
+Example .json file, Exchange-BypassingSafeAttachments.json:
 ```
 {
 	"FindingName": "Do Not Bypass the Safe Attachments Filter",
+	"ProductFamily": "Microsoft Exchange",
+	"CVS": "7.5",
 	"Description": "In Exchange, it is possible to create mail transport rules that bypass the Safe Attachments detection capability. The rules listed above bypass the Safe Attachments capability. Consider reviewing these rules, as bypassing the Safe Attachments capability even for a subset of senders could be considered insecure depending on the context or may be an indicator of compromise.",
 	"Remediation": "Navigate to the Mail Flow → Rules screen in the Exchange Admin Center. Look for the offending rules and begin the process of assessing who created them and whether they are necessary to the continued function of the organization. If they are not, remove the rules.",
 	"DefaultValue" : "None",
     "ExpectedValue" : "None",
     "ReturnedValue" : "",
-    "Impact": "Critical",
-	"RiskRating" : "",
+    "Impact": "High",
+	"RiskRating" : "High",
     "AffectedObjects": "",
 	"References": [
 		{
@@ -244,5 +271,13 @@ You have just created the BypassingSafeAttachments Inspector module. Yay!
 * No untrusted user should have write access to the 365*Inspect+* folder/files, as that user could then overwrite scripts or templates therein and induce you to run malicious code.
 * No script module should be placed the Inspectors folder unless you trust the source of that script module.
 
+## License
+
+365Inspect+ is an open-source and free software released under the [MIT License](https://github.com/asterictnl-lvdw/365Inspect/blob/main/LICENSE).
+
+## Who talks about 365Inspect+
+- [SoteriaSecurity](https://soteria.io/soteria-365-inspect/)
+
 ## Special Thanks To...
+* [SoteriaSecurity](https://github.com/soteria-security/365Inspect): For allowing me to create the fork and this version!
 * [CISSecurity](https://www.cisecurity.org/cis-benchmarks/): For providing the M365 benchmarks to make audit scripts

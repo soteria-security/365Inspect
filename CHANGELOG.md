@@ -1,3 +1,63 @@
+<!-- TOC -->
+
+- [v0.0.1+beta 29-04-2022](#v001beta-29-04-2022)
+    - [1. Added:](#1-added)
+    - [2. Changed:](#2-changed)
+    - [3. Fixed:](#3-fixed)
+    - [4. Removed:](#4-removed)
+    - [5. Common Issues:](#5-common-issues)
+- [v0.0.3beta+ 21-06-2022](#v003beta-21-06-2022)
+    - [1. Added:](#1-added)
+    - [2. Changed:](#2-changed)
+    - [3. Fixed:](#3-fixed)
+    - [4. Removed:](#4-removed)
+    - [5. Common Issues:](#5-common-issues)
+    - [6. Expected in the future:](#6-expected-in-the-future)
+- [v0.0.5beta+ 23-06-2022](#v005beta-23-06-2022)
+    - [1. Added:](#1-added)
+    - [2. Changed:](#2-changed)
+    - [3. Fixed:](#3-fixed)
+    - [4. Removed:](#4-removed)
+    - [5. Common Issues/remarks:](#5-common-issuesremarks)
+    - [6. Expected in the future:](#6-expected-in-the-future)
+- [v0.0.6beta+ 13-07-2022](#v006beta-13-07-2022)
+    - [1. Added:](#1-added)
+    - [2. Changed:](#2-changed)
+    - [3. Fixed:](#3-fixed)
+    - [4. Removed:](#4-removed)
+    - [5. Common Issues/remarks:](#5-common-issuesremarks)
+    - [6. Expected in the future:](#6-expected-in-the-future)
+- [v0.0.7 beta 29-07-2022](#v007-beta-29-07-2022)
+    - [1. Added:](#1-added)
+    - [2. Changed:](#2-changed)
+    - [3. Fixed:](#3-fixed)
+    - [4. Removed:](#4-removed)
+    - [5. Common Issues/remarks:](#5-common-issuesremarks)
+    - [6. Expected in the future:](#6-expected-in-the-future)
+- [v0.0.8 beta 01-08-2022](#v008-beta-01-08-2022)
+    - [1. Added:](#1-added)
+    - [2. Changed:](#2-changed)
+    - [3. Fixed:](#3-fixed)
+    - [4. Removed](#4-removed)
+    - [5. Common Issues/remarks:](#5-common-issuesremarks)
+- [v0.0.9 beta 15-08-2022](#v009-beta-15-08-2022)
+    - [1. Added:](#1-added)
+    - [2. Changed:](#2-changed)
+    - [3. Fixed:](#3-fixed)
+    - [4. Removed:](#4-removed)
+    - [5. Common Issues/remarks:](#5-common-issuesremarks)
+- [v0.1.0 beta 19-08-2022](#v010-beta-19-08-2022)
+    - [1. Fixed:](#1-fixed)
+    - [2. Changed:](#2-changed)
+    - [3. Removed:](#3-removed)
+- [v0.2.0 beta 26-08-2022](#v020-beta-26-08-2022)
+    - [1. Fixed:](#1-fixed)
+    - [2. Changed](#2-changed)
+    - [3. Removed:](#3-removed)
+- [Coming in v1.0.0 stable](#coming-in-v100-stable)
+
+<!-- /TOC -->
+
 # v0.0.1+beta 29-04-2022
 ## Added:
 - SkipUpdateCheck Parameter so no updates will be installed! This is a [switch] parameter
@@ -239,6 +299,16 @@ Removed some non-functional things inside the template that were not displaying 
 
 ## Removed:
 - Removed old commented code that is not necessary anymore
+
+# v0.2.0 beta 26-08-2022
+## Fixed:
+
+## Changed
+- README.md major update
+- Some code and comments to make things more clear
+
+## Removed:
+- Some unnecessary code 
 
 # Coming in v1.0.0 stable
 - Rename to 365InspectPlus
