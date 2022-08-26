@@ -136,7 +136,6 @@ or
 * *Username* is an string paramter that could be provided if the Username is constantly the same for authentication
 	* The *Password* parameter is optional to use if you use it with the *Username* parameter.
 * *Password* is an string parameter that allows the user to authenticate with their password.
-	* You can't use the MFA parameter in combination with *Password* parameter!
 * *SelectedInspectors* is the name or names of the inspector or inspectors you wish to run with 365*Inspect*. If multiple inspectors are selected they must be comma separated. Only the named inspectors will be run.
 * *ExcludedInspectors*  is the name or names of the inspector or inspectors you wish to prevent from running with 365*Inspect*. If multiple inspectors are selected they must be comma separated. All modules other included modules will be run.
 * *SkipUpdateCheck* allows the user to skip the update and installation check. Only use this parameter if you know that your modules are up-to-date and are all installed correctly. 
