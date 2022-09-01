@@ -1,9 +1,9 @@
 ﻿<#
 Author: Soteria-Se, Leonardo van de Weteringh
 Copright: 2022
-Version: 0.2.0 beta
+Version: 0.3.0 beta
 Usage: ./365Inspect+.ps1
-Date: 26-08-2022
+Date: 29-08-2022
 #>
 
 <#
@@ -120,10 +120,9 @@ function CheckInstalledModules {
     foreach ($module in $O365Modules) {
       if ($installed.Name -notcontains $module) {
         Write-Host "`n$module is not installed." -ForegroundColor Red
-        Write-Warning 'The module may be installed by running "Install-Module $module -Force -Scope CurrentUser -Confirm:$false" in an elevated PowerShell window.'
         $install = Read-Host -Prompt "Would you like to attempt installation now? (Y|N)"
         if ($install -eq 'y') {
-          Install-Module $module -Scope CurrentUser -Force -Confirm:$false
+          Install-Module $module -Scope CurrentUser -Force -Confirm:$false -AllowClobber
           $count++
         }
       } else {
@@ -134,8 +133,22 @@ function CheckInstalledModules {
 
     # Get all installed modules that have a newer version available
     $Modules = @("MicrosoftTeams","MSOnline","Az","AzureADPreview","ExchangeOnlineManagement","Microsoft.Online.Sharepoint.PowerShell","Microsoft.Graph","Microsoft.Graph.Intune","PnP.PowerShell")
-    $PowerShellGetVersion = Get-InstalledModule -Name "PowerShellGet" -ErrorAction Stop
-    Write-Host "Checking all installed modules for available updates."
+    
+    # For brand new users PowerShellGetVersion can be updated as it is recommended to update it to v2.0.0
+    $PowerShellGetVersion = Get-InstalledModule -Name "PowerShellGet" -ErrorAction SilentlyContinue
+    if ($PowerShellGetVersion.Name -notcontains "PowerShellGet")
+    {
+     Write-Host "`nPowerShellGet V2 is not installed." -ForegroundColor Red
+        $install = Read-Host -Prompt "Would you like to attempt installation now? (Y|N)"
+        if ($install -eq 'y') {
+          Write-Host "Installing NuGet First..."
+          Install-PackageProvider -Name NuGet -Force -Confirm:$false | Out-Null
+          Write-Host "Installing PowerShellGet..."
+          Install-Module "PowerShellGet" -Scope CurrentUser -Force -Confirm:$false -AllowClobber | Out-Null
+          $count++
+        }
+    }
+    Write-Host "Checking all installed modules for available updates..."
     $CurrentModules = Get-InstalledModule | Where-Object { $Modules -contains $_.Name}
 
     $CurrentModules | ForEach-Object {
@@ -273,16 +286,14 @@ $j = 0
 
 <# Actual Script #> 
 foreach ($command in $commands){
-try{Write-Host "Connecting to $($programs[$i])..."; iex $command}catch{Write-Error "Could not Connect!"}
+Write-Host "Connecting to $($programs[$i])..."; iex $command
 if (iex $validation[$j]){
 Write-Host "Connected to: $($programs[$i])!" -ForegroundColor DarkYellow -BackgroundColor Black
 $i++
 $j++
 }else{
-Write-Error "Could not Connect!"
-$i++
-$j++
-break
+Write-Error "Could not Connect to $($programs[$i])!"
+exit #Proper Exit instead of breaking the loop
 }
 }
 }
@@ -683,6 +694,7 @@ function SaveFile() {
   }
 }
 
+# In Case you are having trouble with connecting to services. Run this script and add DisconnectServices behind it!
 function DisconnectServices {
   Write-Output "Disconnecting from Microsoft Teams..."
   Disconnect-MicrosoftTeams
@@ -714,7 +726,7 @@ function Banner {
      *** ***  ***      ***   ****    ****   *****         **** ****         ***          ***              ****         ****
 -------- ---  --- -------- --------  ----    ---- ------------ ----         ------------ ------------     ----         ----
 ******** ******** ******** ********  ****    **** ************ ****         ************ ************     ****                                                                    
-365Inspect - The M365 Environment Audit Tool - Version 0.2.0 Beta - Leonardo van de Weteringh
+365Inspect+ - The M365 Environment Audit Tool - Version 0.3.0 Beta - Leonardo van de Weteringh
 "@
   $banner2 = @"
 ........................................................................................
@@ -724,7 +736,7 @@ function Banner {
 .....##..##..##......##....##....##..##......##..##......##......##..##....##......##...
 .#####....####...#####...######..##..##...####...##......######...####.....##......##...
 ........................................................................................ 
-365Inspect - The M365 Environment Audit Tool - Version 0.2.0 Beta - Leonardo van de Weteringh                    
+365Inspect+ - The M365 Environment Audit Tool - Version 0.3.0 Beta - Leonardo van de Weteringh                    
 "@
 
   $banner3 = @"
@@ -736,7 +748,7 @@ function Banner {
        +#+ +#+    +#+        +#+     +#+     +#+  +#+#+#        +#+ +#+        +#+       +#+           +#+     #:#+#+#:#
 #+#    #+# #+#    #+# #+#    #+#     #+#     #+#   #+#+# #+#    #+# #+#        #+#       #+#    #+#    #+#        #+#
  ########   ########   ########  ########### ###    ####  ########  ###        ########## ########     ###        ###
-365Inspect - The M365 Environment Audit Tool - Version 0.2.0 Beta - Leonardo van de Weteringh                  
+365Inspect+ - The M365 Environment Audit Tool - Version 0.3.0 Beta - Leonardo van de Weteringh                  
 "@
 
   $banner4 = @"
@@ -747,7 +759,7 @@ function Banner {
  |:  1   |:  1   |:  1   |:  |           |__|                          
  |::.. . |::.. . |::.. . |::.|                                         
  `-------`-------`-------`---'                                         
-365Inspect - The M365 Environment Audit Tool - Version 0.2.0 Beta - Leonardo van de Weteringh
+365Inspect+ - The M365 Environment Audit Tool - Version 0.3.0 Beta - Leonardo van de Weteringh
 "@
 
   $banner5 = @"                                                 
@@ -761,7 +773,7 @@ function Banner {
     :!:  :!:  !:!      !:!  :!:  :!:  !:!      !:!   :!:       :!:       :!:         :!:       :::     
 :: ::::  :::: :::  :::: ::   ::   ::   ::  :::: ::    ::        :: ::::   ::: :::     ::        :       
  : : :    :: : :   :: : :   :    ::    :   :: : :     :        : :: ::    :: :: :     :                 
-365Inspect - The M365 Environment Audit Tool - Version 0.2.0 Beta - Leonardo van de Weteringh
+365Inspect+ - The M365 Environment Audit Tool - Version 0.3.0 Beta - Leonardo van de Weteringh
 "@
   $banner = @($banner1,$banner2,$banner3,$banner4,$banner5)
   $bannernumber = (Get-Random -Maximum $banner.length)

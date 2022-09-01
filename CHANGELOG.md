@@ -310,6 +310,14 @@ Removed some non-functional things inside the template that were not displaying 
 ## Removed:
 - Some unnecessary code 
 
+# v0.3.0 beta 29-08-2022
+## Fixed:
+- An issue with installation of packages where the modules were not installed it would cause an error at the Az module where Az.Billing contains an command that is already existing. This has been resolved by adding the -AllowClobber parameter to the install script.
+- An issue where there is no check afterwards if the installation succeeded or not this has been added to check if the installation has been successful or not!
+- Fixed an issue if PowerShellGet was not installed the program will stop running and error at the update check and uninstall of multiple versions
+- Fixed an issue when user cancelled authentication that the program would not exit as it broke the loop instead and would proceed connecting and executing inspectors instead.
+
+
 # Coming in v1.0.0 stable
 - Rename to 365InspectPlus
 - Engine based on ORCA and MCCA
