@@ -18,7 +18,7 @@ Try {
 		ForEach ($rule in $rules) {
 			$name = $rule.Name
 
-            $pattern = '[\\\[\]\{\}/():;\*]'
+            $pattern = '[\\\[\]\{\}/():;\*\"#<>\$&+!`|=\?@\s'']'
 
             $name = $name -replace $pattern, '-'
 
