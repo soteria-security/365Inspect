@@ -43,9 +43,9 @@ param (
 	[string] $UserPrincipalName,
     [Parameter(Mandatory = $false,
         HelpMessage = "Report Output Format")]
-    [ValidateSet("HTML", "CSV", "XML",
-        IgnoreCase = $true)]
-    [string] $reportType = "HTML",
+    [ValidateSet("All", "HTML", "CSV", "XML", "JSON",
+    IgnoreCase = $true)]
+    [string] $reportType = "All",
 	[Parameter(Mandatory = $true,
 		HelpMessage = 'Auth type')]
 	[ValidateSet('ALREADY_AUTHED', 'MFA',
@@ -106,7 +106,7 @@ Function Confirm-Close{
 
 Function Confirm-InstalledModules{
     #Check for required Modules and versions; Prompt for install if missing and import.
-	
+	$MSOL =  @{ Name="MSOnline"; MinimumVersion="1.1.183.66" }
 	$AzureADPreview = @{ Name="AzureADPreview"; MinimumVersion="2.0.2.149" }
     $ExchangeOnlineManagement = @{ Name="ExchangeOnlineManagement"; MinimumVersion="2.0.5" }
     $SharePoint = @{ Name="Microsoft.Online.SharePoint.PowerShell"; MinimumVersion="16.0.22601.12000" }
@@ -115,7 +115,7 @@ Function Confirm-InstalledModules{
     $PnP = @{ Name="PnP.PowerShell"; MinimumVersion="1.10.0" }
     $MSTeams = @{ Name="MicrosoftTeams"; MinimumVersion="4.4.1" }
 
-    $modules = @($AzureADPreview,$ExchangeOnlineManagement,$SharePoint,$Graph,$Intune,$PnP,$MSTeams)
+    $modules = @($MSOL,$AzureADPreview,$ExchangeOnlineManagement,$SharePoint,$Graph,$Intune,$PnP,$MSTeams)
     $count = 0
 
     foreach ($module in $modules){
@@ -224,7 +224,7 @@ ForEach ($selected_inspector in $selected_inspectors) {
 }
 
 # Function that retrieves templating information from 
-If ($reportType -eq "HTML"){
+Function HTML-Report {
     # Function that retrieves templating information from 
     function Parse-Template {
         $template = (Get-Content ".\365InspectDefaultTemplate.html") -join "`n"
@@ -256,8 +256,8 @@ If ($reportType -eq "HTML"){
     $templates = Parse-Template
     
     # Maintain a running list of each finding, represented as HTML
-    $short_findings_html = '' 
-    $long_findings_html = ''
+    $short_findings_html = "" 
+    $long_findings_html = ""
     
     $findings_count = 0
     
@@ -281,8 +281,22 @@ If ($reportType -eq "HTML"){
             $long_finding_html = $long_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
             
             # Finding Impact
-            $short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $finding.Impact)
-            $long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $finding.Impact)
+            If ($finding.Impact -eq 'Critical'){
+                $htmlImpact = '<span style="color:Crimson;"><strong>Critical</strong></span>'
+                $short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $htmlImpact)
+                $long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $htmlImpact)
+            }
+            ElseIf ($finding.Impact -eq 'High'){
+                $htmlImpact = '<span style="color:DarkOrange;"><strong>High</strong></span>'
+                $short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $htmlImpact)
+                $long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $htmlImpact)
+            }
+            Else{
+                $short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $finding.Impact)
+                $long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $finding.Impact)
+            }
+            $short_finding_html = $short_finding_html.Replace("{{RISKRATING}}", $finding.RiskRating)
+            $long_finding_html = $long_finding_html.Replace("{{RISKRATING}}", $finding.RiskRating)
             
             # Finding description
             $long_finding_html = $long_finding_html.Replace("{{DESCRIPTION}}", $finding.Description)
@@ -349,7 +363,8 @@ If ($reportType -eq "HTML"){
     
     $output | Out-File -FilePath $out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss").html
 }
-Elseif ($reportType -eq "CSV"){
+
+Function CSV-Report {
     $sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Impact){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}};$_.FindingName}
 
     $results = @()
@@ -370,12 +385,18 @@ Elseif ($reportType -eq "CSV"){
             $result | Add-Member -MemberType NoteProperty -name ID -Value $findings_count.ToString() -ErrorAction SilentlyContinue
             $result | Add-Member -MemberType NoteProperty -name FindingName -Value $finding.FindingName -ErrorAction SilentlyContinue
             $result | Add-Member -MemberType NoteProperty -name AffectedObjects -Value $("$($finding.AffectedObjects)" | Out-String).Trim() -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name Finding -Value $finding.Description -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name DefaultValue -Value $finding.DefaultValue -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name ExpectedValue -Value $finding.ExpectedValue -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name Finding -Value $(($finding.Description) -join " ") -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name DefaultValue -Value $(($finding.DefaultValue) -join " ") -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name ExpectedValue -Value $(($finding.ExpectedValue) -join " ") -ErrorAction SilentlyContinue
             $result | Add-Member -MemberType NoteProperty -name InherentRisk -Value $finding.Impact -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name Remediation -Value $finding.Remediation -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name References -Value $($refs | Out-String)  -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name 'Residual Risk' -Value " "
+            $result | Add-Member -MemberType NoteProperty -name Remediation -Value $(($finding.Remediation) -join " ") -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name References -Value $(($refs) -join ';')  -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name 'Remediation Status' -Value " "
+            $result | Add-Member -MemberType NoteProperty -name 'Required Resources' -Value " "
+            $result | Add-Member -MemberType NoteProperty -name 'Start Date' -Value " "
+            $result | Add-Member -MemberType NoteProperty -name 'Completion Date' -Value " "
+            $result | Add-Member -MemberType NoteProperty -name 'Notes' -Value " "
             
             $results += $result
         }
@@ -384,7 +405,8 @@ Elseif ($reportType -eq "CSV"){
     $results | Export-Csv "$out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss").csv" -Delimiter '^' -NoTypeInformation -Append -Force
 
 }
-Elseif ($reportType -eq "XML"){
+
+Function XML-Report {
     $sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Impact){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}};$_.FindingName}
 
     $results = @()
@@ -409,6 +431,7 @@ Elseif ($reportType -eq "XML"){
             $result | Add-Member -MemberType NoteProperty -name DefaultValue -Value $finding.DefaultValue -ErrorAction SilentlyContinue
             $result | Add-Member -MemberType NoteProperty -name ExpectedValue -Value $finding.ExpectedValue -ErrorAction SilentlyContinue
             $result | Add-Member -MemberType NoteProperty -name InherentRisk -Value $finding.Impact -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name 'Residual Risk' -Value " "
             $result | Add-Member -MemberType NoteProperty -name Remediation -Value $finding.Remediation -ErrorAction SilentlyContinue
             $result | Add-Member -MemberType NoteProperty -name References -Value $($refs | Out-String)  -ErrorAction SilentlyContinue
             
@@ -417,6 +440,65 @@ Elseif ($reportType -eq "XML"){
     }
 
     $results | Export-Clixml -Depth 3 -Path "$out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss").xml"
+}
+
+Function JSON-Report {
+    $sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Impact){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}};$_.FindingName}
+
+    $results = @()
+
+    $findings_count = 0
+
+    foreach ($finding in $sortedFindings){
+        If ($null -NE $finding.AffectedObjects) {
+            $findings_count += 1
+
+            $refs = @()
+
+            foreach ($ref in $finding.References){
+                $refs += "$($ref.Text) : $($ref.Url)"
+            }
+
+            $result = New-Object psobject
+            $result | Add-Member -MemberType NoteProperty -name ID -Value $findings_count.ToString() -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name FindingName -Value $finding.FindingName -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name AffectedObjects -Value $("$($finding.AffectedObjects)" | Out-String).Trim() -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name Finding -Value $finding.Description -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name DefaultValue -Value $finding.DefaultValue -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name ExpectedValue -Value $finding.ExpectedValue -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name InherentRisk -Value $finding.Impact -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name 'Residual Risk' -Value " "
+            $result | Add-Member -MemberType NoteProperty -name Remediation -Value $finding.Remediation -ErrorAction SilentlyContinue
+            $result | Add-Member -MemberType NoteProperty -name References -Value $($refs | Out-String)  -ErrorAction SilentlyContinue
+            
+            $results += $result
+        }
+    }
+
+    $results | ConvertTo-Json | Out-File -FilePath $out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss").json
+}
+
+Function All-Report {
+    CSV-Report
+    XML-Report
+    JSON-Report
+    HTML-Report
+}
+
+If ($reportType -eq "HTML"){
+	HTML-Report
+}
+Elseif ($reportType -eq "CSV"){
+	CSV-Report
+}
+Elseif ($reportType -eq "XML"){
+	XML-Report
+}
+Elseif ($reportType -eq "JSON"){
+	JSON-Report
+}
+Else {
+    All-Report
 }
 
 $compress = @{
