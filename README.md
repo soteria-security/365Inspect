@@ -1,5 +1,5 @@
 # (365)Inspect+
-## From 1st of December 2022 the Project will go further under a different name: M365SAT. The public release of M365SAT is scheduled on 1st of January 2022
+## From 1st of December 2022 the Project will go further under a different name: M365SAT. The public release of M365SAT is scheduled on 1st of January 2023
 <div>
   <p align="center">
     <b>The Open-Source, Automated Microsoft 365 Security Assessment Tool</b> </br></br>
