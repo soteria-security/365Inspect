@@ -18,9 +18,9 @@ Try {
         ForEach ($rule in $rules) {    
             if (($rule.FromScope -eq "NotInOrganization") -AND ($rule.SenderDomainIs -contains $domain) -AND (($rule.DeleteMessage -eq $true) -OR ($null -ne $rule.RejectMessageReasonText) -OR ($rule.Quarantine -eq $true))) {
                 $flag = $True
-            }
-            if (($flag -eq $true) -AND ($rule.State -eq "Disabled")) {
+                if (($flag -eq $true) -AND ($rule.State -eq "Disabled")) {
                 $disabledRules += "Rule `"$($rule.Identity)`" is disabled."
+                }
             }
         }
     }

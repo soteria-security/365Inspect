@@ -65,24 +65,72 @@ $excluded_inspectors = $ExcludedInspectors
 Function Connect-Services{
     # Log into every service prior to the analysis.
     If ($auth -EQ "MFA") {
-		Write-Output "Connecting to MSOnline Service"
-        Connect-MsolService
-		Write-Output "Connecting to Azure Active Directory"
-        Connect-AzureAD #-AccountId $UserPrincipalName
-		Write-Output "Connecting to Exchange Online"
-        Connect-ExchangeOnline -UserPrincipalName $UserPrincipalName -ShowBanner:$false
-		Write-Output "Connecting to SharePoint Service"
-        Connect-SPOService -Url "https://$org_name-admin.sharepoint.com"
-		Write-Output "Connecting to Microsoft Teams"
-		Connect-MicrosoftTeams #-AccountId $UserPrincipalName
-		Write-Output "Connecting and consenting to Microsoft Intune"
-		Connect-MSGraph -AdminConsent
-		Connect-MSGraph
-		Write-Output "Connecting to Microsoft Graph"
-		Connect-MgGraph -Scopes "AuditLog.Read.All","Policy.Read.All","Directory.Read.All","IdentityProvider.Read.All","Organization.Read.All","Securityevents.Read.All","ThreatIndicators.Read.All","SecurityActions.Read.All","User.Read.All","UserAuthenticationMethod.Read.All","MailboxSettings.Read"
-		Write-Output "Connected via Graph to $((Get-MgOrganization).DisplayName)"
-    	Write-Output "Connecting to IPPSSession..."
-        Connect-IPPSSession
+        <#Write-Output "Connecting to MSOnline Service"
+        Connect-MsolService#>
+        Try {
+            Write-Output "Connecting to Azure Active Directory"
+            Connect-AzureAD -AccountId $UserPrincipalName
+            $global:orgInfo = Get-AzureADTenantDetail
+            $org_name = (($global:orgInfo).VerifiedDomains.Name -split '.onmicrosoft')[0]
+        }
+        Catch {
+            Write-Output "Connecting to Azure Active Directory Failed. Exiting..."
+            Write-Error $_.Exception.Message
+            Exit
+        }
+        Try {
+            Write-Output "Connecting to Exchange Online"
+            Connect-ExchangeOnline -UserPrincipalName $UserPrincipalName -ShowBanner:$false
+        }
+        Catch {
+            Write-Output "Connecting to Exchange Online Failed."
+            Write-Error $_.Exception.Message
+        }
+        Try {
+            Write-Output "Connecting to SharePoint Service"
+            Connect-SPOService -Url "https://$org_name-admin.sharepoint.com"
+            Connect-PnPOnline -Url "https://$org_name-admin.sharepoint.com" -Interactive
+            #Connect-PnPOnline -Url "https://$(((($global:orgInfo).VerifiedDomains.Name -split '.onmicrosoft')[0]))-admin.sharepoint.com" -Interactive
+        }
+        Catch {
+            Write-Output "Connecting to SharePoint Service Failed."
+            Write-Error $_.Exception.Message
+        }
+        Try {
+            Write-Output "Connecting to Microsoft Teams"
+            Connect-MicrosoftTeams #-AccountId $UserPrincipalName
+        }
+        Catch {
+            Write-Output "Connecting to Microsoft Teams Failed."
+            Write-Error $_.Exception.Message
+        }
+        Try {
+            Write-Output "Connecting and consenting to Microsoft Intune"
+            Connect-MSGraph -AdminConsent
+            Connect-MSGraph
+        }
+        Catch {
+            Write-Output "Connecting and consenting to Microsoft Intune Failed."
+            Write-Error $_.Exception.Message
+        }
+        Try {
+            Write-Output "Connecting to Microsoft Graph"
+            Connect-MgGraph -Scopes "AuditLog.Read.All","Policy.Read.All","Directory.Read.All","IdentityProvider.Read.All","Organization.Read.All","Securityevents.Read.All","ThreatIndicators.Read.All","SecurityActions.Read.All","User.Read.All","UserAuthenticationMethod.Read.All","MailboxSettings.Read","DeviceManagementManagedDevices.Read.All","DeviceManagementApps.Read.All","UserAuthenticationMethod.ReadWrite.All","DeviceManagementServiceConfig.Read.All","DeviceManagementConfiguration.Read.All"
+            Select-MgProfile -Name beta
+            Write-Output "Connected via Graph to $((Get-MgOrganization).DisplayName)"
+        }
+        Catch {
+            Write-Output "Connecting to Microsoft Graph Failed."
+            Write-Error $_.Exception.Message
+        }
+        Try {
+            Write-Output "Connecting to Security and Compliance Center"
+            Connect-IPPSSession -UserPrincipalName $UserPrincipalName
+        }
+        Catch {
+            Write-Output "Connecting to Security and Compliance Center Failed."
+            Write-Error $_.Exception.Message
+        }
     }
 }
 
@@ -509,8 +557,8 @@ $compress = @{
   Compress-Archive @compress
 
 function Disconnect {
-	Write-Output "Disconnect from MSOnline Service"
-	[Microsoft.Online.Administration.Automation.ConnectMsolService]::ClearUserSessionState()
+	<#Write-Output "Disconnect from MSOnline Service"
+	[Microsoft.Online.Administration.Automation.ConnectMsolService]::ClearUserSessionState()#>
 	Write-Output "Disconnect from Azure Active Directory"
 	Disconnect-AzureAD
 	Write-Output "Disconnect from Exchange Online"
