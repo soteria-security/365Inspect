@@ -9,7 +9,9 @@ Function Inspect-MSTeamsAnonUsers{
 Try {
 
     Try {
-        $teamsPolicies = Get-CsTeamsMeetingPolicy
+        $defaultPolicies = @("Tag:AllOn","Tag:RestrictedAnonymousAccess","Tag:AllOff","Tag:RestrictedAnonymousNoRecording","Tag:Default","Tag:Kiosk")
+    
+    $teamsPolicies = Get-CsTeamsMeetingPolicy | Where-Object {$_.Identity -notmatch ($defaultPolicies -join '|')}
         $policies = @()
 
         Foreach ($policy in $teamsPolicies) {

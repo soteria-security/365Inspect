@@ -9,8 +9,8 @@
     "AffectedObjects": "",
 	"References": [
 		{
-			"Url": "https://docs.microsoft.com/en-us/microsoft-365/business-video/anti-malware?view=o365-worldwide",
-			"Text": "Turn on malware protection for your business"
+			"Url": "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/anti-malware-protection?view=o365-worldwide#anti-malware-policies",
+			"Text": "Anti-malware Policies"
 		}
 	]
 }

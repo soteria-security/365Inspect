@@ -29,7 +29,7 @@ Try {
 
                 $name = $policy.DisplayName
 
-                $pattern = '[\\\[\]\{\}/():;\*\"]'
+                $pattern = '[\\\[\]\{\}/():;\*\"#<>\$&+!`|=\?@\s'']'
 
                 $name = $name -replace $pattern, '-'
 
