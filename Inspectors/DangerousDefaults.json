@@ -1,28 +1,28 @@
 {
-	"FindingName": "Dangerous Default Permissions",
-	"Description": "Dangerous default configuration settings were found in the Tenant. By default, Azure tenants allow all users to access the Azure Active Directory blade, to read all other users’ accounts, create groups, and invite guests. These default settings extend to guest accounts as well, allowing guests to perform these same actions. Other default configurations allow for Self-Service creation of accounts from accepted mail domains.",
-	"Remediation": "The excessive user permissions can be mitigated by running Set-MsolCompanySettings -UsersPermissionToReadOtherUsersEnabled $false and Set-MsolCompanySettings -UsersPermissionToCreateGroupsEnabled $false respectively, as a Global Admin. User access to the Azure AD blade can be restricted by navigating to the Azure Active Directory blade &rarr; User Settings and toggling the 'Restrict access to Azure AD administration portal' to Yes. Guest invites may be restricted by navigating to the Azure Active Directory blade &rarr; External Identities &rarr; External Collaboration Settings, or by going to the Azure Active Directory blade &rarr; User Settings &rarr; Manage external collaboration settings and toggling 'Members can invite' and 'Guests can invite' to No. Self-Service account creation can be mitigated by running the following PowerShell command: Set-AzureADMSAuthorizationPolicy -id (Get-AzureADMSAuthorizationPolicy).id -AllowEmailVerifiedUsersToJoinOrganization $false",
-	"DefaultValue" : "True",
-    "ExpectedValue" : "False",
-    "ReturnedValue" : "",
+    "FindingName": "Dangerous Default Permissions",
+    "Description": "Dangerous default configuration settings were found in the Tenant. By default, Azure tenants allow all users to access the Azure Active Directory blade, to read all other users' accounts, create groups, and invite guests. These default settings extend to guest accounts as well, allowing guests to perform these same actions. Other default configurations allow for Self-Service creation of accounts from accepted mail domains.",
+    "Remediation": "The excessive user permissions can be mitigated by running Set-MsolCompanySettings -UsersPermissionToReadOtherUsersEnabled $false and Set-MsolCompanySettings -UsersPermissionToCreateGroupsEnabled $false respectively, as a Global Admin. User access to the Azure AD blade can be restricted by navigating to the Azure Active Directory blade &rarr; User Settings and toggling the 'Restrict access to Azure AD administration portal' to Yes. Guest invites may be restricted by navigating to the Azure Active Directory blade &rarr; External Identities &rarr; External Collaboration Settings, or by going to the Azure Active Directory blade &rarr; User Settings &rarr; Manage external collaboration settings and toggling 'Members can invite' and 'Guests can invite' to No. Self-Service account creation can be mitigated by running the following PowerShell command: Set-AzureADMSAuthorizationPolicy -id (Get-AzureADMSAuthorizationPolicy).id -AllowEmailVerifiedUsersToJoinOrganization $false",
+    "DefaultValue": "True",
+    "ExpectedValue": "False",
+    "ReturnedValue": "",
     "Impact": "<span style=\"color:Crimson;\"><strong>Critical</strong></span>",
     "AffectedObjects": "",
-	"References": [
-		{
-			"Url": "https://docs.microsoft.com/en-us/azure/active-directory/enterprise-users/directory-self-service-signup",
-			"Text": "Directory Self Service Signup"
-		},
-		{
-			"Url": "https://o365blog.com/post/limit-user-access/",
-			"Text": "Limit User Access"
-		},
-		{
-			"Url": "https://www.pentestpartners.com/security-blog/azure-ad-attack-of-the-default-config/",
-			"Text": "Azure AD - Attack of the Default Config"
-		},
-		{
-			"Url": "https://medium.com/soteria-security/azure-ad-default-configuration-blunders-c7abddeae56",
-			"Text": "Azure AD Default Configuration Blunders"
-		}
-	]
+    "References": [
+        {
+            "Url": "https://docs.microsoft.com/en-us/azure/active-directory/enterprise-users/directory-self-service-signup",
+            "Text": "Directory Self Service Signup"
+        },
+        {
+            "Url": "https://o365blog.com/post/limit-user-access/",
+            "Text": "Limit User Access"
+        },
+        {
+            "Url": "https://www.pentestpartners.com/security-blog/azure-ad-attack-of-the-default-config/",
+            "Text": "Azure AD - Attack of the Default Config"
+        },
+        {
+            "Url": "https://medium.com/soteria-security/azure-ad-default-configuration-blunders-c7abddeae56",
+            "Text": "Azure AD Default Configuration Blunders"
+        }
+    ]
 }

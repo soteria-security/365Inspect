@@ -32,52 +32,38 @@
 
 
 param (
-	[Parameter(Mandatory = $true,
-		HelpMessage = 'Organization name')]
-	[string] $OrgName,
-	[Parameter(Mandatory = $true,
-		HelpMessage = 'Output path for report')]
-	[string] $OutPath,
-	[Parameter(Mandatory = $true,
-		HelpMessage = 'UserPrincipalName required for Exchange Connection')]
-	[string] $UserPrincipalName,
+    [Parameter(Mandatory = $true,
+        HelpMessage = 'Output path for report')]
+    [string] $OutPath,
+    [Parameter(Mandatory = $true,
+        HelpMessage = 'UserPrincipalName required for Exchange Connection')]
+    [string] $UserPrincipalName,
     [Parameter(Mandatory = $false,
         HelpMessage = "Report Output Format")]
     [ValidateSet("All", "HTML", "CSV", "XML", "JSON",
-    IgnoreCase = $true)]
+        IgnoreCase = $true)]
     [string] $reportType = "All",
-	[Parameter(Mandatory = $true,
-		HelpMessage = 'Auth type')]
-	[ValidateSet('ALREADY_AUTHED', 'MFA',
-		IgnoreCase = $false)]
-	[string] $Auth,
-	[string[]] $SelectedInspectors = @(),
-	[string[]] $ExcludedInspectors = @()
+    [Parameter(Mandatory = $true,
+        HelpMessage = 'Auth type')]
+    [ValidateSet('ALREADY_AUTHED', 'MFA',
+        IgnoreCase = $false)]
+    [string] $Auth = "MFA",
+    [string[]] $SelectedInspectors = @(),
+    [string[]] $ExcludedInspectors = @()
 )
 
-$org_name = $OrgName
+$global:orgInfo = $null
 $out_path = $OutPath
 $selected_inspectors = $SelectedInspectors
 $excluded_inspectors = $ExcludedInspectors
 
 . .\Write-ErrorLog.ps1
 
-Function Connect-Services{
+$MaximumFunctionCount = 32768
+
+Function Connect-Services {
     # Log into every service prior to the analysis.
     If ($auth -EQ "MFA") {
-        <#Write-Output "Connecting to MSOnline Service"
-        Connect-MsolService#>
-        Try {
-            Write-Output "Connecting to Azure Active Directory"
-            Connect-AzureAD -AccountId $UserPrincipalName
-            $global:orgInfo = Get-AzureADTenantDetail
-            $org_name = (($global:orgInfo).VerifiedDomains.Name -split '.onmicrosoft')[0]
-        }
-        Catch {
-            Write-Output "Connecting to Azure Active Directory Failed. Exiting..."
-            Write-Error $_.Exception.Message
-            Exit
-        }
         Try {
             Write-Output "Connecting to Exchange Online"
             Connect-ExchangeOnline -UserPrincipalName $UserPrincipalName -ShowBanner:$false
@@ -85,43 +71,37 @@ Function Connect-Services{
         Catch {
             Write-Output "Connecting to Exchange Online Failed."
             Write-Error $_.Exception.Message
+            Break
         }
         Try {
             Write-Output "Connecting to SharePoint Service"
             Connect-SPOService -Url "https://$org_name-admin.sharepoint.com"
             Connect-PnPOnline -Url "https://$org_name-admin.sharepoint.com" -Interactive
-            #Connect-PnPOnline -Url "https://$(((($global:orgInfo).VerifiedDomains.Name -split '.onmicrosoft')[0]))-admin.sharepoint.com" -Interactive
         }
         Catch {
             Write-Output "Connecting to SharePoint Service Failed."
             Write-Error $_.Exception.Message
+            Break
         }
         Try {
             Write-Output "Connecting to Microsoft Teams"
-            Connect-MicrosoftTeams #-AccountId $UserPrincipalName
+            Connect-MicrosoftTeams
         }
         Catch {
             Write-Output "Connecting to Microsoft Teams Failed."
             Write-Error $_.Exception.Message
-        }
-        Try {
-            Write-Output "Connecting and consenting to Microsoft Intune"
-            Connect-MSGraph -AdminConsent
-            Connect-MSGraph
-        }
-        Catch {
-            Write-Output "Connecting and consenting to Microsoft Intune Failed."
-            Write-Error $_.Exception.Message
+            Break
         }
         Try {
             Write-Output "Connecting to Microsoft Graph"
-            Connect-MgGraph -Scopes "AuditLog.Read.All","Policy.Read.All","Directory.Read.All","IdentityProvider.Read.All","Organization.Read.All","Securityevents.Read.All","ThreatIndicators.Read.All","SecurityActions.Read.All","User.Read.All","UserAuthenticationMethod.Read.All","MailboxSettings.Read","DeviceManagementManagedDevices.Read.All","DeviceManagementApps.Read.All","UserAuthenticationMethod.ReadWrite.All","DeviceManagementServiceConfig.Read.All","DeviceManagementConfiguration.Read.All"
+            Connect-MgGraph -Scopes "AuditLog.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "MailboxSettings.Read", "DeviceManagementManagedDevices.Read.All", "DeviceManagementApps.Read.All", "UserAuthenticationMethod.ReadWrite.All", "DeviceManagementServiceConfig.Read.All", "DeviceManagementConfiguration.Read.All"
             Select-MgProfile -Name beta
             Write-Output "Connected via Graph to $((Get-MgOrganization).DisplayName)"
         }
         Catch {
             Write-Output "Connecting to Microsoft Graph Failed."
             Write-Error $_.Exception.Message
+            Break
         }
         Try {
             Write-Output "Connecting to Security and Compliance Center"
@@ -130,47 +110,114 @@ Function Connect-Services{
         Catch {
             Write-Output "Connecting to Security and Compliance Center Failed."
             Write-Error $_.Exception.Message
+            Break
         }
+    }
+    Else {
+        $global:orgInfo = Get-AzureADTenantDetail
     }
 }
 
 #Function to change color of text on errors for specific messages
-Function Colorize($ForeGroundColor){
+Function Colorize($ForeGroundColor) {
     $color = $Host.UI.RawUI.ForegroundColor
     $Host.UI.RawUI.ForegroundColor = $ForeGroundColor
   
-    if ($args){
-      Write-Output $args
+    if ($args) {
+        Write-Output $args
     }
   
     $Host.UI.RawUI.ForegroundColor = $color
-  }
+}
 
 
-Function Confirm-Close{
+Function Confirm-Close {
     Read-Host "Press Enter to Exit"
     Exit
 }
 
-Function Confirm-InstalledModules{
+Function Confirm-InstalledModules {
     #Check for required Modules and versions; Prompt for install if missing and import.
-	$MSOL =  @{ Name="MSOnline"; MinimumVersion="1.1.183.66" }
-	$AzureADPreview = @{ Name="AzureADPreview"; MinimumVersion="2.0.2.149" }
-    $ExchangeOnlineManagement = @{ Name="ExchangeOnlineManagement"; MinimumVersion="2.0.5" }
-    $SharePoint = @{ Name="Microsoft.Online.SharePoint.PowerShell"; MinimumVersion="16.0.22601.12000" }
-    $Graph = @{ Name="Microsoft.Graph"; MinimumVersion="1.9.6" }
-    $Intune = @{ Name="Microsoft.Graph.Intune"; MinimumVersion="6.1907.1.0" }
-    $PnP = @{ Name="PnP.PowerShell"; MinimumVersion="1.10.0" }
-    $MSTeams = @{ Name="MicrosoftTeams"; MinimumVersion="4.4.1" }
+    $ExchangeOnlineManagement = @{ Name = "ExchangeOnlineManagement"; MinimumVersion = "2.0.5" }
+    $SharePoint = @{ Name = "Microsoft.Online.SharePoint.PowerShell"; MinimumVersion = "16.0.22601.12000" }
+    $Graph = @{ Name = "Microsoft.Graph"; MinimumVersion = "1.9.6" }
+    $MSTeams = @{ Name = "MicrosoftTeams"; MinimumVersion = "4.4.1" }
 
-    $modules = @($MSOL,$AzureADPreview,$ExchangeOnlineManagement,$SharePoint,$Graph,$Intune,$PnP,$MSTeams)
+    $modules = @($ExchangeOnlineManagement, $SharePoint, $Graph, $MSTeams)
     $count = 0
 
-    foreach ($module in $modules){
+    Write-Output "Verifying environment. `n"
+
+    foreach ($module in $modules) {
         $installedVersion = [Version](((Get-InstalledModule -Name $module.Name).Version -split "-")[0])
 
-        If (($module.Name -eq (Get-InstalledModule -Name $module.Name).Name) -and (([Version]$module.MinimumVersion -lt $installedVersion) -or ([Version]$module.MinimumVersion -eq $installedVersion))){
-            Write-Output "$($module.Name) is installed."
+        If (($module.Name -eq (Get-InstalledModule -Name $module.Name).Name) -and (([Version]$module.MinimumVersion -lt $installedVersion) -or ([Version]$module.MinimumVersion -eq $installedVersion))) {
+            If ($PSVersionTable.PSVersion.Major -eq 5) {
+                Write-Host "`t[+] " -NoNewLine -ForeGroundColor Green
+                Write-Output "$($module.Name) is installed."
+                
+                If ($module.Name -ne 'Microsoft.Graph') {
+                    Import-Module -Name $module.Name
+                }
+                Else {
+                    Import-Module -Name Microsoft.Graph.Identity.DirectoryManagement
+                    Import-Module -Name Microsoft.Graph.Identity.SignIns
+                    Import-Module -Name Microsoft.Graph.Users
+                    Import-Module -Name Microsoft.Graph.Applications
+                }
+            }
+            Elseif ($PSVersionTable.PSVersion.Major -ge 6) {
+                If ($IsWindows) {
+                    Write-Host "`t[+] " -NoNewLine -ForeGroundColor Green
+                    Write-Output "$($module.Name) is installed."
+
+                    If ($module.Name -ne 'Microsoft.Graph') {
+                        Try {
+                            Import-Module -Name $module.Name -UseWindowsPowerShell
+                        }
+                        Catch {
+                            Write-Warning "Error message: $_"
+                            $message = $_.ToString()
+                            $exception = $_.Exception
+                            $strace = $_.ScriptStackTrace
+                            $failingline = $_.InvocationInfo.Line
+                            $positionmsg = $_.InvocationInfo.PositionMessage
+                            $pscommandpath = $_.InvocationInfo.PSCommandPath
+                            $failinglinenumber = $_.InvocationInfo.ScriptLineNumber
+                            $scriptname = $_.InvocationInfo.ScriptName
+                            Write-Verbose "Write to log"
+                            Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
+                            Write-Verbose "Errors written to log"
+                        }
+                    }
+                    Else {
+                        Try {
+                            Import-Module -Name Microsoft.Graph.Identity.DirectoryManagement -UseWindowsPowerShell
+                            Import-Module -Name Microsoft.Graph.Identity.SignIns -UseWindowsPowerShell
+                            Import-Module -Name Microsoft.Graph.Users -UseWindowsPowerShell
+                            Import-Module -Name Microsoft.Graph.Applications -UseWindowsPowerShell
+                        }
+                        Catch {
+                            Write-Warning "Error message: $_"
+                            $message = $_.ToString()
+                            $exception = $_.Exception
+                            $strace = $_.ScriptStackTrace
+                            $failingline = $_.InvocationInfo.Line
+                            $positionmsg = $_.InvocationInfo.PositionMessage
+                            $pscommandpath = $_.InvocationInfo.PSCommandPath
+                            $failinglinenumber = $_.InvocationInfo.ScriptLineNumber
+                            $scriptname = $_.InvocationInfo.ScriptName
+                            Write-Verbose "Write to log"
+                            Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
+                            Write-Verbose "Errors written to log"
+                        }
+                    }
+                }
+                Else {
+                    Write-Host "We're sorry, due to various module dependency requirements, this tool will not work on a non-Windows operating system." -ForegroundColor Yellow
+                    Exit
+                }
+            }
             $count ++
         }
         Else {
@@ -180,14 +227,13 @@ Function Confirm-InstalledModules{
             Colorize Yellow ($message1)
             $install = Read-Host -Prompt "Would you like to attempt installation now? (Y|N)"
             If ($install -eq 'y') {
-                Install-Module -Name $module.Name -AllowPrerelease -AllowClobber -Force -RequiredVersion $module.MinimumVersion
-                Import-Module -Name $module.Name -MinimumVersion $module.MinimumVersion
+                Install-Module -Name $module.Name -AllowPrerelease -AllowClobber -Scope CurrentUser -Force -RequiredVersion $module.MinimumVersion
                 $count ++
             }
         }
     }
 
-    If ($count -lt 7){
+    If ($count -lt 7) {
         Write-Output ""
         Write-Output ""
         $message = Write-Output "Dependency checks failed. Please install all missing modules before running this script."
@@ -200,55 +246,59 @@ Function Confirm-InstalledModules{
 }
 
 
-If ($Auth -eq 'ALREADY_AUTHED'){
-	Connect-Services
-}Else{
-	#Start Script
-	Confirm-InstalledModules
+If ($Auth -eq 'ALREADY_AUTHED') {
+    Connect-Services
+}
+Else {
+    #Start Script
+    Confirm-InstalledModules
 }
 
+# Obtain tenant info
+$org_name = (($global:orgInfo).VerifiedDomains.Name -split '.onmicrosoft')[0]
+$tenantDisplayName = ($global:orgInfo).DisplayName
 
 # Get a list of every available detection module by parsing the PowerShell
 # scripts present in the .\inspectors folder. 
 #Exclude specified Inspectors
-If ($excluded_inspectors -and $excluded_inspectors.Count){
-	$excluded_inspectors = foreach ($inspector in $excluded_inspectors){"$inspector.ps1"}
-	$inspectors = (Get-ChildItem .\inspectors\*.ps1 -exclude $excluded_inspectors).Name | ForEach-Object { ($_ -split ".ps1")[0] }
+If ($excluded_inspectors -and $excluded_inspectors.Count) {
+    $excluded_inspectors = foreach ($inspector in $excluded_inspectors) { "$inspector.ps1" }
+    $inspectors = (Get-ChildItem .\inspectors\*.ps1 -exclude $excluded_inspectors).Name | ForEach-Object { ($_ -split ".ps1")[0] }
 }
 else {
-	$inspectors = (Get-ChildItem .\inspectors\*.ps1).Name | ForEach-Object { ($_ -split ".ps1")[0] }
+    $inspectors = (Get-ChildItem .\inspectors\*.ps1).Name | ForEach-Object { ($_ -split ".ps1")[0] }
 }
 
 #Use Selected Inspectors
 If ($selected_inspectors -AND $selected_inspectors.Count) {
-	"The following inspectors were selected for use: "
-	Foreach ($inspector in $selected_inspectors){
-		Write-Output $inspector
-	}
+    "The following inspectors were selected for use: "
+    Foreach ($inspector in $selected_inspectors) {
+        Write-Output $inspector
+    }
 }
 elseif ($excluded_Inspectors -and $excluded_inspectors.Count) {
-	$selected_inspectors = $inspectors
-	Write-Output "Using inspectors:`n"
-	Foreach ($inspector in $inspectors){
-		Write-Output $inspector
-	}
+    $selected_inspectors = $inspectors
+    Write-Output "Using inspectors:`n"
+    Foreach ($inspector in $inspectors) {
+        Write-Output $inspector
+    }
 }
 Else {
-	"Using all inspectors."
-	$selected_inspectors = $inspectors
+    "Using all inspectors."
+    $selected_inspectors = $inspectors
 }
 
 #Create Output Directory if required
 Try {
-	New-Item -ItemType Directory -Force -Path $out_path | Out-Null
-	If ((Test-Path $out_path) -eq $true){
-		$path = Resolve-Path $out_path
-		Write-Output "$($path.Path) created successfully."
-	}
+    New-Item -ItemType Directory -Force -Path $out_path | Out-Null
+    If ((Test-Path $out_path) -eq $true) {
+        $path = Resolve-Path $out_path
+        Write-Output "$($path.Path) created successfully."
+    }
 }
 Catch {
-	Write-Error "Directory not created. Please check permissions."
-	Confirm-Close
+    Write-Error "Directory not created. Please check permissions."
+    Confirm-Close
 }
 
 # Maintain a list of all findings, beginning with an empty list.
@@ -256,19 +306,19 @@ $findings = @()
 
 # For every inspector the user wanted to run...
 ForEach ($selected_inspector in $selected_inspectors) {
-	# ...if the user selected a valid inspector...
-	If ($inspectors.Contains($selected_inspector)) {
-		Write-Output "Invoking Inspector: $selected_inspector"
+    # ...if the user selected a valid inspector...
+    If ($inspectors.Contains($selected_inspector)) {
+        Write-Output "Invoking Inspector: $selected_inspector"
 		
-		# Get the static data (finding description, remediation etc.) associated with that inspector module.
-		$finding = Get-Content .\inspectors\$selected_inspector.json | Out-String | ConvertFrom-Json
+        # Get the static data (finding description, remediation etc.) associated with that inspector module.
+        $finding = Get-Content .\inspectors\$selected_inspector.json | Out-String | ConvertFrom-Json
 		
-		# Invoke the actual inspector module and store the resulting list of insecure objects.
-		$finding.AffectedObjects = Invoke-Expression ".\inspectors\$selected_inspector.ps1"
+        # Invoke the actual inspector module and store the resulting list of insecure objects.
+        $finding.AffectedObjects = Invoke-Expression ".\inspectors\$selected_inspector.ps1"
 		
-		# Add the finding to the list of all findings.
-		$findings += $finding
-	}
+        # Add the finding to the list of all findings.
+        $findings += $finding
+    }
 }
 
 # Function that retrieves templating information from 
@@ -310,7 +360,7 @@ Function HTML-Report {
     $findings_count = 0
     
     #$sortedFindings1 = $findings | Sort-Object {$_.FindingName}
-    $sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Impact){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}};$_.FindingName} 
+    $sortedFindings = $findings | Sort-Object { Switch -Regex ($_.Impact) { 'Critical' { 1 }	'High' { 2 }	'Medium' { 3 }	'Low' { 4 }	'Informational' { 5 } }; $_.FindingName } 
     ForEach ($finding in $sortedFindings) {
         # If the result from the inspector was not $null,
         # it identified a real finding that we must process.
@@ -329,17 +379,17 @@ Function HTML-Report {
             $long_finding_html = $long_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
             
             # Finding Impact
-            If ($finding.Impact -eq 'Critical'){
+            If ($finding.Impact -eq 'Critical') {
                 $htmlImpact = '<span style="color:Crimson;"><strong>Critical</strong></span>'
                 $short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $htmlImpact)
                 $long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $htmlImpact)
             }
-            ElseIf ($finding.Impact -eq 'High'){
+            ElseIf ($finding.Impact -eq 'High') {
                 $htmlImpact = '<span style="color:DarkOrange;"><strong>High</strong></span>'
                 $short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $htmlImpact)
                 $long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $htmlImpact)
             }
-            Else{
+            Else {
                 $short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $finding.Impact)
                 $long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $finding.Impact)
             }
@@ -413,19 +463,19 @@ Function HTML-Report {
 }
 
 Function CSV-Report {
-    $sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Impact){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}};$_.FindingName}
+    $sortedFindings = $findings | Sort-Object { Switch -Regex ($_.Impact) { 'Critical' { 1 }	'High' { 2 }	'Medium' { 3 }	'Low' { 4 }	'Informational' { 5 } }; $_.FindingName }
 
     $results = @()
 
     $findings_count = 0
 
-    foreach ($finding in $sortedFindings){
+    foreach ($finding in $sortedFindings) {
         If ($null -NE $finding.AffectedObjects) {
             $findings_count += 1
 
             $refs = @()
 
-            foreach ($ref in $finding.References){
+            foreach ($ref in $finding.References) {
                 $refs += "$($ref.Text) : $($ref.Url)"
             }
 
@@ -455,19 +505,19 @@ Function CSV-Report {
 }
 
 Function XML-Report {
-    $sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Impact){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}};$_.FindingName}
+    $sortedFindings = $findings | Sort-Object { Switch -Regex ($_.Impact) { 'Critical' { 1 }	'High' { 2 }	'Medium' { 3 }	'Low' { 4 }	'Informational' { 5 } }; $_.FindingName }
 
     $results = @()
 
     $findings_count = 0
 
-    foreach ($finding in $sortedFindings){
+    foreach ($finding in $sortedFindings) {
         If ($null -NE $finding.AffectedObjects) {
             $findings_count += 1
 
             $refs = @()
 
-            foreach ($ref in $finding.References){
+            foreach ($ref in $finding.References) {
                 $refs += "$($ref.Text) : $($ref.Url)"
             }
 
@@ -491,19 +541,19 @@ Function XML-Report {
 }
 
 Function JSON-Report {
-    $sortedFindings = $findings | Sort-Object {Switch -Regex ($_.Impact){'Critical' {1}	'High' {2}	'Medium' {3}	'Low' {4}	'Informational' {5}};$_.FindingName}
+    $sortedFindings = $findings | Sort-Object { Switch -Regex ($_.Impact) { 'Critical' { 1 }	'High' { 2 }	'Medium' { 3 }	'Low' { 4 }	'Informational' { 5 } }; $_.FindingName }
 
     $results = @()
 
     $findings_count = 0
 
-    foreach ($finding in $sortedFindings){
+    foreach ($finding in $sortedFindings) {
         If ($null -NE $finding.AffectedObjects) {
             $findings_count += 1
 
             $refs = @()
 
-            foreach ($ref in $finding.References){
+            foreach ($ref in $finding.References) {
                 $refs += "$($ref.Text) : $($ref.Url)"
             }
 
@@ -533,49 +583,49 @@ Function All-Report {
     HTML-Report
 }
 
-If ($reportType -eq "HTML"){
-	HTML-Report
+If ($reportType -eq "HTML") {
+    HTML-Report
 }
-Elseif ($reportType -eq "CSV"){
-	CSV-Report
+Elseif ($reportType -eq "CSV") {
+    CSV-Report
 }
-Elseif ($reportType -eq "XML"){
-	XML-Report
+Elseif ($reportType -eq "XML") {
+    XML-Report
 }
-Elseif ($reportType -eq "JSON"){
-	JSON-Report
+Elseif ($reportType -eq "JSON") {
+    JSON-Report
 }
 Else {
     All-Report
 }
 
 $compress = @{
-	Path = $out_path
-	CompressionLevel = "Fastest"
-	DestinationPath = "$out_path\$($org_name)_Report.zip"
-  }
-  Compress-Archive @compress
+    Path             = $out_path
+    CompressionLevel = "Fastest"
+    DestinationPath  = "$out_path\$($org_name)_Report.zip"
+}
+Compress-Archive @compress
 
 function Disconnect {
-	<#Write-Output "Disconnect from MSOnline Service"
+    <#Write-Output "Disconnect from MSOnline Service"
 	[Microsoft.Online.Administration.Automation.ConnectMsolService]::ClearUserSessionState()#>
-	Write-Output "Disconnect from Azure Active Directory"
-	Disconnect-AzureAD
-	Write-Output "Disconnect from Exchange Online"
-	Disconnect-ExchangeOnline -Confirm:$false
-	Write-Output "Disconnect from SharePoint Service"
-	Disconnect-SPOService
-	Write-Output "Disconnect from Microsoft Teams"
-	Disconnect-MicrosoftTeams
-	Write-Output "Disconnect from Microsoft Intune"
-	Write-Output "Disconnect from Microsoft Graph"
-	Disconnect-MgGraph
+    Write-Output "Disconnect from Azure Active Directory"
+    Disconnect-AzureAD
+    Write-Output "Disconnect from Exchange Online"
+    Disconnect-ExchangeOnline -Confirm:$false
+    Write-Output "Disconnect from SharePoint Service"
+    Disconnect-SPOService
+    Write-Output "Disconnect from Microsoft Teams"
+    Disconnect-MicrosoftTeams
+    Write-Output "Disconnect from Microsoft Intune"
+    Write-Output "Disconnect from Microsoft Graph"
+    Disconnect-MgGraph
 }
 
 $removeSession = Read-Host -Prompt "Do you wish to disconnect your session? (Y|N)"
 
-If ($removeSession -ne 'n'){
-	Disconnect
+If ($removeSession -ne 'n') {
+    Disconnect
 }
 
 

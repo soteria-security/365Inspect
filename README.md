@@ -4,13 +4,13 @@ Further the state of O365 security by authoring a PowerShell script that automat
 
 # Setup
 
-365*Inspect* requires the administrative PowerShell modules for Azure AD (We recommend installing the AzureADPreview module), Exchange administration, Microsoft Graph, Microsoft Intune, Microsoft Teams, and both the Sharepoint and PnP SharePoint administration modules. 
+365*Inspect* requires the administrative PowerShell modules for Exchange administration, Microsoft Graph, Microsoft Teams, and the Sharepoint administration module.
+
+__365*Inspect* is now compatible with PowerShell Core (6+), and requires a Microsoft Windows operating system due to required module dependencies.__
 
 The 365*Inspect*.ps1 PowerShell script will validate the installed modules and minimum version of the modules necessary for the Inspectors to function.
 
 If you do not have these modules installed, you will be prompted to install them, and with your approval, the script will attempt installation. Otherwise, you should be able to install them with the following commands in an administrative PowerShell prompt, or by following the instructions at the references below:
-
-	Install-Module -Name AzureADPreview -AllowPrerelease -AllowClobber -Force -RequiredVersion 2.0.2.149
 
     Install-Module -Name ExchangeOnlineManagement -AllowPrerelease -AllowClobber -Force -RequiredVersion 2.0.5
     
@@ -18,25 +18,15 @@ If you do not have these modules installed, you will be prompted to install them
     
     Install-Module -Name Microsoft.Graph -AllowPrerelease -AllowClobber -Force -RequiredVersion 1.9.6
     
-    Install-Module -Name Microsoft.Graph.Intune -AllowPrerelease -AllowClobber -Force -RequiredVersion 6.1907.1.0
-    
-    Install-Module -Name PnP.PowerShell -AllowPrerelease -AllowClobber -Force -RequiredVersion 1.10.0
-    
     Install-Module -Name MicrosoftTeams -AllowPrerelease -AllowClobber -Force -RequiredVersion 4.4.1
-
-[Install Azure AD PowerShell](https://docs.microsoft.com/en-us/powershell/module/azuread/?view=azureadps-2.0)
 
 [Install Exchange Online PowerShell](https://docs.microsoft.com/en-us/powershell/exchange/exchange-online-powershell-v2?view=exchange-ps)
 
 [Install SharePoint](https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-online/connect-sharepoint-online?view=sharepoint-ps)
 
-[Install PnP SharePoint](https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-pnp/sharepoint-pnp-cmdlets)
-
 [Install Microsoft Graph SDK](https://docs.microsoft.com/en-us/graph/powershell/installation)
 
 [Install Microsoft Teams PowerShell Module](https://docs.microsoft.com/en-us/microsoftteams/teams-powershell-install)
-
-[Install Microsoft Intune PowerShell SDK](https://github.com/microsoft/Intune-PowerShell-SDK)
 
 Once the above are installed, download the 365*Inspect* source code folder from Github using your browser or by using *git clone*.
 
@@ -165,7 +155,7 @@ Example .json file, BypassingSafeAttachments.json:
 ```
 {
 	"FindingName": "Do Not Bypass the Safe Attachments Filter",
-	"Description": "In Exchange, it is possible to create mail transport rules that bypass the Safe Attachments detection capability. The rules listed above bypass the Safe Attachments capability. Consider revie1wing these rules, as bypassing the Safe Attachments capability even for a subset of senders could be considered insecure depending on the context or may be an indicator of compromise.",
+	"Description": "In Exchange, it is possible to create mail transport rules that bypass the Safe Attachments detection capability. The rules listed above bypass the Safe Attachments capability. Consider reviewing these rules, as bypassing the Safe Attachments capability even for a subset of senders could be considered insecure depending on the context or may be an indicator of compromise.",
 	"Remediation": "Navigate to the Mail Flow -> Rules screen in the Exchange Admin Center. Look for the offending rules and begin the process of assessing who created them and whether they are necessary to the continued function of your organization. If they are not, remove the rules.",
 	"AffectedObjects": "",
 	"References": [
