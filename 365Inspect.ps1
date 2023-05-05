@@ -65,17 +65,6 @@ Function Connect-Services {
     # Log into every service prior to the analysis.
     If ($auth -EQ "MFA") {
         Try {
-            Write-Output "Connecting to Azure Active Directory"
-            Connect-AzureAD -AccountId $UserPrincipalName
-            $global:orgInfo = Get-AzureADTenantDetail
-            $org_name = (($global:orgInfo).VerifiedDomains.Name -split '.onmicrosoft')[0]
-        }
-        Catch {
-            Write-Output "Connecting to Azure Active Directory Failed. Exiting..."
-            Write-Error $_.Exception.Message
-            Break
-        }
-        Try {
             Write-Output "Connecting to Exchange Online"
             Connect-ExchangeOnline -UserPrincipalName $UserPrincipalName -ShowBanner:$false
         }
@@ -100,16 +89,6 @@ Function Connect-Services {
         }
         Catch {
             Write-Output "Connecting to Microsoft Teams Failed."
-            Write-Error $_.Exception.Message
-            Break
-        }
-        Try {
-            Write-Output "Connecting and consenting to Microsoft Intune"
-            Connect-MSGraph -AdminConsent
-            Connect-MSGraph
-        }
-        Catch {
-            Write-Output "Connecting and consenting to Microsoft Intune Failed."
             Write-Error $_.Exception.Message
             Break
         }
@@ -159,15 +138,12 @@ Function Confirm-Close {
 
 Function Confirm-InstalledModules {
     #Check for required Modules and versions; Prompt for install if missing and import.
-    $AzureADPreview = @{ Name = "AzureADPreview"; MinimumVersion = "2.0.2.149" }
     $ExchangeOnlineManagement = @{ Name = "ExchangeOnlineManagement"; MinimumVersion = "2.0.5" }
     $SharePoint = @{ Name = "Microsoft.Online.SharePoint.PowerShell"; MinimumVersion = "16.0.22601.12000" }
     $Graph = @{ Name = "Microsoft.Graph"; MinimumVersion = "1.9.6" }
-    $Intune = @{ Name = "Microsoft.Graph.Intune"; MinimumVersion = "6.1907.1.0" }
-    $PnP = @{ Name = "PnP.PowerShell"; MinimumVersion = "1.10.0" }
     $MSTeams = @{ Name = "MicrosoftTeams"; MinimumVersion = "4.4.1" }
 
-    $modules = @($AzureADPreview, $ExchangeOnlineManagement, $SharePoint, $Graph, $Intune, $PnP, $MSTeams)
+    $modules = @($ExchangeOnlineManagement, $SharePoint, $Graph, $MSTeams)
     $count = 0
 
     Write-Output "Verifying environment. `n"
