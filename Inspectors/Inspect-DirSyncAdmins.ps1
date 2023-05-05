@@ -20,7 +20,7 @@ Try {
 		$roleMembers = Get-MgDirectoryRoleMember -DirectoryRoleId $role.Id
 
 		Foreach ($user in $roleMembers) {
-			$member = Get-AzureADObjectByObjectId -ObjectIds $user.Id
+			$member = Get-MgDirectoryObjectById -Ids $user.Id
 			If ($member.OnPremisesSyncEnabled -eq $true){
 				$dirsyncAdmins += "$role : $($member.UserPrincipalName)`n"
 			}
