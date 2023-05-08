@@ -66,7 +66,7 @@ Function Connect-Services {
     If ($auth -EQ "MFA") {
         Try {
             Write-Output "Connecting to Microsoft Graph"
-            Connect-MgGraph -Scopes "AuditLog.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "MailboxSettings.Read", "DeviceManagementManagedDevices.Read.All", "DeviceManagementApps.Read.All", "UserAuthenticationMethod.ReadWrite.All", "DeviceManagementServiceConfig.Read.All", "DeviceManagementConfiguration.Read.All"
+            Connect-MgGraph -ContextScope Process -Scopes "AuditLog.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "MailboxSettings.Read", "DeviceManagementManagedDevices.Read.All", "DeviceManagementApps.Read.All", "UserAuthenticationMethod.ReadWrite.All", "DeviceManagementServiceConfig.Read.All", "DeviceManagementConfiguration.Read.All"
             Select-MgProfile -Name beta
             $global:orgInfo = ((Get-MgOrganization).VerifiedDomains | Where-Object { $_.Name -match 'onmicrosoft.com' })[0].Name
             Write-Output "Connected via Graph to $((Get-MgOrganization).DisplayName)"
@@ -87,7 +87,7 @@ Function Connect-Services {
         }
         Try {
             Write-Output "Connecting to SharePoint Service"
-            $org_name = ($global:orgInfo -split '.onmicrosoft')
+            $org_name = ($global:orgInfo -split '.onmicrosoft.com')[0]
             Connect-SPOService -Url "https://$org_name-admin.sharepoint.com"
         }
         Catch {
@@ -215,10 +215,10 @@ Function Confirm-InstalledModules {
                     Write-Host "`t[+] " -NoNewLine -ForeGroundColor Green
                     Write-Output "$($module.Name) is installed."
 
-                    If ($module.Name -ne 'Microsoft.Graph') {
+                    If (($module.Name -ne 'Microsoft.Graph') -and ($module.Name -ne 'ExchangeOnlineManagement')) {
                         Try {
                             Write-Host "`tImporting $($module.Name)" -ForeGroundColor Green
-                            Import-Module -Name $module.Name -UseWindowsPowerShell | Out-Null
+                            Import-Module -Name $module.Name -UseWindowsPowerShell -WarningAction SilentlyContinue | Out-Null
                         }
                         Catch {
                             Write-Warning "Error message: $_"
@@ -237,11 +237,13 @@ Function Confirm-InstalledModules {
                     }
                     Else {
                         Try {
+                            Write-Host "`tInporting ExchangeOnlineManagement"
+                            Import-Module -Name ExchangeOnlineManagement | Out-Null
                             Write-Host "`tImporting Microsoft.Graph" -ForeGroundColor Green
-                            Import-Module -Name Microsoft.Graph.Identity.DirectoryManagement -UseWindowsPowerShell | Out-Null
-                            Import-Module -Name Microsoft.Graph.Identity.SignIns -UseWindowsPowerShell | Out-Null
-                            Import-Module -Name Microsoft.Graph.Users -UseWindowsPowerShell | Out-Null
-                            Import-Module -Name Microsoft.Graph.Applications -UseWindowsPowerShell | Out-Null
+                            Import-Module -Name Microsoft.Graph.Identity.DirectoryManagement | Out-Null
+                            Import-Module -Name Microsoft.Graph.Identity.SignIns | Out-Null
+                            Import-Module -Name Microsoft.Graph.Users | Out-Null
+                            Import-Module -Name Microsoft.Graph.Applications | Out-Null
                         }
                         Catch {
                             Write-Warning "Error message: $_"
