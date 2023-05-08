@@ -65,6 +65,18 @@ Function Connect-Services {
     # Log into every service prior to the analysis.
     If ($auth -EQ "MFA") {
         Try {
+            Write-Output "Connecting to Microsoft Graph"
+            Connect-MgGraph -ContextScope Process -Scopes "AuditLog.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "MailboxSettings.Read", "DeviceManagementManagedDevices.Read.All", "DeviceManagementApps.Read.All", "UserAuthenticationMethod.ReadWrite.All", "DeviceManagementServiceConfig.Read.All", "DeviceManagementConfiguration.Read.All"
+            Select-MgProfile -Name beta
+            $global:orgInfo = ((Get-MgOrganization).VerifiedDomains | Where-Object { $_.Name -match 'onmicrosoft.com' })[0].Name
+            Write-Output "Connected via Graph to $((Get-MgOrganization).DisplayName)"
+        }
+        Catch {
+            Write-Output "Connecting to Microsoft Graph Failed."
+            Write-Error $_.Exception.Message
+            Break
+        }
+        Try {
             Write-Output "Connecting to Exchange Online"
             Connect-ExchangeOnline -UserPrincipalName $UserPrincipalName -ShowBanner:$false
         }
@@ -75,8 +87,8 @@ Function Connect-Services {
         }
         Try {
             Write-Output "Connecting to SharePoint Service"
+            $org_name = ($global:orgInfo -split '.onmicrosoft.com')[0]
             Connect-SPOService -Url "https://$org_name-admin.sharepoint.com"
-            Connect-PnPOnline -Url "https://$org_name-admin.sharepoint.com" -Interactive
         }
         Catch {
             Write-Output "Connecting to SharePoint Service Failed."
@@ -93,17 +105,6 @@ Function Connect-Services {
             Break
         }
         Try {
-            Write-Output "Connecting to Microsoft Graph"
-            Connect-MgGraph -Scopes "AuditLog.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "MailboxSettings.Read", "DeviceManagementManagedDevices.Read.All", "DeviceManagementApps.Read.All", "UserAuthenticationMethod.ReadWrite.All", "DeviceManagementServiceConfig.Read.All", "DeviceManagementConfiguration.Read.All"
-            Select-MgProfile -Name beta
-            Write-Output "Connected via Graph to $((Get-MgOrganization).DisplayName)"
-        }
-        Catch {
-            Write-Output "Connecting to Microsoft Graph Failed."
-            Write-Error $_.Exception.Message
-            Break
-        }
-        Try {
             Write-Output "Connecting to Security and Compliance Center"
             Connect-IPPSSession -UserPrincipalName $UserPrincipalName
         }
@@ -114,7 +115,7 @@ Function Connect-Services {
         }
     }
     Else {
-        $global:orgInfo = Get-AzureADTenantDetail
+        $global:orgInfo = ((Get-MgOrganization).VerifiedDomains | Where-Object { $_.Name -match 'onmicrosoft.com' })[0].Name
     }
 }
 
@@ -142,8 +143,47 @@ Function Confirm-InstalledModules {
     $SharePoint = @{ Name = "Microsoft.Online.SharePoint.PowerShell"; MinimumVersion = "16.0.22601.12000" }
     $Graph = @{ Name = "Microsoft.Graph"; MinimumVersion = "1.9.6" }
     $MSTeams = @{ Name = "MicrosoftTeams"; MinimumVersion = "4.4.1" }
+    $psGet = @{ Name = "PowerShellGet"; RequiredVersion = "2.2.5" }
 
-    $modules = @($ExchangeOnlineManagement, $SharePoint, $Graph, $MSTeams)
+    Try {
+        $psGetVersion = Get-InstalledModule -Name PowerShellGet -ErrorAction Stop
+
+        If ($psGetVersion.Version -lt '2.2.5') {
+            Write-Host "[-] " -ForegroundColor Red -NoNewline
+            Write-Warning "PowerShellGet is not the correct version. Please install using the following command:"
+            Write-Host "Update-Module " -ForegroundColor Yellow -NoNewline
+            Write-Host "-Name " -ForegroundColor Gray -NoNewline
+            Write-Host "PowerShellGet " -ForegroundColor White -NoNewline
+            Write-Host '-Force' -ForegroundColor Gray
+            $IsAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")
+            if (-not $IsAdmin) {
+                Write-Warning "PowerShellGet is not the correct version. Please install using the following command:"
+                Write-Host "Update-Module " -ForegroundColor Yellow -NoNewline
+                Write-Host "-Name " -ForegroundColor Gray -NoNewline
+                Write-Host "PowerShellGet " -ForegroundColor White -NoNewline
+                Write-Host '-Force' -ForegroundColor Gray
+            }
+            Else {
+                Write-Host "Installing PowerShellGet`n" -ForegroundColor Magenta
+                Install-Module -Name 'PowerShellGet' -AllowPrerelease -AllowClobber -Force -MinimumVersion '2.2.5'
+            }
+        }
+    }
+    Catch {
+        $exc = $_
+        if ($exc -like "*No match was found for the specified search criteria and module names 'powershellget'*") {
+            Write-Host "[-] " -ForegroundColor Red -NoNewline
+            Write-Warning "PowerShellGet was not installed via PowerShell Gallery. Please install using the following command:"
+            Write-Host "Install-Module " -ForegroundColor Yellow -NoNewline
+            Write-Host "-Name " -ForegroundColor Gray -NoNewline
+            Write-Host "PowerShellGet " -ForegroundColor White -NoNewline
+            Write-Host "-RequiredVersion " -ForegroundColor Gray -NoNewline
+            Write-Host '2.2.5 ' -ForegroundColor White -NoNewline
+            Write-Host '-Force' -ForegroundColor Gray
+        }
+    }
+
+    $modules = @($psGet, $ExchangeOnlineManagement, $Graph, $SharePoint, $MSTeams)
     $count = 0
 
     Write-Output "Verifying environment. `n"
@@ -151,29 +191,34 @@ Function Confirm-InstalledModules {
     foreach ($module in $modules) {
         $installedVersion = [Version](((Get-InstalledModule -Name $module.Name).Version -split "-")[0])
 
-        If (($module.Name -eq (Get-InstalledModule -Name $module.Name).Name) -and (([Version]$module.MinimumVersion -lt $installedVersion) -or ([Version]$module.MinimumVersion -eq $installedVersion))) {
+        If (($module.Name -eq (Get-InstalledModule -Name $module.Name).Name) -and (([Version]$module.MinimumVersion -le $installedVersion))) {
             If ($PSVersionTable.PSVersion.Major -eq 5) {
+                Write-Host "Environment is $($PSVersionTable.PSVersion)" -ForegroundColor Yellow
                 Write-Host "`t[+] " -NoNewLine -ForeGroundColor Green
                 Write-Output "$($module.Name) is installed."
                 
                 If ($module.Name -ne 'Microsoft.Graph') {
-                    Import-Module -Name $module.Name
+                    Write-Host "`tImporting $($module.Name)" -ForeGroundColor Green
+                    Import-Module -Name $module.Name | Out-Null
                 }
                 Else {
-                    Import-Module -Name Microsoft.Graph.Identity.DirectoryManagement
-                    Import-Module -Name Microsoft.Graph.Identity.SignIns
-                    Import-Module -Name Microsoft.Graph.Users
-                    Import-Module -Name Microsoft.Graph.Applications
+                    Write-Host "`tImporting Microsoft.Graph" -ForeGroundColor Green
+                    Import-Module -Name Microsoft.Graph.Identity.DirectoryManagement | Out-Null
+                    Import-Module -Name Microsoft.Graph.Identity.SignIns | Out-Null
+                    Import-Module -Name Microsoft.Graph.Users | Out-Null
+                    Import-Module -Name Microsoft.Graph.Applications | Out-Null
                 }
             }
             Elseif ($PSVersionTable.PSVersion.Major -ge 6) {
                 If ($IsWindows) {
+                    Write-Host "Environment is $($PSVersionTable.PSVersion)" -ForegroundColor Yellow
                     Write-Host "`t[+] " -NoNewLine -ForeGroundColor Green
                     Write-Output "$($module.Name) is installed."
 
-                    If ($module.Name -ne 'Microsoft.Graph') {
+                    If (($module.Name -ne 'Microsoft.Graph') -and ($module.Name -ne 'ExchangeOnlineManagement')) {
                         Try {
-                            Import-Module -Name $module.Name -UseWindowsPowerShell
+                            Write-Host "`tImporting $($module.Name)" -ForeGroundColor Green
+                            Import-Module -Name $module.Name -UseWindowsPowerShell -WarningAction SilentlyContinue | Out-Null
                         }
                         Catch {
                             Write-Warning "Error message: $_"
@@ -192,10 +237,13 @@ Function Confirm-InstalledModules {
                     }
                     Else {
                         Try {
-                            Import-Module -Name Microsoft.Graph.Identity.DirectoryManagement -UseWindowsPowerShell
-                            Import-Module -Name Microsoft.Graph.Identity.SignIns -UseWindowsPowerShell
-                            Import-Module -Name Microsoft.Graph.Users -UseWindowsPowerShell
-                            Import-Module -Name Microsoft.Graph.Applications -UseWindowsPowerShell
+                            Write-Host "`tInporting ExchangeOnlineManagement"
+                            Import-Module -Name ExchangeOnlineManagement | Out-Null
+                            Write-Host "`tImporting Microsoft.Graph" -ForeGroundColor Green
+                            Import-Module -Name Microsoft.Graph.Identity.DirectoryManagement | Out-Null
+                            Import-Module -Name Microsoft.Graph.Identity.SignIns | Out-Null
+                            Import-Module -Name Microsoft.Graph.Users | Out-Null
+                            Import-Module -Name Microsoft.Graph.Applications | Out-Null
                         }
                         Catch {
                             Write-Warning "Error message: $_"
@@ -222,18 +270,18 @@ Function Confirm-InstalledModules {
         }
         Else {
             $message = Write-Output "`n$($module.Name) is not installed."
-            $message1 = Write-Output "The module may be installed by running `"Install-Module -Name $($module.Name) -AllowPrerelease -AllowClobber -Force -RequiredVersion $($module.MinimumVersion)`" in an elevated PowerShell window."
+            $message1 = Write-Output "The module may be installed by running `"Install-Module -Name $($module.Name) -AllowPrerelease -AllowClobber -Force -MinimumVersion $($module)`" in an elevated PowerShell window."
             Colorize Red ($message)
             Colorize Yellow ($message1)
             $install = Read-Host -Prompt "Would you like to attempt installation now? (Y|N)"
             If ($install -eq 'y') {
-                Install-Module -Name $module.Name -AllowPrerelease -AllowClobber -Scope CurrentUser -Force -RequiredVersion $module.MinimumVersion
+                Install-Module -Name $module.Name -AllowPrerelease -AllowClobber -Scope CurrentUser -Force -MinimumVersion $module
                 $count ++
             }
         }
     }
 
-    If ($count -lt 7) {
+    If ($count -lt 5) {
         Write-Output ""
         Write-Output ""
         $message = Write-Output "Dependency checks failed. Please install all missing modules before running this script."
@@ -255,7 +303,7 @@ Else {
 }
 
 # Obtain tenant info
-$org_name = (($global:orgInfo).VerifiedDomains.Name -split '.onmicrosoft')[0]
+$org_name = ($global:orgInfo -split '.onmicrosoft')
 $tenantDisplayName = ($global:orgInfo).DisplayName
 
 # Get a list of every available detection module by parsing the PowerShell
