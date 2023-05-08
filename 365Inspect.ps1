@@ -88,7 +88,7 @@ Function Connect-Services {
         Try {
             Write-Output "Connecting to SharePoint Service"
             $org_name = ($global:orgInfo -split '.onmicrosoft')
-            Connect-PnPOnline -Url "https://$org_name-admin.sharepoint.com" -Interactive
+            Connect-SPOService -Url "https://$org_name-admin.sharepoint.com"
         }
         Catch {
             Write-Output "Connecting to SharePoint Service Failed."
@@ -183,7 +183,7 @@ Function Confirm-InstalledModules {
         }
     }
 
-    $modules = @($psGet, $ExchangeOnlineManagement, $Graph, $PnP, $MSTeams)
+    $modules = @($psGet, $ExchangeOnlineManagement, $Graph, $SharePoint, $MSTeams)
     $count = 0
 
     Write-Output "Verifying environment. `n"
@@ -193,27 +193,32 @@ Function Confirm-InstalledModules {
 
         If (($module.Name -eq (Get-InstalledModule -Name $module.Name).Name) -and (([Version]$module.MinimumVersion -le $installedVersion))) {
             If ($PSVersionTable.PSVersion.Major -eq 5) {
+                Write-Host "Environment is $($PSVersionTable.PSVersion)" -ForegroundColor Yellow
                 Write-Host "`t[+] " -NoNewLine -ForeGroundColor Green
                 Write-Output "$($module.Name) is installed."
                 
                 If ($module.Name -ne 'Microsoft.Graph') {
-                    Import-Module -Name $module.Name
+                    Write-Host "`tImporting $($module.Name)" -ForeGroundColor Green
+                    Import-Module -Name $module.Name | Out-Null
                 }
                 Else {
-                    Import-Module -Name Microsoft.Graph.Identity.DirectoryManagement
-                    Import-Module -Name Microsoft.Graph.Identity.SignIns
-                    Import-Module -Name Microsoft.Graph.Users
-                    Import-Module -Name Microsoft.Graph.Applications
+                    Write-Host "`tImporting Microsoft.Graph" -ForeGroundColor Green
+                    Import-Module -Name Microsoft.Graph.Identity.DirectoryManagement | Out-Null
+                    Import-Module -Name Microsoft.Graph.Identity.SignIns | Out-Null
+                    Import-Module -Name Microsoft.Graph.Users | Out-Null
+                    Import-Module -Name Microsoft.Graph.Applications | Out-Null
                 }
             }
             Elseif ($PSVersionTable.PSVersion.Major -ge 6) {
                 If ($IsWindows) {
+                    Write-Host "Environment is $($PSVersionTable.PSVersion)" -ForegroundColor Yellow
                     Write-Host "`t[+] " -NoNewLine -ForeGroundColor Green
                     Write-Output "$($module.Name) is installed."
 
                     If ($module.Name -ne 'Microsoft.Graph') {
                         Try {
-                            Import-Module -Name $module.Name -UseWindowsPowerShell
+                            Write-Host "`tImporting $($module.Name)" -ForeGroundColor Green
+                            Import-Module -Name $module.Name -UseWindowsPowerShell | Out-Null
                         }
                         Catch {
                             Write-Warning "Error message: $_"
@@ -232,10 +237,11 @@ Function Confirm-InstalledModules {
                     }
                     Else {
                         Try {
-                            Import-Module -Name Microsoft.Graph.Identity.DirectoryManagement -UseWindowsPowerShell
-                            Import-Module -Name Microsoft.Graph.Identity.SignIns -UseWindowsPowerShell
-                            Import-Module -Name Microsoft.Graph.Users -UseWindowsPowerShell
-                            Import-Module -Name Microsoft.Graph.Applications -UseWindowsPowerShell
+                            Write-Host "`tImporting Microsoft.Graph" -ForeGroundColor Green
+                            Import-Module -Name Microsoft.Graph.Identity.DirectoryManagement -UseWindowsPowerShell | Out-Null
+                            Import-Module -Name Microsoft.Graph.Identity.SignIns -UseWindowsPowerShell | Out-Null
+                            Import-Module -Name Microsoft.Graph.Users -UseWindowsPowerShell | Out-Null
+                            Import-Module -Name Microsoft.Graph.Applications -UseWindowsPowerShell | Out-Null
                         }
                         Catch {
                             Write-Warning "Error message: $_"
