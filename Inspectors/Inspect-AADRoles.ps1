@@ -17,7 +17,7 @@ Function Inspect-AADRoles {
             $members = Get-MgDirectoryRoleMember -DirectoryRoleId $role.Id
             $roleMembers = @()
             Foreach ($member in $members) {
-                $roleMembers += Get-MgDirectoryObjectById -Ids $member.Id 
+                $roleMembers += Get-MgDirectoryObject -DirectoryObjectId $member.Id 
             }
             $roleMembers | Export-CSV "$($path)\$($role.DisplayName)_AzureDirectoryRoleMembers.csv" -Force -NoTypeInformation
             $message = Write-Output "$($role.DisplayName) - $(@($roleMembers).count) members found"

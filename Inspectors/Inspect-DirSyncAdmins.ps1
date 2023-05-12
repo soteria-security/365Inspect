@@ -7,52 +7,52 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 $path = @($out_path)
 
-Function Inspect-DirSyncAdmins{
-Try {
+Function Inspect-DirSyncAdmins {
+    Try {
 
-	$path = New-Item -ItemType Directory -Force -Path "$($path)\DirSync"
+        $path = New-Item -ItemType Directory -Force -Path "$($path)\DirSync"
 
-	$adminRoles = Get-MgDirectoryRole | Where-Object {$_.DisplayName -like "*Administrator"}
+        $adminRoles = Get-MgDirectoryRole | Where-Object { $_.DisplayName -like "*Administrator" }
 
-	$allDirsyncAdmins = @()
+        $allDirsyncAdmins = @()
 
-	ForEach ($role in $adminRoles) {
-		$roleMembers = Get-MgDirectoryRoleMember -DirectoryRoleId $role.Id
+        ForEach ($role in $adminRoles) {
+            $roleMembers = Get-MgDirectoryRoleMember -DirectoryRoleId $role.Id
 
-		Foreach ($user in $roleMembers) {
-			$member = Get-MgDirectoryObjectById -Ids $user.Id
-			If ($member.OnPremisesSyncEnabled -eq $true){
-				$dirsyncAdmins += "$role : $($member.UserPrincipalName)`n"
-			}
-		}
+            Foreach ($user in $roleMembers) {
+                $member = Get-MgDirectoryObject -DirectoryObjectId $user.Id
+                If ($member.OnPremisesSyncEnabled -eq $true) {
+                    $dirsyncAdmins += "$role : $($member.UserPrincipalName)`n"
+                }
+            }
 
-		If ($dirsyncAdmins.count -ne 0){
-			$dirsyncAdmins | Out-File "$path\$($role.DisplayName).txt"
-			$allDirsyncAdmins += $dirsyncAdmins
-		}
-	}
+            If ($dirsyncAdmins.count -ne 0) {
+                $dirsyncAdmins | Out-File "$path\$($role.DisplayName).txt"
+                $allDirsyncAdmins += $dirsyncAdmins
+            }
+        }
 	
-	If ($allDirsyncAdmins.count -ne 0){
-		return $allDirsyncAdmins
-	}
+        If ($allDirsyncAdmins.count -ne 0) {
+            return $allDirsyncAdmins
+        }
 
-	Return $null
+        Return $null
 
-}
-Catch {
-Write-Warning "Error message: $_"
-$message = $_.ToString()
-$exception = $_.Exception
-$strace = $_.ScriptStackTrace
-$failingline = $_.InvocationInfo.Line
-$positionmsg = $_.InvocationInfo.PositionMessage
-$pscommandpath = $_.InvocationInfo.PSCommandPath
-$failinglinenumber = $_.InvocationInfo.ScriptLineNumber
-$scriptname = $_.InvocationInfo.ScriptName
-Write-Verbose "Write to log"
-Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
-Write-Verbose "Errors written to log"
-}
+    }
+    Catch {
+        Write-Warning "Error message: $_"
+        $message = $_.ToString()
+        $exception = $_.Exception
+        $strace = $_.ScriptStackTrace
+        $failingline = $_.InvocationInfo.Line
+        $positionmsg = $_.InvocationInfo.PositionMessage
+        $pscommandpath = $_.InvocationInfo.PSCommandPath
+        $failinglinenumber = $_.InvocationInfo.ScriptLineNumber
+        $scriptname = $_.InvocationInfo.ScriptName
+        Write-Verbose "Write to log"
+        Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
+        Write-Verbose "Errors written to log"
+    }
 
 }
 

@@ -8,7 +8,7 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 function Inspect-ProperAdminCount {
 Try {
 
-	$global_admins = (Get-MgDirectoryRoleMember -DirectoryRoleId (Get-MgDirectoryRole -Filter "DisplayName eq 'Global Administrator'").id | ForEach-Object {Get-MgDirectoryObjectById -Ids $_.id}).DisplayName
+	$global_admins = (Get-MgDirectoryRoleMember -DirectoryRoleId (Get-MgDirectoryRole -Filter "DisplayName eq 'Global Administrator'").id | ForEach-Object {Get-MgDirectoryObject -DirectoryObjectId $_.id}).DisplayName
 	$num_global_admins = ($global_admins | Measure-Object).Count
 
 	If (($num_global_admins -lt 2) -or ($num_global_admins -gt 4)) {
