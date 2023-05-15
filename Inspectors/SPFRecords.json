@@ -1,20 +1,22 @@
 {
-	"FindingName": "Domains with No SPF Records",
-	"Description": "The domains listed above do not have Sender Policy Framework (SPF) records. SPF records can be used by receiving mail servers to identify whether mail that purports to be from the organization's domains is actually from the organization's domains, or spoofed by an adversary. This helps defeat common tactics adversaries use during phishing and other offensive activities such as spoofing email addresses that mimic the organization's domain.",
-	"Remediation": "Create an SPF TXT DNS record as described in the references below. Remember that configuring SPF may affect the deliverability of mail from that domain. An SPF rollout should be measured and gradual.",
-	"DefaultValue" : "Null for all custom domains",
-    "ExpectedValue" : "v=spf1 include:spf.protection.outlook.com include:<domain name&rarr; -all",
-    "ReturnedValue" : "",
-    "Impact": "<span style=\"color:DarkOrange;\"><strong>High</strong></span>",
+    "FindingName": "Domains with No SPF Records",
+    "Description": "The domains listed above do not have Sender Policy Framework (SPF) records. SPF records can be used by receiving mail servers to identify whether mail that purports to be from the organization's domains is actually from the organization's domains, or spoofed by an adversary. This helps defeat common tactics adversaries use during phishing and other offensive activities such as spoofing email addresses that mimic the organization's domain.",
+    "Remediation": "Create an SPF TXT DNS record as described in the references below. Remember that configuring SPF may affect the deliverability of mail from that domain. An SPF rollout should be measured and gradual.",
+    "DefaultValue": "Null for all custom domains",
+    "ExpectedValue": "v=spf1 include:spf.protection.outlook.com include:<domain name&rarr; -all",
+    "ReturnedValue": "",
+    "Impact": "High",
     "AffectedObjects": "",
-	"References": [
-		{
-			"Url": "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/set-up-spf-in-office-365-to-help-prevent-spoofing?view=o365-worldwide",
-			"Text": "Set Up SPF in Office 365 to Help Prevent Spoofing"
-		},
-		{
-			"Url": "https://postmarkapp.com/blog/explaining-spf",
-			"Text": "Explaining SPF Records"
-		}
-	]
+    "Service": "Exchange",
+    "PowerShell": "",
+    "References": [
+        {
+            "Url": "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/set-up-spf-in-office-365-to-help-prevent-spoofing?view=o365-worldwide",
+            "Text": "Set Up SPF in Office 365 to Help Prevent Spoofing"
+        },
+        {
+            "Url": "https://postmarkapp.com/blog/explaining-spf",
+            "Text": "Explaining SPF Records"
+        }
+    ]
 }

@@ -5,8 +5,10 @@
     "DefaultValue": "None",
     "ExpectedValue": "Approved, designated users",
     "ReturnedValue": "",
-    "Impact": "<span style=\"color:DarkOrange;\"><strong>High</strong></span>",
+    "Impact": "High",
     "AffectedObjects": "",
+    "Service": "SecurityandCompliance",
+    "PowerShell": "",
     "References": [
         {
             "Url": "https://docs.microsoft.com/en-us/microsoft-365/compliance/get-started-core-ediscovery?view=o365-worldwide",

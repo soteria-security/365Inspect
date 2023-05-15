@@ -1,20 +1,22 @@
 {
-	"FindingName": "Expired Domain Registration Found",
-	"Description": "Recently a blog was published about a method of tenant takeover using expired domain registrations. This method relied on a domain registration expiring and the domain remaining associated with the Tenant. Monitoring domain registration for the organization can help detect and alert on attempts to exploit this attack path. Microsoft initially issued fixes for this attack between December 2021 and January 2022, but has since rolled back those efforts",
-	"Remediation": "Remediation of this finding requires removing the domain from the list of associated domains within the Tenant.",
-	"DefaultValue" : "None",
-    "ExpectedValue" : "None",
-    "ReturnedValue" : "",
-    "Impact": "<span style=\"color:DarkOrange;\"><strong>High</strong></span>",
+    "FindingName": "Expired Domain Registration Found",
+    "Description": "Recently a blog was published about a method of tenant takeover using expired domain registrations. This method relied on a domain registration expiring and the domain remaining associated with the Tenant. Monitoring domain registration for the organization can help detect and alert on attempts to exploit this attack path. Microsoft initially issued fixes for this attack between December 2021 and January 2022, but has since rolled back those efforts",
+    "Remediation": "Remediation of this finding requires removing the domain from the list of associated domains within the Tenant.",
+    "DefaultValue": "None",
+    "ExpectedValue": "None",
+    "ReturnedValue": "",
+    "Impact": "High",
     "AffectedObjects": "",
-	"References": [
-		{
-			"Url": "https://sra.io/blog/letitgo-a-case-study-in-expired-domains-and-azure-ad/",
-			"Text": "LetItGo: A Case Study in Expired Domains and Azure AD"
-		},
+    "Service": "Tenant",
+    "PowerShell": "",
+    "References": [
         {
-            "Url":"https://soteria.io/dnsense-online-brand-protection/",
-            "Text":"DNSense: Brand and Domain Protection Made Simple"
+            "Url": "https://sra.io/blog/letitgo-a-case-study-in-expired-domains-and-azure-ad/",
+            "Text": "LetItGo: A Case Study in Expired Domains and Azure AD"
+        },
+        {
+            "Url": "https://soteria.io/dnsense-online-brand-protection/",
+            "Text": "DNSense: Brand and Domain Protection Made Simple"
         }
-	]
+    ]
 }

@@ -1,20 +1,22 @@
 {
-	"FindingName": "Microsoft Secure Defaults",
-	"Description": "Microsoft Security Defaults are enabled on all tenants by default. Security Defaults configures and enforces a number of common security features. If more fine-grained security options are required, consider enabling Conditional Access policies. If Security Defaults are not enabled, ensure that other configurations are in place to safeguard your tenant and users.",
-	"Remediation": "None. If Secure Defaults are not enabled, ensure that equivalent protections have been enforced.",
-	"DefaultValue" : "True",
-    "ExpectedValue" : "True",
-    "ReturnedValue" : "",
-    "Impact": "<span style=\"color:Crimson;\"><strong>Critical</strong></span>",
+    "FindingName": "Microsoft Secure Defaults",
+    "Description": "Microsoft Security Defaults are enabled on all tenants by default. Security Defaults configures and enforces a number of common security features. If more fine-grained security options are required, consider enabling Conditional Access policies. If Security Defaults are not enabled, ensure that other configurations are in place to safeguard your tenant and users.",
+    "Remediation": "None. If Secure Defaults are not enabled, ensure that equivalent protections have been enforced.",
+    "DefaultValue": "True",
+    "ExpectedValue": "True",
+    "ReturnedValue": "",
+    "Impact": "Critical",
     "AffectedObjects": "",
-	"References": [
-		{
-			"Url": "https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/concept-fundamentals-security-defaults",
-			"Text": "What are security defaults?"
-		},
-		{
+    "Service": "AzureAD,Tenant",
+    "PowerShell": "",
+    "References": [
+        {
+            "Url": "https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/concept-fundamentals-security-defaults",
+            "Text": "What are security defaults?"
+        },
+        {
             "Url": "https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/concept-conditional-access-policy-common",
             "Text": "Common Conditional Access Policies"
-		}
-	]
+        }
+    ]
 }

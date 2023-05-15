@@ -1,24 +1,26 @@
 {
-	"FindingName": "User Accounts Created via Email Verified Self-Service Creation Found",
-	"Description": "Recently a blog was published about a method of tenant takeover using expired domain registrations. This method relied on a domain registration expiring and the domain remaining associated with the Tenant. Monitoring account creation types can help detect and alert on attempts to exploit this attack path. Outlined in both Soteria's blog \"Azure AD Default Configuration Blunders\" and the newly published \"LetItGo: A Case Study in Expired Domains and Azure AD\" blog is the risk of allowing Microsoft's self-service sign-up for Azure Active Directory. Microsoft initially issued fixes for this attack between December 2021 and January 2022, but has since rolled back those efforts.",
-	"Remediation": "Review any accounts returned to ensure they are appropriate for the Tenant. Determine if the self-service sign-up configuration is appropriate for business needs and either remediate as outlined, or implement a continuous monitoring solution for accounts created via the self-service method.",
-	"DefaultValue" : "None",
-    "ExpectedValue" : "Not applicable",
-    "ReturnedValue" : "",
-    "Impact": "<span style=\"color:DarkOrange;\"><strong>High</strong></span>",
+    "FindingName": "User Accounts Created via Email Verified Self-Service Creation Found",
+    "Description": "Recently a blog was published about a method of tenant takeover using expired domain registrations. This method relied on a domain registration expiring and the domain remaining associated with the Tenant. Monitoring account creation types can help detect and alert on attempts to exploit this attack path. Outlined in both Soteria's blog \"Azure AD Default Configuration Blunders\" and the newly published \"LetItGo: A Case Study in Expired Domains and Azure AD\" blog is the risk of allowing Microsoft's self-service sign-up for Azure Active Directory. Microsoft initially issued fixes for this attack between December 2021 and January 2022, but has since rolled back those efforts.",
+    "Remediation": "Review any accounts returned to ensure they are appropriate for the Tenant. Determine if the self-service sign-up configuration is appropriate for business needs and either remediate as outlined, or implement a continuous monitoring solution for accounts created via the self-service method.",
+    "DefaultValue": "None",
+    "ExpectedValue": "Not applicable",
+    "ReturnedValue": "",
+    "Impact": "High",
     "AffectedObjects": "",
-	"References": [
-		{
-			"Url": "https://sra.io/blog/letitgo-a-case-study-in-expired-domains-and-azure-ad/",
-			"Text": "LetItGo: A Case Study in Expired Domains and Azure AD"
-		},
+    "Service": "AzureAD",
+    "PowerShell": "",
+    "References": [
         {
-            "Url":"https://docs.microsoft.com/en-us/azure/active-directory/enterprise-users/directory-self-service-signup",
-            "Text":"What is self-service sign-up for Azure Active Directory?"
+            "Url": "https://sra.io/blog/letitgo-a-case-study-in-expired-domains-and-azure-ad/",
+            "Text": "LetItGo: A Case Study in Expired Domains and Azure AD"
         },
-		{
-			"Url": "https://medium.com/soteria-security/azure-ad-default-configuration-blunders-c7abddeae56",
-			"Text": "Azure AD Default Configuration Blunders"
-		}
-	]
+        {
+            "Url": "https://docs.microsoft.com/en-us/azure/active-directory/enterprise-users/directory-self-service-signup",
+            "Text": "What is self-service sign-up for Azure Active Directory?"
+        },
+        {
+            "Url": "https://medium.com/soteria-security/azure-ad-default-configuration-blunders-c7abddeae56",
+            "Text": "Azure AD Default Configuration Blunders"
+        }
+    ]
 }

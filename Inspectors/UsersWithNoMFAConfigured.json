@@ -5,8 +5,10 @@
     "DefaultValue": "All user accounts",
     "ExpectedValue": "None",
     "ReturnedValue": "",
-    "Impact": "<span style=\"color:Crimson;\"><strong>Critical</strong></span>",
+    "Impact": "Critical",
     "AffectedObjects": "",
+    "Service": "AzureAD",
+    "PowerShell": "",
     "References": [
         {
             "Url": "https://docs.microsoft.com/en-us/microsoft-365/admin/security-and-compliance/set-up-multi-factor-authentication?view=o365-worldwide",

@@ -1,0 +1,26 @@
+{
+    "FindingName": "Conditional Access Policies - Device Platforms",
+    "Description": "Conditional Access Policies were found that do not include, or explicitly exclude, device OS platforms. When a device platform is not included in a policy, or explicitly excluded from the policy, it is possible for attackers to change their useragent string and bypass security configurations. If left unconfigured, this setting defaults to 'all', targeting all device OS platforms. This finding does not account for separate policies that do target the listed device OS platforms. A manual review of Conditional Access Policies is required to determine if mitigating policies exist.",
+    "Remediation": "Review existing Conditional Access Policies and determine if all device platforms are accounted for. If device platforms are not accounted for, it is recommended to configure or create policies to target the missing platforms.",
+    "DefaultValue": "All",
+    "ExpectedValue": "All",
+    "ReturnedValue": "",
+    "Impact": "Critical",
+    "AffectedObjects": "",
+    "Service": "AzureAD",
+    "PowerShell": "",
+    "References": [
+        {
+            "Url": "https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/overview",
+            "Text": "What is Conditional Access in Azure Active Directory?"
+        },
+        {
+            "Url": "https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/concept-conditional-access-policy-common",
+            "Text": "Common Conditional Access Policies"
+        },
+        {
+            "Url": "https://techcommunity.microsoft.com/t5/azure-active-directory-identity/raising-the-baseline-security-for-all-organizations-in-the-world/ba-p/3299048",
+            "Text": "Raising the Baseline Security for all Organizations in the World"
+        }
+    ]
+}
