@@ -44,7 +44,7 @@ All 365*Inspect* requires to inspect your O365 tenant is access via an O365 acco
 
 Execution of 365*Inspect* looks like this:
 
-	.\365Inspect.ps1 -OrgName <value> -OutPath <value> -UserPrincipalName myuser@mytenant.onmicrosoft.com -Auth <MFA|ALREADY_AUTHED>
+	.\365Inspect.ps1 -OutPath <value> -UserPrincipalName myuser@mytenant.onmicrosoft.com -Auth <MFA|ALREADY_AUTHED>
 
 For example, to log in by entering your credentials in a browser with MFA support:
 
@@ -111,7 +111,7 @@ Once opened in a text editor, the data may be pasted into Excel.
 * Global Administrator
 * SharePoint Administrator
 
-We realize that these are extremely permissive roles, unfortunately due to the use of Microsoft Graph, we are restricted from using lesser prileges by Microsoft. Application and Cloud Application Administrator roles (used to grant delegated and application permissions) are restricted from granting permissions for Microsoft Graph or Azure AD PowerShell modules. [https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-administrator](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-administrator) 
+We realize that these are extremely permissive roles, unfortunately due to the use of Microsoft Graph, we are restricted from using lesser privileges by Microsoft. Application and Cloud Application Administrator roles (used to grant delegated and application permissions) are restricted from granting permissions for Microsoft Graph or Azure AD PowerShell modules. [https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-administrator](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-administrator) 
 
 # Developing Inspector Modules
 
@@ -154,20 +154,26 @@ return Inspect-BypassingSafeAttachments
 Example .json file, BypassingSafeAttachments.json:
 ```
 {
-	"FindingName": "Do Not Bypass the Safe Attachments Filter",
-	"Description": "In Exchange, it is possible to create mail transport rules that bypass the Safe Attachments detection capability. The rules listed above bypass the Safe Attachments capability. Consider reviewing these rules, as bypassing the Safe Attachments capability even for a subset of senders could be considered insecure depending on the context or may be an indicator of compromise.",
-	"Remediation": "Navigate to the Mail Flow -> Rules screen in the Exchange Admin Center. Look for the offending rules and begin the process of assessing who created them and whether they are necessary to the continued function of your organization. If they are not, remove the rules.",
-	"AffectedObjects": "",
-	"References": [
-		{
-			"Url": "https://docs.microsoft.com/en-us/exchange/security-and-compliance/mail-flow-rules/manage-mail-flow-rules",
-			"Text": "Manage Mail Flow Rules in Exchange Online"
-		},
-		{
-			"Url": "https://www.undocumented-features.com/2018/05/10/atp-safe-attachments-safe-links-and-anti-phishing-policies-or-all-the-policies-you-can-shake-a-stick-at/#Bypass_Safe_Attachments_Processing",
-			"Text": "Undocumented Features: Safe Attachments, Safe Links, and Anti-Phishing Policies"
-		}
-	]
+    "FindingName": "Do Not Bypass the Safe Attachments Filter",
+    "Description": "In Exchange, it is possible to create mail transport rules that bypass the Safe Attachments detection capability. The rules listed above bypass the Safe Attachments capability. Consider reviewing these rules, as bypassing the Safe Attachments capability even for a subset of senders could be considered insecure depending on the context or may be an indicator of compromise.",
+    "Remediation": "Navigate to the Mail Flow &rarr; Rules screen in the Exchange Admin Center. Look for the offending rules and begin the process of assessing who created them and whether they are necessary to the continued function of the organization. If they are not, remove the rules.",
+    "DefaultValue": "None",
+    "ExpectedValue": "None",
+    "ReturnedValue": "",
+    "Impact": "Critical",
+    "AffectedObjects": "",
+    "Service": "Exchange",
+    "PowerShell": "",
+    "References": [
+        {
+            "Url": "https://docs.microsoft.com/en-us/exchange/security-and-compliance/mail-flow-rules/manage-mail-flow-rules",
+            "Text": "Manage Mail Flow Rules in Exchange Online"
+        },
+        {
+            "Url": "https://www.undocumented-features.com/2018/05/10/atp-safe-attachments-safe-links-and-anti-phishing-policies-or-all-the-policies-you-can-shake-a-stick-at/#Bypass_Safe_Attachments_Processing",
+            "Text": "Undocumented Features: Safe Attachments, Safe Links, and Anti-Phishing Policies"
+        }
+    ]
 }
 ```
 
