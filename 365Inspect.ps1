@@ -604,22 +604,23 @@ Function CSV-Report {
                 $refs += "$($ref.Text) : $($ref.Url)"
             }
 
-            $result = New-Object psobject
-            $result | Add-Member -MemberType NoteProperty -name ID -Value $findings_count.ToString() -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name FindingName -Value $finding.FindingName -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name AffectedObjects -Value $("$($finding.AffectedObjects)" | Out-String).Trim() -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name Finding -Value $(($finding.Description) -join " ") -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name DefaultValue -Value $(($finding.DefaultValue) -join " ") -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name ExpectedValue -Value $(($finding.ExpectedValue) -join " ") -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name InherentRisk -Value $finding.Impact -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name 'Residual Risk' -Value " "
-            $result | Add-Member -MemberType NoteProperty -name Remediation -Value $(($finding.Remediation) -join " ") -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name References -Value $(($refs) -join ';')  -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name 'Remediation Status' -Value " "
-            $result | Add-Member -MemberType NoteProperty -name 'Required Resources' -Value " "
-            $result | Add-Member -MemberType NoteProperty -name 'Start Date' -Value " "
-            $result | Add-Member -MemberType NoteProperty -name 'Completion Date' -Value " "
-            $result | Add-Member -MemberType NoteProperty -name 'Notes' -Value " "
+            $result = [PSCustomObject]@{
+                ID                   = $findings_count.ToString()
+                FindingName          = $finding.FindingName
+                AffectedObjects      = $("$($finding.AffectedObjects)" | Out-String).Trim()
+                Finding              = $(($finding.Description) -join " ")
+                DefaultValue         = $(($finding.DefaultValue) -join " ")
+                ExpectedValue        = $(($finding.ExpectedValue) -join " ")
+                InherentRisk         = $finding.Impact
+                'Residual Risk'      = " "
+                Remediation          = $(($finding.Remediation) -join " ")
+                References           = $(($refs) -join ';') 
+                'Remediation Status' = " "
+                'Required Resources' = " "
+                'Start Date'         = " "
+                'Completion Date'    = " "
+                'Notes'              = " "
+            }
             
             $results += $result
         }
@@ -646,17 +647,18 @@ Function XML-Report {
                 $refs += "$($ref.Text) : $($ref.Url)"
             }
 
-            $result = New-Object psobject
-            $result | Add-Member -MemberType NoteProperty -name ID -Value $findings_count.ToString() -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name FindingName -Value $finding.FindingName -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name AffectedObjects -Value $("$($finding.AffectedObjects)" | Out-String).Trim() -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name Finding -Value $finding.Description -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name DefaultValue -Value $finding.DefaultValue -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name ExpectedValue -Value $finding.ExpectedValue -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name InherentRisk -Value $finding.Impact -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name 'Residual Risk' -Value " "
-            $result | Add-Member -MemberType NoteProperty -name Remediation -Value $finding.Remediation -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name References -Value $($refs | Out-String)  -ErrorAction SilentlyContinue
+            $result = [PSCustomObject]@{
+                ID              = $findings_count.ToString()
+                FindingName     = $finding.FindingName
+                AffectedObjects = $("$($finding.AffectedObjects)" | Out-String).Trim()
+                Finding         = $finding.Description
+                DefaultValue    = $finding.DefaultValue
+                ExpectedValue   = $finding.ExpectedValue
+                InherentRisk    = $finding.Impact
+                'Residual Risk' = " "
+                Remediation     = $finding.Remediation
+                References      = $($refs | Out-String) 
+            }
             
             $results += $result
         }
@@ -682,17 +684,18 @@ Function JSON-Report {
                 $refs += "$($ref.Text) : $($ref.Url)"
             }
 
-            $result = New-Object psobject
-            $result | Add-Member -MemberType NoteProperty -name ID -Value $findings_count.ToString() -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name FindingName -Value $finding.FindingName -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name AffectedObjects -Value $("$($finding.AffectedObjects)" | Out-String).Trim() -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name Finding -Value $finding.Description -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name DefaultValue -Value $finding.DefaultValue -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name ExpectedValue -Value $finding.ExpectedValue -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name InherentRisk -Value $finding.Impact -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name 'Residual Risk' -Value " "
-            $result | Add-Member -MemberType NoteProperty -name Remediation -Value $finding.Remediation -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name References -Value $($refs | Out-String)  -ErrorAction SilentlyContinue
+            $result = [PSCustomObject]@{
+                ID              = $findings_count.ToString()
+                FindingName     = $finding.FindingName
+                AffectedObjects = $("$($finding.AffectedObjects)" | Out-String).Trim()
+                Finding         = $finding.Description
+                DefaultValue    = $finding.DefaultValue
+                ExpectedValue   = $finding.ExpectedValue
+                InherentRisk    = $finding.Impact
+                'Residual Risk' = " "
+                Remediation     = $finding.Remediation
+                References      = $($refs | Out-String) 
+            }
             
             $results += $result
         }
