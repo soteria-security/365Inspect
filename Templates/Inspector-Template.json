@@ -1,0 +1,18 @@
+{
+    "FindingName": "",
+    "Description": "",
+    "Remediation": "",
+    "DefaultValue": "",
+    "ExpectedValue": "",
+    "ReturnedValue": "",
+    "Impact": "",
+    "AffectedObjects": "",
+    "Service": "",
+    "PowerShell": "",
+    "References": [
+        {
+            "Url": "",
+            "Text": ""
+        }
+    ]
+}

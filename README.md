@@ -124,6 +124,7 @@ It is simple to create an inspector module. Inspectors have two files:
 * *ModuleName.ps1*: the PowerShell source code of the inspector module. Should return a list of all O365 objects affected by a specific issue, represented as strings.
 * *ModuleName.json*: metadata about the inspector itself. For example, the finding name, description, remediation information, and references.
 
+Templates are included in the Templates folder. Simply add your code and values in the respective locations.
 The PowerShell and JSON file names must be identical for 365*Inspect* to recognize that the two belong together. There are numerous examples in 365*Inspect*'s built-in suite of modules, but we'll put an example here too.
 
 Example .ps1 file, BypassingSafeAttachments.ps1:
@@ -162,7 +163,7 @@ Example .json file, BypassingSafeAttachments.json:
     "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
-    "Service": "Exchange",
+    "Service": "Exchange",  Valid values are Exchange, SharePoint, Teams, Intune, AzureAD, SecurityandCompliance, Tenant //
     "PowerShell": "",
     "References": [
         {
