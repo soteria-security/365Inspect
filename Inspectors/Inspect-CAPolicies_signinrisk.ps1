@@ -10,7 +10,6 @@ $path = "$($env:USERPROFILE)\Documents\Reports\365Inspect_Report_$(Get-Date -For
 
 function Inspect-CAPolicies_signinrisk {
     Try {
-
         $tenantLicense = ((Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/subscribedSkus").Value).ServicePlans
     
         If ($tenantLicense.ServicePlanName -match "AAD_PREMIUM_P2") {
@@ -26,7 +25,7 @@ function Inspect-CAPolicies_signinrisk {
                 return $false
             }
             else {
-                $policies = ((Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/policies/conditionalAccessPolicies").Value | Where-Object { ($null -ne $_.conditions.userRiskLevels) -and (($_.conditions.userRiskLevels -eq 'high') -or ($_.conditions.userRiskLevels -eq 'medium')) })
+                $policies = ((Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/policies/conditionalAccessPolicies").Value | Where-Object { ($null -ne $_.conditions.signinRiskLevels) -and (($_.conditions.signinRiskLevels -eq 'high') -or ($_.conditions.signinRiskLevels -eq 'medium')) })
 
                 If (($policies | Measure-Object).Count -gt 0) {
                     $results = @()
@@ -50,10 +49,10 @@ function Inspect-CAPolicies_signinrisk {
                         }
 
                         # Disabled Policies
-                        If (($result.UserRisk -eq 'high') -and ($result.GrantConditions -eq 'block') -and ($result.State -ne 'enabled')) {
+                        If (($result.signinRisk -eq 'high') -and ($result.GrantConditions -eq 'block') -and ($result.State -ne 'enabled')) {
                             $results += "Policy $($result.Name) that blocks sign-in for users with high risk is not enabled."
                         }
-                        If (($result.UserRisk -eq 'medium') -and ($result.GrantConditions -ne 'block') -and ($result.State -ne 'enabled')) {
+                        If (($result.signinRisk -eq 'medium') -and ($result.GrantConditions -ne 'block') -and ($result.State -ne 'enabled')) {
                             $results += "Policy $($result.Name) that blocks sign-in for users with medium risk is not enabled."
                         }
                     }
