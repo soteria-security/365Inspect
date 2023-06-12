@@ -655,10 +655,6 @@ $compress = @{
 Compress-Archive @compress
 
 function Disconnect {
-    <#Write-Output "Disconnect from MSOnline Service"
-	[Microsoft.Online.Administration.Automation.ConnectMsolService]::ClearUserSessionState()#>
-    Write-Output "Disconnect from Azure Active Directory"
-    Disconnect-AzureAD
     Write-Output "Disconnect from Exchange Online"
     Disconnect-ExchangeOnline -Confirm:$false
     Write-Output "Disconnect from SharePoint Service"
