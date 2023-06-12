@@ -7,84 +7,82 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 <#
 .SYNOPSIS
-    Check for Microsoft Azure Active Directory and Microsoft Graph PowerShell Service Prinicipals.
+    Check for Microsoft Azure Active Directory and Microsoft Graph Command Line Tools Service Prinicipals.
 .DESCRIPTION
-    This script checks for configured Service Prinicipals needed to secure access to Microsoft Azure Active Directory and Microsoft Graph PowerShell modules.  
+    This script checks for configured Service Prinicipals needed to secure access to Microsoft Azure Active Directory and Microsoft Graph Command Line Tools modules.  
 .COMPONENT
     PowerShell, Azure Active Directory PowerShell Module, and sufficient rights to change Tenant settings
 .ROLE
     Recommended to run as Global Admin or Application Admin
 .FUNCTIONALITY
-    Check for Microsoft Azure Active Directory and Microsoft Graph PowerShell Service Prinicipals.
+    Check for Microsoft Azure Active Directory and Microsoft Graph Command Line Tools Service Prinicipals.
 #>
 
 
 Function Inspect-AZPSModules {
-Try {
+    Try {
 
-    $appIds = @("1b730954-1685-4b74-9bfd-dac224a7b894","14d82eec-204b-4c2f-b7e8-296a70dab67e")
+        $appIds = @("1b730954-1685-4b74-9bfd-dac224a7b894", "14d82eec-204b-4c2f-b7e8-296a70dab67e")
 
-    $void = "No Service Principals Found"
+        $void = "No Service Principals Found"
 
-    $aad = $false
+        $aad = $false
 
-    $graph = $false
+        $graph = $false
 
-    #Check for Service Prinicpals
-    Foreach ($appId in $appIds){
-        Try{
-            $sp = Get-MgServicePrincipal -Filter "appId eq '$appId'"
-            $app = Get-MgServicePrincipal -ServicePrincipalId $sp.Id
+        #Check for Service Prinicpals
+        Foreach ($appId in $appIds) {
+            Try {
+                $sp = Get-MgServicePrincipal -Filter "appId eq '$appId'"
+                $app = Get-MgServicePrincipal -ServicePrincipalId $sp.Id
             }
-        Catch{
-            return $void
+            Catch {
+                return $void
             }
-        
-        If ($null -ne $app){
-            if ($app.AppDisplayName -eq "Azure Active Directory PowerShell"){
-                $aad = $true
-            }
-            elseif ($app.AppDisplayName -eq "Microsoft Graph PowerShell") {
-                $graph = $true
+            
+            If ($null -ne $app) {
+                if ($app.AppDisplayName -eq "Azure Active Directory PowerShell") {
+                    $aad = $true
+                }
+                elseif ($app.AppDisplayName -eq "Microsoft Graph Command Line Tools") {
+                    $graph = $true
+                }
             }
         }
-    }
 
-    $appAAD = "Azure Active Directory PowerShell is not configured"
+        $appAAD = "Azure Active Directory PowerShell is not configured"
 
-    $appGraph = "Microsoft Graph PowerShell is not configured"
+        $appGraph = "Microsoft Graph Command Line Tools is not configured"
 
-    $both = "Neither Azure Active Directory PowerShell or Microsoft Graph PowerShell is configured"
+        $both = "Neither Azure Active Directory PowerShell or Microsoft Graph Command Line Tools is configured"
 
-    If ($aad -eq $false -and $graph -eq $false) {
-        Return $both
-        }elseif ($aad -eq $false -and $graph -eq $true) {
+        If ($aad -eq $false -and $graph -eq $false) {
+            Return $both
+        }
+        elseif ($aad -eq $false -and $graph -eq $true) {
             Return $appAAD
-        }elseif ($aad -eq $true -and $graph -eq $false) {
+        }
+        elseif ($aad -eq $true -and $graph -eq $false) {
             Return $appGraph
-        }else {
+        }
+        else {
             Return $null
         }
-    
-}
-Catch {
-Write-Warning "Error message: $_"
-$message = $_.ToString()
-$exception = $_.Exception
-$strace = $_.ScriptStackTrace
-$failingline = $_.InvocationInfo.Line
-$positionmsg = $_.InvocationInfo.PositionMessage
-$pscommandpath = $_.InvocationInfo.PSCommandPath
-$failinglinenumber = $_.InvocationInfo.ScriptLineNumber
-$scriptname = $_.InvocationInfo.ScriptName
-Write-Verbose "Write to log"
-Write-ErrorLog -message $message -exception $exception -scriptname $scriptname
-Write-Verbose "Errors written to log"
-}
-
+    }
+    Catch {
+        Write-Warning "Error message: $_"
+        $message = $_.ToString()
+        $exception = $_.Exception
+        $strace = $_.ScriptStackTrace
+        $failingline = $_.InvocationInfo.Line
+        $positionmsg = $_.InvocationInfo.PositionMessage
+        $pscommandpath = $_.InvocationInfo.PSCommandPath
+        $failinglinenumber = $_.InvocationInfo.ScriptLineNumber
+        $scriptname = $_.InvocationInfo.ScriptName
+        Write-Verbose "Write to log"
+        Write-ErrorLog -message $message -exception $exception -scriptname $scriptname
+        Write-Verbose "Errors written to log"
+    }
 }
 
 Return Inspect-AZPSModules
-
-
-
