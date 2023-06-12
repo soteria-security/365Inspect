@@ -13,7 +13,7 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 .Inputs
     None
 .Component
-    Microsoft Graph PowerShell Module
+    Microsoft Graph Command Line Tools Module
 .Role
     Scope for Policy.Read.All is required
 .Functionality
