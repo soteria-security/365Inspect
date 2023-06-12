@@ -616,6 +616,7 @@
     <h1 class="c19" id="h.1pyz3jiilmxm">
         <span class="c2">Risk Severity</span>
     </h1>
+
     <!-- RISK RATING BAR CHART -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
@@ -624,6 +625,11 @@
     </div>
     <script>
         var ctx = document.getElementById('riskChart').getContext('2d');
+
+        // Calculate percentages based on total count
+        var totalFindingsString = '{{TOTAL_COUNT}}';
+        var totalFindings = parseInt(totalFindingsString);
+
         var myChart = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -670,20 +676,26 @@
                             weight: 'bold'
                         },
                         formatter: function (value, context) {
-                            return context.chart.data.labels[context.dataIndex] + ": \n" + value + '%';
+                            var count = context.dataset.data[context.dataIndex];
+                            var percentage = Math.round(((count / totalFindings) * 100).toFixed(1)) + '%';
+                            return percentage;
+                            //return context.chart.data.labels[context.dataIndex] + ": " + percentage;
                         }
                     }
                 },
                 tooltips: {
                     callbacks: {
                         label: function (tooltipItem, data) {
-                            return data.labels[tooltipItem.index] + ": " + tooltipItem.xLabel;
+                            var count = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                            var percentage = Math.round(((count / totalFindings) * 100).toFixed(1)) + '%';
+                            return data.labels[tooltipItem.index] + ": " + count + " (" + percentage + ")";
                         }
                     }
                 }
             }
         });
     </script>
+
     <h1 class="c19" id="h.1pyz3jiilmxm">
         <span class="c2">Risk Distribution</span>
     </h1>
@@ -695,6 +707,11 @@
     </div>
     <script>
         var ctx = document.getElementById('distChart').getContext('2d');
+
+        // Added to test
+        var totalFindingsString = '{{TOTAL_COUNT}}';
+        var totalFindings = parseInt(totalFindingsString);
+
         var myChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
@@ -727,26 +744,25 @@
                             weight: 'bold'
                         },
                         formatter: function (value, context) {
-                            return context.chart.data.labels[context.dataIndex] + ": " + value + '%';
+                            var count = context.dataset.data[context.dataIndex];
+                            var percentage = Math.round(((count / totalFindings) * 100).toFixed(1)) + '%';
+                            return context.chart.data.labels[context.dataIndex] + ": " + count + " (" + percentage + ")";
                         }
                     }
                 },
                 tooltips: {
                     callbacks: {
                         label: function (tooltipItem, data) {
-                            var dataset = data.datasets[tooltipItem.datasetIndex];
-                            var total = dataset.data.reduce(function (previousValue, currentValue, currentIndex, array) {
-                                return previousValue + currentValue;
-                            });
-                            var currentValue = dataset.data[tooltipItem.index];
-                            var percentage = Math.floor(((currentValue / total) * 100) + 0.5);
-                            return dataset.labels[tooltipItem.index] + ": " + percentage + "%";
+                            var currentValue = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                            var percentage = Math.round(((currentValue / totalFindings) * 100).toFixed(1)) + '%';
+                            return data.labels[tooltipItem.index] + ": " + currentValue + " (" + percentage + ")";
                         }
                     }
                 }
             }
         });
     </script>
+
     <!--END_CHART_TEMPLATE-->
     <h1 class="c19" id="h.1pyz3jiilmxm">
         <span class="c2">Findings Summary</span>
