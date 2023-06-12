@@ -5,8 +5,10 @@
     "DefaultValue": "True",
     "ExpectedValue": "False",
     "ReturnedValue": "",
-    "Impact": "<span style=\"color:Crimson;\"><strong>Critical</strong></span>",
+    "Impact": "Critical",
     "AffectedObjects": "",
+    "Service": "Tenant",
+    "PowerShell": "",
     "References": [
         {
             "Url": "https://techcommunity.microsoft.com/t5/exchange-team-blog/upcoming-changes-to-exchange-web-services-ews-api-for-office-365/ba-p/608055",

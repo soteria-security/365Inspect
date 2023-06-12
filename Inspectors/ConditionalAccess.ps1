@@ -8,83 +8,179 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 $path = @($out_path)
 
 function Inspect-CAPolicies {
-Try {
-    $tenantLicense = (Get-MgSubscribedSku).ServicePlans
+    Try {
+        $tenantLicense = (Get-MgSubscribedSku)
     
-    If ($tenantLicense.ServicePlanName -match "AAD_PREMIUM*") {
+        If (($tenantLicense.ServicePlans.ServicePlanName -match "AAD_PREMIUM*")) {
         
-        $secureDefault = Get-MgPolicyIdentitySecurityDefaultEnforcementPolicy -Property IsEnabled | Select-Object IsEnabled
-        $conditionalAccess = Get-MgIdentityConditionalAccessPolicy
+            $secureDefault = Get-MgPolicyIdentitySecurityDefaultEnforcementPolicy -Property IsEnabled | Select-Object IsEnabled
+            $conditionalAccess = Get-MgIdentityConditionalAccessPolicy
 
-        If ($secureDefault.IsEnabled -eq $true) {
-            Return $null
-        }
-        ElseIf (($secureDefault.IsEnabled -eq $false) -and ($conditionalAccess.count -eq 0)) {
-            return $false
-        }
-        else {
-            $path = New-Item -ItemType Directory -Force -Path "$($path)\ConditionalAccess"
+            If ($secureDefault.IsEnabled -eq $true) {
             
-            Foreach ($policy in $conditionalAccess) {
+            }
+            ElseIf (($secureDefault.IsEnabled -eq $false) -and ($conditionalAccess.count -eq 0)) {
+                return $false
+            }
+            else {
+                $path = New-Item -ItemType Directory -Force -Path "$($path)\ConditionalAccess"
+            
+                Foreach ($policy in $conditionalAccess) {
 
-                $name = $policy.DisplayName
+                    $name = $policy.displayName
 
-                $pattern = '[\\\[\]\{\}/():;\*\"#<>\$&+!`|=\?@\s'']'
+                    $pattern = '[\\\[\]\{\}/():;\*\"#<>\$&+!`|=\?@\s'']'
 
-                $name = $name -replace $pattern, '-'
+                    $name = $name -replace $pattern, '-'
 
-                $result = New-Object psobject
-                $result | Add-Member -MemberType NoteProperty -name Name -Value $policy.DisplayName -ErrorAction SilentlyContinue
-                $result | Add-Member -MemberType NoteProperty -name State -Value $policy.State -ErrorAction SilentlyContinue
-                $result | Add-Member -MemberType NoteProperty -name IncludedApps -Value $policy.conditions.applications.includeapplications -ErrorAction SilentlyContinue
-                $result | Add-Member -MemberType NoteProperty -name ExcludedApps -Value $policy.conditions.applications.excludeapplications -ErrorAction SilentlyContinue
-                $result | Add-Member -MemberType NoteProperty -name IncludedUserActions -Value $policy.conditions.includeuseractions -ErrorAction SilentlyContinue
-                $result | Add-Member -MemberType NoteProperty -name IncludedProtectionLevels -Value $policy.conditions.includeprotectionlevels -ErrorAction SilentlyContinue
-                $result | Add-Member -MemberType NoteProperty -name IncludedUsers -Value $policy.conditions.users.includeusers -ErrorAction SilentlyContinue
-                $result | Add-Member -MemberType NoteProperty -name ExcludedUsers -Value $policy.conditions.users.excludeusers -ErrorAction SilentlyContinue
-                $result | Add-Member -MemberType NoteProperty -name IncludedGroups -Value $policy.conditions.users.includegroups -ErrorAction SilentlyContinue
-                $result | Add-Member -MemberType NoteProperty -name ExcludedGroups -Value $policy.conditions.users.excludegroups -ErrorAction SilentlyContinue
-                $result | Add-Member -MemberType NoteProperty -name IncludedRoles -Value $policy.conditions.users.includeroles -ErrorAction SilentlyContinue
-                $result | Add-Member -MemberType NoteProperty -name ExcludedRoles -Value $policy.conditions.users.excluderoles -ErrorAction SilentlyContinue
-                $result | Add-Member -MemberType NoteProperty -name IncludedPlatforms -Value $policy.conditions.platforms.includeplatforms -ErrorAction SilentlyContinue
-                $result | Add-Member -MemberType NoteProperty -name ExcludedPlatforms -Value $policy.conditions.platforms.excludeplatforms -ErrorAction SilentlyContinue
-                $result | Add-Member -MemberType NoteProperty -name IncludedLocations -Value $policy.conditions.locations.includelocations -ErrorAction SilentlyContinue
-                $result | Add-Member -MemberType NoteProperty -name ExcludedLocations -Value $policy.conditions.locations.excludelocations -ErrorAction SilentlyContinue
-                $result | Add-Member -MemberType NoteProperty -name IncludedSignInRisk -Value $policy.conditions.SignInRiskLevels -ErrorAction SilentlyContinue
-                $result | Add-Member -MemberType NoteProperty -name ClientAppTypes -Value $policy.conditions.ClientAppTypes -ErrorAction SilentlyContinue
-                $result | Add-Member -MemberType NoteProperty -name GrantConditions -Value $policy.grantcontrols.builtincontrols -ErrorAction SilentlyContinue
-                $result | Add-Member -MemberType NoteProperty -name ApplicationRestrictions -Value $policy.sessioncontrols.ApplicationEnforcedRestrictions -ErrorAction SilentlyContinue
-                $result | Add-Member -MemberType NoteProperty -name CloudAppSecurity -Value $policy.sessioncontrols.CloudAppSecurity -ErrorAction SilentlyContinue
-                $result | Add-Member -MemberType NoteProperty -name SessionLifetime -Value $policy.sessioncontrols.signinfrequency -ErrorAction SilentlyContinue
-                $result | Add-Member -MemberType NoteProperty -name PersistentBrowser -Value $policy.sessioncontrols.PersistentBrowser -ErrorAction SilentlyContinue
+                    $IncludedUsers = @()
 
+                    $ExcludedUsers = @()
 
-                $result | Out-File -FilePath "$($path)\$($name)_Policy.txt"
+                    $IncludedGroups = @()
+
+                    $ExcludedGroups = @()
+
+                    $IncludedRoles = @()
+
+                    $ExcludedRoles = @()
+
+                    If ($policy.conditions.users.includeusers -eq "All") {
+                        $IncludedUsers = "All"
+                    }
+                    Elseif ($policy.conditions.users.includeusers -eq "None") {
+                        $IncludedUsers = "None"
+                    }
+                    Elseif ($policy.conditions.users.includeusers -eq "GuestsOrExternalUsers") {
+                        $IncludedUsers = "GuestsOrExternalUsers"
+                    }
+                    Elseif ($policy.conditions.users.includeusers) {
+                        $IncludedUsers = @()
+                        Foreach ($id in ($policy.conditions.users.includeusers)) {
+                            If ($id -eq "GuestsOrExternalUsers") {
+                                $IncludedUsers += "GuestsOrExternalUsers"
+                            }
+                            Else {
+                                $IncludedUsers += (Get-MgDirectoryObject -DirectoryObjectId $id).AdditionalProperties.displayName -join ', '
+                            }
+                        }
+                    }
+                
+                    If ($policy.conditions.users.excludeusers -eq "All") {
+                        $ExcludedUsers = "All"
+                    }
+                    Elseif ($policy.conditions.users.excludeusers -eq "None") {
+                        $ExcludedUsers = "None"
+                    }
+                    Elseif ($policy.conditions.users.excludeusers -eq "GuestsOrExternalUsers") {
+                        $ExcludedUsers = "GuestsOrExternalUsers"
+                    }
+                    Elseif ($policy.conditions.users.excludeusers) {
+                        $ExcludedUsers = @()
+                        Foreach ($id in ($policy.conditions.users.excludeusers)) {
+                            If ($id -eq "GuestsOrExternalUsers") {
+                                $ExcludedUsers += "GuestsOrExternalUsers"
+                            }
+                            Else {
+                                $ExcludedUsers += (Get-MgDirectoryObject -DirectoryObjectId $id).AdditionalProperties.displayName -join ', '
+                            }
+                        }
+                    }
+                
+                    If ($policy.conditions.users.includegroups -eq "All") {
+                        $IncludedGroups = "All"
+                    }
+                    Elseif ($policy.conditions.users.includegroups) {
+                        $IncludedGroups = @()
+                        Foreach ($id in ($policy.conditions.users.includegroups)) {
+                            $IncludedGroups += (Get-MgDirectoryObject -DirectoryObjectId $id).AdditionalProperties.displayName -join ', '
+                        }
+                    }
+                
+                    If ($policy.conditions.users.excludegroups -eq "All") {
+                        $ExcludedGroups = "All"
+                    }
+                    Elseif ($policy.conditions.users.excludegroups) {
+                        $ExcludedGroups = @()
+                        foreach ($id in ($policy.conditions.users.excludegroups)) {
+                            $ExcludedGroups += (Get-MgDirectoryObject -DirectoryObjectId $id).AdditionalProperties.displayName -join ', '
+                        }
+                    }
+                
+                    If ($policy.conditions.users.includeroles -eq "All") {
+                        $IncludedRoles = "All"
+                    }
+                    Elseif ($policy.conditions.users.includeroles) {
+                        $IncludedRoles = @()
+                        foreach ($id in ($policy.conditions.users.includeroles)) {
+                            $IncludedRoles += (Get-MgDirectoryObject -DirectoryObjectId $id).AdditionalProperties.displayName -join ', '
+                        }
+                    }
+                
+                    If ($policy.conditions.users.excluderoles -eq "All") {
+                        $ExcludedRoles = "All"
+                    }
+                    Elseif ($policy.conditions.users.excluderoles) {
+                        $ExcludedRoles = @()
+                        foreach ($id in ($policy.conditions.users.excluderoles)) {
+                            $ExcludedRoles += (Get-MgDirectoryObject -DirectoryObjectId $id).AdditionalProperties.displayName -join ', '
+                        }
+                    }
+
+                    $sessionControls = $policy.sessioncontrols
+
+                    $result = [PSCustomObject]@{
+                        Name                       = $policy.DisplayName
+                        State                      = $policy.State
+                        IncludedApps               = $policy.conditions.applications.includeapplications
+                        ExcludedApps               = $policy.conditions.applications.excludeapplications
+                        IncludedUserActions        = $policy.conditions.includeuseractions
+                        IncludedProtectionLevels   = $policy.conditions.includeprotectionlevels
+                        IncludedUsers              = $IncludedUsers
+                        ExcludedUsers              = $ExcludedUsers
+                        IncludedGroups             = $IncludedGroups
+                        ExcludedGroups             = $ExcludedGroups
+                        IncludedRoles              = $IncludedRoles
+                        ExcludedRoles              = $ExcludedRoles
+                        IncludedPlatforms          = $policy.conditions.platforms.includeplatforms
+                        ExcludedPlatforms          = $policy.conditions.platforms.excludeplatforms
+                        IncludedLocations          = $policy.conditions.locations.includelocations
+                        ExcludedLocations          = $policy.conditions.locations.excludelocations
+                        IncludedSignInRisk         = $policy.conditions.SignInRiskLevels
+                        ClientAppTypes             = $policy.conditions.ClientAppTypes
+                        GrantConditions            = $policy.grantcontrols.builtincontrols
+                        ApplicationRestrictions    = $sessioncontrols.ApplicationEnforcedRestrictions
+                        DisableResilienceDefaults  = $sessioncontrols.disableResilienceDefaults
+                        ContinuousAccessEvaluation = $sessioncontrols.continuousAccessEvaluation
+                        CloudAppSecurity           = $sessioncontrols.CloudAppSecurity
+                        SessionLifetime            = $sessioncontrols.signinfrequency
+                        PersistentBrowser          = $sessioncontrols.PersistentBrowser.mode
+                        TokenProtection            = $sessionControls.secureSignInSession
+                        UserRisk                   = $policy.conditions.userRiskLevels
+                    }
+
+                    $result | ConvertTo-Json -Depth 100 | Out-File -FilePath "$($path)\$($name)_Policy.json"
+                }
             }
         }
+        Else {
+            Return "Tenant is not licensed for Conditional Access."
+        }
     }
-    Else {
-        Return "Tenant is not licensed for Conditional Access."
+    Catch {
+        Write-Warning "Error message: $_"
+        $message = $_.ToString()
+        $exception = $_.Exception
+        $strace = $_.ScriptStackTrace
+        $failingline = $_.InvocationInfo.Line
+        $positionmsg = $_.InvocationInfo.PositionMessage
+        $pscommandpath = $_.InvocationInfo.PSCommandPath
+        $failinglinenumber = $_.InvocationInfo.ScriptLineNumber
+        $scriptname = $_.InvocationInfo.ScriptName
+        Write-Verbose "Write to log"
+        Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
+        Write-Verbose "Errors written to log"
     }
-
-}
-Catch {
-Write-Warning "Error message: $_"
-$message = $_.ToString()
-$exception = $_.Exception
-$strace = $_.ScriptStackTrace
-$failingline = $_.InvocationInfo.Line
-$positionmsg = $_.InvocationInfo.PositionMessage
-$pscommandpath = $_.InvocationInfo.PSCommandPath
-$failinglinenumber = $_.InvocationInfo.ScriptLineNumber
-$scriptname = $_.InvocationInfo.ScriptName
-Write-Verbose "Write to log"
-Write-ErrorLog -message $message -exception $exception -scriptname $scriptname
-Write-Verbose "Errors written to log"
-}
-
 }
 
 return Inspect-CAPolicies
-
-

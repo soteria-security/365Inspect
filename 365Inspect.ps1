@@ -68,7 +68,8 @@ Function Connect-Services {
             Write-Output "Connecting to Microsoft Graph"
             Connect-MgGraph -ContextScope Process -Scopes "AuditLog.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "MailboxSettings.Read", "DeviceManagementManagedDevices.Read.All", "DeviceManagementApps.Read.All", "UserAuthenticationMethod.ReadWrite.All", "DeviceManagementServiceConfig.Read.All", "DeviceManagementConfiguration.Read.All"
             Select-MgProfile -Name beta
-            $global:orgInfo = ((Get-MgOrganization).VerifiedDomains | Where-Object { $_.Name -match 'onmicrosoft.com' })[0].Name
+            $global:orgInfo = Get-MgOrganization
+            $global:tenantDomain = (($global:orgInfo).VerifiedDomains | Where-Object { $_.Name -match 'onmicrosoft.com' })[0].Name
             Write-Output "Connected via Graph to $((Get-MgOrganization).DisplayName)"
         }
         Catch {
@@ -87,7 +88,7 @@ Function Connect-Services {
         }
         Try {
             Write-Output "Connecting to SharePoint Service"
-            $org_name = ($global:orgInfo -split '.onmicrosoft.com')[0]
+            $org_name = ($global:tenantDomain -split '.onmicrosoft.com')[0]
             Connect-SPOService -Url "https://$org_name-admin.sharepoint.com"
         }
         Catch {
@@ -115,7 +116,8 @@ Function Connect-Services {
         }
     }
     Else {
-        $global:orgInfo = ((Get-MgOrganization).VerifiedDomains | Where-Object { $_.Name -match 'onmicrosoft.com' })[0].Name
+        $global:orgInfo = Get-MgOrganization
+        $global:tenantDomain = (($global:orgInfo).VerifiedDomains | Where-Object { $_.Name -match 'onmicrosoft.com' })[0].Name
     }
 }
 
@@ -303,7 +305,7 @@ Else {
 }
 
 # Obtain tenant info
-$org_name = ($global:orgInfo -split '.onmicrosoft')
+$org_name = ($global:tenantDomain -split '.onmicrosoft.com')[0]
 $tenantDisplayName = ($global:orgInfo).DisplayName
 
 # Get a list of every available detection module by parsing the PowerShell
@@ -388,6 +390,12 @@ Function HTML-Report {
         
         $template -match '\<!--BEGIN_EXECSUM_TEMPLATE-->([\s\S]*)\<!--END_EXECSUM_TEMPLATE-->'
         $execsum_template = $matches[1]
+
+        $template -match '\<!--BEGIN_CHART_TEMPLATE-->([\s\S]*)\<!--END_CHART_TEMPLATE-->'
+        $chart_template = $matches[1]
+
+        $template -match '\<!--BEGIN_APPENDIX-->([\s\S]*)\<!--END_APPENDIX-->'
+        $appendix_template = $matches[1]
         
         return @{
             FindingShortTemplate    = $findings_short_template;
@@ -395,7 +403,9 @@ Function HTML-Report {
             AffectedObjectsTemplate = $affected_objects_template;
             ReportTemplate          = $template;
             ReferencesTemplate      = $references_template;
-            ExecsumTemplate         = $execsum_template
+            ExecsumTemplate         = $execsum_template;
+            ChartTemplate           = $chart_template;
+            AppendixTemplate        = $appendix_template
         }
     }
     
@@ -404,11 +414,26 @@ Function HTML-Report {
     # Maintain a running list of each finding, represented as HTML
     $short_findings_html = "" 
     $long_findings_html = ""
+    $selected_inspectors_html = ""
     
     $findings_count = 0
     
     #$sortedFindings1 = $findings | Sort-Object {$_.FindingName}
     $sortedFindings = $findings | Sort-Object { Switch -Regex ($_.Impact) { 'Critical' { 1 }	'High' { 2 }	'Medium' { 3 }	'Low' { 4 }	'Informational' { 5 } }; $_.FindingName } 
+
+    $criticalCount = 0
+    $highCount = 0
+    $mediumCount = 0
+    $lowCount = 0
+    $informationalCount = 0
+    $exchangeCount = 0
+    $sharepointCount = 0
+    $teamsCount = 0
+    $intuneCount = 0
+    $aadCount = 0
+    $securitycomplianceCount = 0
+    $tenantCount = 0
+
     ForEach ($finding in $sortedFindings) {
         # If the result from the inspector was not $null,
         # it identified a real finding that we must process.
@@ -428,11 +453,13 @@ Function HTML-Report {
             
             # Finding Impact
             If ($finding.Impact -eq 'Critical') {
+                $criticalCount += 1
                 $htmlImpact = '<span style="color:Crimson;"><strong>Critical</strong></span>'
                 $short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $htmlImpact)
                 $long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $htmlImpact)
             }
             ElseIf ($finding.Impact -eq 'High') {
+                $highCount += 1
                 $htmlImpact = '<span style="color:DarkOrange;"><strong>High</strong></span>'
                 $short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $htmlImpact)
                 $long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $htmlImpact)
@@ -441,6 +468,27 @@ Function HTML-Report {
                 $short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $finding.Impact)
                 $long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $finding.Impact)
             }
+            
+            If ($finding.Impact -eq 'Medium') {
+                $mediumCount += 1
+            }
+            If ($finding.Impact -eq 'Low') {
+                $lowCount += 1
+            }
+            If ($finding.Impact -eq 'Informational') {
+                $informationalCount += 1
+            }
+
+            Foreach ($service in $finding.Service) {
+                if ($service -match 'Exchange') { $exchangeCount += 1 }
+                elseif ($service -match 'SharePoint') { $sharepointCount += 1 }
+                elseif ($service -match 'Teams') { $teamsCount += 1 }
+                elseif ($service -match 'Intune') { $intuneCount += 1 }
+                elseif ($service -match 'AzureAD') { $aadCount += 1 }
+                elseif ($service -match 'SecurityandCompliance') { $securitycomplianceCount += 1 }
+                elseif ($service -eq 'Tenant') { $tenantCount += 1 }
+            }
+
             $short_finding_html = $short_finding_html.Replace("{{RISKRATING}}", $finding.RiskRating)
             $long_finding_html = $long_finding_html.Replace("{{RISKRATING}}", $finding.RiskRating)
             
@@ -452,7 +500,7 @@ Function HTML-Report {
     
             # Finding expected value
             $long_finding_html = $long_finding_html.Replace("{{EXPECTEDVALUE}}", $finding.ExpectedValue)
-                    
+            
             # Finding Remediation
             If ($finding.Remediation.length -GT 300) {
                 $short_finding_text = "Complete remediation advice is provided in the body of the report. Clicking the link to the left will take you there."
@@ -465,23 +513,26 @@ Function HTML-Report {
             $long_finding_html = $long_finding_html.Replace("{{REMEDIATION}}", $finding.Remediation)
             
             # Affected Objects
-            If ($finding.AffectedObjects.Count -GT 25) {
-                $condensed = "<a href='{name}'>{count} Affected Objects Identified<a/>."
+            <#If ($finding.AffectedObjects.Count -GT 25) {
+                $condensed = "<a href='{name}.txt'>{count} Affected Objects Identified<a/>."
                 $condensed = $condensed.Replace("{count}", $finding.AffectedObjects.Count.ToString())
                 $condensed = $condensed.Replace("{name}", $finding.FindingName)
                 $affected_object_html = $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $condensed)
                 $fname = $finding.FindingName
                 $finding.AffectedObjects | Out-File -FilePath "$out_path\$fname.txt"
             }
-            Else {
-                $affected_object_html = ''
-                ForEach ($affected_object in $finding.AffectedObjects) {
-                    $affected_object_html += $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $affected_object)
-                }
+            Else {#>
+            $affected_object_html = ''
+            ForEach ($affected_object in $finding.AffectedObjects) {
+                $affected_object_html += $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $affected_object)
             }
+            #}
             
             $long_finding_html = $long_finding_html.Replace($templates.AffectedObjectsTemplate, $affected_object_html)
             
+            # Finding PowerShell example
+            $long_finding_html = $long_finding_html.Replace("{{POWERSHELL}}", $finding.PowerShell)
+
             # References
             $reference_html = ''
             ForEach ($reference in $finding.References) {
@@ -499,12 +550,38 @@ Function HTML-Report {
     }
     
     # Insert command line execution information. This is coupled kinda badly, as is the Affected Objects html.
-    $flags = "<b>Prepared for organization:</b><br/>" + $org_name + "<br/><br/>"
-    $flags = $flags + "<b>Stats</b>:<br/> <b>" + $findings_count + "</b> out of <b>" + $inspectors.Count + "</b> executed inspector modules identified possible opportunities for improvement.<br/><br/>"  
-    $flags = $flags + "<b>Inspector Modules Executed</b>:<br/>" + [String]::Join("<br/>", $selected_inspectors)
+    $flags = "<b>Prepared for organization:</b><b> $tenantDisplayName - $org_name</b><br/><br/>"
+    #$flags = $flags + "<b>Stats</b>:<br/> <b>" + $findings_count + "</b> out of <b>" + $inspectors.Count + "</b> executed inspector modules identified possible opportunities for improvement.<br/><br/>"  
+    $flags = $flags + "<b>Stats</b>:<br/> <b>" + $findings_count + "</b> opportunities for improvement identified from <b>" + $inspectors.Count + "</b> points of inspection.<br/><br/>"
+    #$flags = $flags + "<b>Inspector Modules Executed</b>:<br/>" + [String]::Join("<br/>", $selected_inspectors)
     
+    # Add Risk Count for Charts
+    $chart_template_html = $templates.ChartTemplate
+    $chart_template_html = $chart_template_html.Replace("{{CRITICAL_COUNT}}", $criticalCount<#.ToString()#>)
+    $chart_template_html = $chart_template_html.Replace("{{HIGH_COUNT}}", $highCount<#.ToString()#>)
+    $chart_template_html = $chart_template_html.Replace("{{MEDIUM_COUNT}}", $mediumCount<#.ToString()#>)
+    $chart_template_html = $chart_template_html.Replace("{{LOW_COUNT}}", $lowCount<#.ToString()#>)
+    $chart_template_html = $chart_template_html.Replace("{{INFORMATIONAL_COUNT}}", $informationalCount<#.ToString()#>)
+    $chart_template_html = $chart_template_html.Replace("{{EXCHANGE}}", $exchangeCount.ToString())
+    $chart_template_html = $chart_template_html.Replace("{{SHAREPOINT}}", $sharepointCount.ToString())
+    $chart_template_html = $chart_template_html.Replace("{{TEAMS}}", $teamsCount.ToString())
+    $chart_template_html = $chart_template_html.Replace("{{INTUNE}}", $intuneCount.ToString())
+    $chart_template_html = $chart_template_html.Replace("{{AAD}}", $aadCount.ToString())
+    $chart_template_html = $chart_template_html.Replace("{{SECCOMP}}", $securitycomplianceCount.ToString())
+    $chart_template_html = $chart_template_html.Replace("{{TENANT}}", $tenantCount.ToString())
+
+    # Add Appendix of Inspectors run
+    $appendix_template_html = $templates.AppendixTemplate
+    foreach ($selInspector in $selected_inspectors) {
+        $selected_inspectors_html += "$selInspector,"
+    }
+    $appendix_template_html = $appendix_template_html.Replace("{{SELECTED_INSPECTORS}}", $selected_inspectors_html)
+
+
     $output = $templates.ReportTemplate.Replace($templates.FindingShortTemplate, $short_findings_html)
     $output = $output.Replace($templates.FindingLongTemplate, $long_findings_html)
+    $output = $output.Replace($templates.ChartTemplate, $chart_template_html)
+    $output = $output.Replace($templates.AppendixTemplate, $appendix_template_html)
     $output = $output.Replace($templates.ExecsumTemplate, $templates.ExecsumTemplate.Replace("{{CMDLINEFLAGS}}", $flags))
     
     $output | Out-File -FilePath $out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss").html
@@ -527,22 +604,23 @@ Function CSV-Report {
                 $refs += "$($ref.Text) : $($ref.Url)"
             }
 
-            $result = New-Object psobject
-            $result | Add-Member -MemberType NoteProperty -name ID -Value $findings_count.ToString() -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name FindingName -Value $finding.FindingName -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name AffectedObjects -Value $("$($finding.AffectedObjects)" | Out-String).Trim() -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name Finding -Value $(($finding.Description) -join " ") -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name DefaultValue -Value $(($finding.DefaultValue) -join " ") -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name ExpectedValue -Value $(($finding.ExpectedValue) -join " ") -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name InherentRisk -Value $finding.Impact -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name 'Residual Risk' -Value " "
-            $result | Add-Member -MemberType NoteProperty -name Remediation -Value $(($finding.Remediation) -join " ") -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name References -Value $(($refs) -join ';')  -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name 'Remediation Status' -Value " "
-            $result | Add-Member -MemberType NoteProperty -name 'Required Resources' -Value " "
-            $result | Add-Member -MemberType NoteProperty -name 'Start Date' -Value " "
-            $result | Add-Member -MemberType NoteProperty -name 'Completion Date' -Value " "
-            $result | Add-Member -MemberType NoteProperty -name 'Notes' -Value " "
+            $result = [PSCustomObject]@{
+                ID                   = $findings_count.ToString()
+                FindingName          = $finding.FindingName
+                AffectedObjects      = $("$($finding.AffectedObjects)" | Out-String).Trim()
+                Finding              = $(($finding.Description) -join " ")
+                DefaultValue         = $(($finding.DefaultValue) -join " ")
+                ExpectedValue        = $(($finding.ExpectedValue) -join " ")
+                InherentRisk         = $finding.Impact
+                'Residual Risk'      = " "
+                Remediation          = $(($finding.Remediation) -join " ")
+                References           = $(($refs) -join ';') 
+                'Remediation Status' = " "
+                'Required Resources' = " "
+                'Start Date'         = " "
+                'Completion Date'    = " "
+                'Notes'              = " "
+            }
             
             $results += $result
         }
@@ -569,17 +647,18 @@ Function XML-Report {
                 $refs += "$($ref.Text) : $($ref.Url)"
             }
 
-            $result = New-Object psobject
-            $result | Add-Member -MemberType NoteProperty -name ID -Value $findings_count.ToString() -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name FindingName -Value $finding.FindingName -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name AffectedObjects -Value $("$($finding.AffectedObjects)" | Out-String).Trim() -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name Finding -Value $finding.Description -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name DefaultValue -Value $finding.DefaultValue -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name ExpectedValue -Value $finding.ExpectedValue -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name InherentRisk -Value $finding.Impact -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name 'Residual Risk' -Value " "
-            $result | Add-Member -MemberType NoteProperty -name Remediation -Value $finding.Remediation -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name References -Value $($refs | Out-String)  -ErrorAction SilentlyContinue
+            $result = [PSCustomObject]@{
+                ID              = $findings_count.ToString()
+                FindingName     = $finding.FindingName
+                AffectedObjects = $("$($finding.AffectedObjects)" | Out-String).Trim()
+                Finding         = $finding.Description
+                DefaultValue    = $finding.DefaultValue
+                ExpectedValue   = $finding.ExpectedValue
+                InherentRisk    = $finding.Impact
+                'Residual Risk' = " "
+                Remediation     = $finding.Remediation
+                References      = $($refs | Out-String) 
+            }
             
             $results += $result
         }
@@ -605,17 +684,18 @@ Function JSON-Report {
                 $refs += "$($ref.Text) : $($ref.Url)"
             }
 
-            $result = New-Object psobject
-            $result | Add-Member -MemberType NoteProperty -name ID -Value $findings_count.ToString() -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name FindingName -Value $finding.FindingName -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name AffectedObjects -Value $("$($finding.AffectedObjects)" | Out-String).Trim() -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name Finding -Value $finding.Description -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name DefaultValue -Value $finding.DefaultValue -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name ExpectedValue -Value $finding.ExpectedValue -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name InherentRisk -Value $finding.Impact -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name 'Residual Risk' -Value " "
-            $result | Add-Member -MemberType NoteProperty -name Remediation -Value $finding.Remediation -ErrorAction SilentlyContinue
-            $result | Add-Member -MemberType NoteProperty -name References -Value $($refs | Out-String)  -ErrorAction SilentlyContinue
+            $result = [PSCustomObject]@{
+                ID              = $findings_count.ToString()
+                FindingName     = $finding.FindingName
+                AffectedObjects = $("$($finding.AffectedObjects)" | Out-String).Trim()
+                Finding         = $finding.Description
+                DefaultValue    = $finding.DefaultValue
+                ExpectedValue   = $finding.ExpectedValue
+                InherentRisk    = $finding.Impact
+                'Residual Risk' = " "
+                Remediation     = $finding.Remediation
+                References      = $($refs | Out-String) 
+            }
             
             $results += $result
         }

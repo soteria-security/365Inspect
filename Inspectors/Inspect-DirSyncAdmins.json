@@ -1,16 +1,18 @@
 {
-	"FindingName": "Directory Synced Users Found in Admin Roles",
-	"Description": "Account synchronization can be used to modify privileged users (including their credentials) or groups that have administrative privileges in Microsoft 365. Changes to, or compromise of directory-synced accounts can affect the integrity of the cloud environment.",
-	"Remediation": "Follow Microsoft guidance and restrict all administrative privileges to Azure-only accounts using strong authentication methods, and if possible, only allow those accounts to be accessed from Azure-based workstations.",
-	"DefaultValue" : "None",
-    "ExpectedValue" : "None",
-    "ReturnedValue" : "",
-    "Impact": "<span style=\"color:Crimson;\"><strong>Critical</strong></span>",
+    "FindingName": "Directory Synced Users Found in Admin Roles",
+    "Description": "Account synchronization can be used to modify privileged users (including their credentials) or groups that have administrative privileges in Microsoft 365. Changes to, or compromise of directory-synced accounts can affect the integrity of the cloud environment.",
+    "Remediation": "Follow Microsoft guidance and restrict all administrative privileges to Azure-only accounts using strong authentication methods, and if possible, only allow those accounts to be accessed from Azure-based workstations.",
+    "DefaultValue": "None",
+    "ExpectedValue": "None",
+    "ReturnedValue": "",
+    "Impact": "Critical",
     "AffectedObjects": "",
-	"References": [
-		{
-			"Url": "https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/protect-m365-from-on-premises-attacks",
-			"Text": "Protecting Microsoft 365 from on-premises attacks"
-		}
-	]
+    "Service": "AzureAD",
+    "PowerShell": "",
+    "References": [
+        {
+            "Url": "https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/protect-m365-from-on-premises-attacks",
+            "Text": "Protecting Microsoft 365 from on-premises attacks"
+        }
+    ]
 }

@@ -1,20 +1,22 @@
 {
-	"FindingName": "Do Not Bypass the Safe Links Feature",
-	"Description": "In Exchange, it is possible to create mail transport rules that bypass the Safe Links detection capability. The rules listed above bypass the Safe Links capability. Consider reviewing these rules, as bypassing the Safe Links capability even for a subset of senders should be considered dangerous.",
-	"Remediation": "Navigate to the Mail Flow &rarr; Rules screen in the Exchange Admin Center. Look for the offending rules and begin the process of assessing who created them and whether they are necessary to the continued function of the organization. If they are not, remove the rules.",
-	"DefaultValue" : "None",
-    "ExpectedValue" : "None",
-    "ReturnedValue" : "",
-    "Impact": "<span style=\"color:Crimson;\"><strong>Critical</strong></span>",
+    "FindingName": "Do Not Bypass the Safe Links Feature",
+    "Description": "In Exchange, it is possible to create mail transport rules that bypass the Safe Links detection capability. The rules listed above bypass the Safe Links capability. Consider reviewing these rules, as bypassing the Safe Links capability even for a subset of senders should be considered dangerous.",
+    "Remediation": "Navigate to the Mail Flow &rarr; Rules screen in the Exchange Admin Center. Look for the offending rules and begin the process of assessing who created them and whether they are necessary to the continued function of the organization. If they are not, remove the rules.",
+    "DefaultValue": "None",
+    "ExpectedValue": "None",
+    "ReturnedValue": "",
+    "Impact": "Critical",
     "AffectedObjects": "",
-	"References": [
-		{
-			"Url": "https://docs.microsoft.com/en-us/exchange/security-and-compliance/mail-flow-rules/manage-mail-flow-rules",
-			"Text": "Manage Mail Flow Rules in Exchange Online"
-		},
-		{
-			"Url": "https://www.undocumented-features.com/2018/05/10/atp-safe-attachments-safe-links-and-anti-phishing-policies-or-all-the-policies-you-can-shake-a-stick-at/#Bypass_Safe_Attachments_Processing",
-			"Text": "Undocumented Features: Safe Attachments, Safe Links, and Anti-Phishing Policies"
-		}
-	]
+    "Service": "Exchange",
+    "PowerShell": "",
+    "References": [
+        {
+            "Url": "https://docs.microsoft.com/en-us/exchange/security-and-compliance/mail-flow-rules/manage-mail-flow-rules",
+            "Text": "Manage Mail Flow Rules in Exchange Online"
+        },
+        {
+            "Url": "https://www.undocumented-features.com/2018/05/10/atp-safe-attachments-safe-links-and-anti-phishing-policies-or-all-the-policies-you-can-shake-a-stick-at/#Bypass_Safe_Attachments_Processing",
+            "Text": "Undocumented Features: Safe Attachments, Safe Links, and Anti-Phishing Policies"
+        }
+    ]
 }
