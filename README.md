@@ -104,6 +104,16 @@ Due to the nature of some of the returned items, the csv report is delimited on 
 It is recommended to open the CSV report in a text editor rather than Excel, as Excel defaults to a comma (,) delimiter and will render the report incorrectly.
 Once opened in a text editor, the data may be pasted into Excel.
 
+# Change Log
+
+* 365*Inspect*'s HTML report format has changed
+    * Include new visual indicators of risk in the form of two charts
+        ![Risk Charts](Images/Charts.png)
+    * Separated the PowerShell commands from the remediation steps and added syntax highlighting
+        ![PowerShell Commands](Images/PowerShell.png)
+    * Moved the list of Inspectors executed to an appendix at the bottom of the report
+        ![Appendix](Images/Appendix.png)
+
 # Necessary Privileges
 
 365*Inspect* can't run properly unless the O365 account you authenticate with has appropriate privileges. 365*Inspect* requires, at minimum, the following:
