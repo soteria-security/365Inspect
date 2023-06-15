@@ -653,19 +653,22 @@
                 maintainAspectRatio: false,
                 indexAxis: 'y',
                 scales: {
-                    xAxes: [{
+                    x: {
+                        type: 'linear',
+                        min: 0,
                         ticks: {
-                            beginAtZero: true
+                            stepSize: 10,
+                            precision: 0
                         },
-                        gridLines: {
+                        grid: {
                             display: false
                         }
-                    }],
-                    yAxes: [{
-                        gridLines: {
+                    },
+                    y: {
+                        grid: {
                             display: false
                         }
-                    }]
+                    }
                 },
                 plugins: {
                     datalabels: {
@@ -678,8 +681,7 @@
                         formatter: function (value, context) {
                             var count = context.dataset.data[context.dataIndex];
                             var percentage = Math.round(((count / totalFindings) * 100).toFixed(1)) + '%';
-                            return percentage;
-                            //return context.chart.data.labels[context.dataIndex] + ": " + percentage;
+                            return context.chart.data.labels[context.dataIndex] + ": " + count + "\n" + "(" + percentage + ")";
                         }
                     }
                 },
@@ -711,24 +713,59 @@
         // Added to test
         var totalFindingsString = '{{TOTAL_COUNT}}';
         var totalFindings = parseInt(totalFindingsString);
+        var data = ['{{EXCHANGE}}', '{{SHAREPOINT}}', '{{TEAMS}}', '{{INTUNE}}', '{{AAD}}', '{{SECCOMP}}', '{{TENANT}}']
+        var labels = ['Exchange', 'SharePoint', 'Teams', 'Intune', 'Azure AD', 'Security Center', 'Tenant Settings'];
+        var backgroundColor = ['#3498DB', '#27AE60', '#8E44AD', '#E67E22', '#2CFC03', '#F4D03F', '#C8C8C8'];
+
+        var chartData = [];
+        for (var i = 0; i < data.length; i++) {
+            chartData.push({
+                value: parseInt(data[i]),
+                label: labels[i],
+                color: backgroundColor[i]
+            });
+        }
+
+        chartData.sort(function (a, b) {
+            return b.value - a.value;
+        });
+
+        var sortedData = chartData.map(function (item) {
+            return item.value;
+        });
+        var sortedLabels = chartData.map(function (item) {
+            return item.label;
+        });
+        var sortedBackgroundColor = chartData.map(function (item) {
+            return item.color;
+        });
 
         var myChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: ['Exchange', 'SharePoint', 'Teams', 'Intune', 'Azure AD', 'Security Center', 'Tenant Settings'],
+                labels: sortedLabels,
                 datasets: [{
-                    backgroundColor: ['#3498DB', '#27AE60', '#8E44AD', '#E67E22', '#2CFC03', '#F4D03F', '#C8C8C8'],
-                    data: ['{{EXCHANGE}}', '{{SHAREPOINT}}', '{{TEAMS}}', '{{INTUNE}}', '{{AAD}}', '{{SECCOMP}}', '{{TENANT}}']
+                    backgroundColor: sortedBackgroundColor,
+                    data: sortedData
                 }]
             },
             plugins: [ChartDataLabels],
             options: {
+                rotation: -90,
                 layout: {
                     padding: 30,
                 },
                 responsive: true,
                 maintainAspectRatio: true,
                 aspectRatio: 2,
+                layout: {
+                    padding: {
+                        top: 30,
+                        right: 30,
+                        bottom: 30,
+                        left: 30
+                    }
+                },
                 plugins: {
                     legend: {
                         display: true,
@@ -744,18 +781,27 @@
                             weight: 'bold'
                         },
                         formatter: function (value, context) {
-                            var count = context.dataset.data[context.dataIndex];
-                            var percentage = Math.round(((count / totalFindings) * 100).toFixed(1)) + '%';
-                            return context.chart.data.labels[context.dataIndex] + ": " + count + " (" + percentage + ")";
-                        }
+                            var percentage = Math.floor(((value / totalFindings2) * 100) + 0.5);
+                            return context.chart.data.labels[context.dataIndex] + ": " + value + " (" + percentage + ")";
+                        },
+                        display: function (context) {
+                            return context.dataset.data[context.dataIndex] > 0;
+                        },
+                        clamp: false,
+                        clip: false,
+                        offset: 5,
                     }
                 },
                 tooltips: {
                     callbacks: {
                         label: function (tooltipItem, data) {
-                            var currentValue = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-                            var percentage = Math.round(((currentValue / totalFindings) * 100).toFixed(1)) + '%';
-                            return data.labels[tooltipItem.index] + ": " + currentValue + " (" + percentage + ")";
+                            var dataset = data.datasets[tooltipItem.datasetIndex];
+                            var total = dataset.data.reduce(function (previousValue, currentValue, currentIndex, array) {
+                                return previousValue + currentValue;
+                            });
+                            var currentValue = dataset.data[tooltipItem.index];
+                            var percentage = Math.floor(((currentValue / totalFindings2) * 100) + 0.5);
+                            return dataset.labels[tooltipItem.index] + ": " + currentValue + " (" + percentage + "%" + ")";
                         }
                     }
                 }
