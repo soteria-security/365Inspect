@@ -12,13 +12,13 @@ The 365*Inspect*.ps1 PowerShell script will validate the installed modules and m
 
 If you do not have these modules installed, you will be prompted to install them, and with your approval, the script will attempt installation. Otherwise, you should be able to install them with the following commands in an administrative PowerShell prompt, or by following the instructions at the references below:
 
-    Install-Module -Name ExchangeOnlineManagement -AllowPrerelease -AllowClobber -Force -RequiredVersion 2.0.5
+    Install-Module -Name ExchangeOnlineManagement -AllowClobber -Force
     
-    Install-Module -Name Microsoft.Online.SharePoint.PowerShell -AllowPrerelease -AllowClobber -Force -RequiredVersion 16.0.22601.12000
+    Install-Module -Name Microsoft.Online.SharePoint.PowerShell -AllowClobber -Force
     
-    Install-Module -Name Microsoft.Graph -AllowPrerelease -AllowClobber -Force -RequiredVersion 1.9.6
+    Install-Module -Name Microsoft.Graph -AllowClobber -Force
     
-    Install-Module -Name MicrosoftTeams -AllowPrerelease -AllowClobber -Force -RequiredVersion 4.4.1
+    Install-Module -Name MicrosoftTeams -AllowClobber -Force
 
 [Install Exchange Online PowerShell](https://docs.microsoft.com/en-us/powershell/exchange/exchange-online-powershell-v2?view=exchange-ps)
 
