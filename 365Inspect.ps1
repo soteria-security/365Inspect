@@ -35,7 +35,7 @@ param (
     [Parameter(Mandatory = $true,
         HelpMessage = 'UserPrincipalName required for Exchange Connection')]
     [string] $UserPrincipalName,
-    [Parameter(Mandatory = $true,
+    [Parameter(Mandatory = $false,
         HelpMessage = 'Skips required module check. Designed for troubleshooting purposes.')]
     [switch] $SkipModuleCheck,
     [Parameter(Mandatory = $false,
