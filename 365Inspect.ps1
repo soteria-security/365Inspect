@@ -66,8 +66,10 @@ Function Connect-Services {
     If ($auth -EQ "MFA") {
         Try {
             Write-Output "Connecting to Microsoft Graph"
-            Connect-MgGraph -ContextScope Process -Scopes "AuditLog.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "MailboxSettings.Read", "DeviceManagementManagedDevices.Read.All", "DeviceManagementApps.Read.All", "UserAuthenticationMethod.ReadWrite.All", "DeviceManagementServiceConfig.Read.All", "DeviceManagementConfiguration.Read.All"
-            Select-MgProfile -Name beta
+            Connect-MgGraph -ContextScope Process -Scopes "AuditLog.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "MailboxSettings.Read", "DeviceManagementManagedDevices.Read.All", "DeviceManagementApps.Read.All", "UserAuthenticationMethod.ReadWrite.All", "DeviceManagementServiceConfig.Read.All", "DeviceManagementConfiguration.Read.All" -Verbose
+            If ((Get-Module -Name Microsoft.Graph.Authentication) -lt [version]2.0.0){
+                Select-MgProfile -Name beta -Verbose
+            }
             $global:orgInfo = Get-MgOrganization
             $global:tenantDomain = (($global:orgInfo).VerifiedDomains |  Where-Object { ($_.Name -like "*.onmicrosoft.com") -and ($_.Name -notlike "*mail.onmicrosoft.com") }).Name
             Write-Output "Connected via Graph to $(($global:orgInfo).DisplayName)"
