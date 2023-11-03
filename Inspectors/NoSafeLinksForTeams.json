@@ -4,7 +4,6 @@
     "Remediation": "Perhaps the most convenient way to enable this feature is to use the Set-SafeLinksPolicy command in PowerShell as listed below. Note that some organizations may have chosen to disable Safe Links for Teams if it interferes with day-to-day operations, so key stakeholders should be surveyed before enabling Safe Links for Teams.",
     "DefaultValue": "True",
     "ExpectedValue": "True",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "Exchange,Teams,SecurityandCompliance",

@@ -4,7 +4,6 @@
     "Remediation": "If False was returned, consider creating Conditional Access policies or re-enabling Secure Defaults. If the Tenant is not licensed for Conditional Access, consider enabling Secure Defaults. Microsoft force-enabled Secure Defaults on all tenants beginning in late June 2022.",
     "DefaultValue": "False",
     "ExpectedValue": "True",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "AzureAD",

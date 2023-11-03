@@ -4,7 +4,6 @@
     "Remediation": "Navigate to the Mail Flow &rarr; Rules screen in the Exchange Admin Center. Look for the offending rules and begin the process of assessing who created them and whether they are necessary to the continued function of the organization. If they are not, remove the rules.",
     "DefaultValue": "None",
     "ExpectedValue": "None",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "Exchange",

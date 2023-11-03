@@ -4,7 +4,6 @@
     "Remediation": "Review Mail Flow rules that bypass spam filtering for Simulated Phishing platforms. Bypassing Spam filtering, Safe Links and Safe Attachments by IP, domain, or header values allows attackers to spoof domains and addresses, or modify the header of their emails and bypass security measures.",
     "DefaultValue": "None",
     "ExpectedValue": "Not applicable",
-    "ReturnedValue": "",
     "Impact": "High",
     "AffectedObjects": "",
     "Service": "Exchange",

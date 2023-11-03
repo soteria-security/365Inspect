@@ -4,7 +4,6 @@
     "Remediation": "Understand that DMARC cannot be implemented until SPF and DKIM are, as DMARC extends them. Consider reviewing the organization's implementation of SPF and DKIM. If the organization is ready to implement DMARC, review the references on DMARC implementation below to begin planning a DMARC rollout.",
     "DefaultValue": "False for all custom domains",
     "ExpectedValue": "None",
-    "ReturnedValue": "",
     "Impact": "High",
     "AffectedObjects": "",
     "Service": "Exchange",

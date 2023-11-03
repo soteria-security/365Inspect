@@ -4,10 +4,6 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 . $errorHandling
 
-$UPN = "$(@($UserPrincipalName))"
-
-Connect-ExchangeOnline -UserPrincipalName $UPN -ShowBanner:$false
-
 function Inspect-AuditLogSearchEnabled {
     Try {
         If (-NOT (Get-AdminAuditLogConfig).UnifiedAuditLogIngestionEnabled) {

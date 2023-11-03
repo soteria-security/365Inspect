@@ -4,7 +4,6 @@
     "Remediation": "Review any accounts returned to ensure they are appropriate for the Tenant. Determine if the self-service sign-up configuration is appropriate for business needs and either remediate as outlined, or implement a continuous monitoring solution for accounts created via the self-service method.",
     "DefaultValue": "None",
     "ExpectedValue": "Not applicable",
-    "ReturnedValue": "",
     "Impact": "High",
     "AffectedObjects": "",
     "Service": "AzureAD",

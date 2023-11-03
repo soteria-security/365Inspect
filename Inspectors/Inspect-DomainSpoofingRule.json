@@ -4,7 +4,6 @@
     "Remediation": "Go to the Exchange Mail Flow rules screen and create a new rule which blocks emails sent from outside the organization, to inside the organization, where the sender's domain is any of the organization's owned domains.",
     "DefaultValue": "None",
     "ExpectedValue": "Configured Transport Rules",
-    "ReturnedValue": "",
     "Impact": "High",
     "AffectedObjects": "",
     "Service": "Exchange",

@@ -4,7 +4,6 @@
     "Remediation": "Navigate to the Mail Flow &rarr; Rules screen in the Exchange Admin Center. Add a rule that applies when the message contains executable attachments and takes the action of blocking the message. An article in the References section also describes this process.",
     "DefaultValue": "None",
     "ExpectedValue": "Configured Transport Rule",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "Exchange",

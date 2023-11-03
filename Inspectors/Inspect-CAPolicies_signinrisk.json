@@ -4,7 +4,6 @@
     "Remediation": "Create or modify Conditional Access Policies to include defined sign-in risk values. An example configuration: Navigate to Azure Active Directory/Microsoft Entra &rarr; Navigate to Conditional Access (Security &rarr; Conditional Access in Azure Active Directory/Protect & Secure &rarr; Conditional Access in Microsoft Entra) &rarr; Select '+ New Policy' &rarr; Select Users &rarr; 'All Users' &rarr; Select 'Cloud apps or actions' &rarr; Select 'All cloud apps' &rarr; Select 'Conditions' &rarr; Select 'Sign-in risk' &rarr; Select 'Yes' to configure &rarr; Select desired risk configurations &rarr; Select 'Grant Controls' &rarr; Select 'Block access' &rarr; Change the 'Enable policy' value to 'On' &rarr; Select 'Create'.",
     "DefaultValue": "None",
     "ExpectedValue": "Configured Conditional Access Policy",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "AzureAD",

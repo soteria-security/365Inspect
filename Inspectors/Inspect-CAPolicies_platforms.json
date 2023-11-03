@@ -4,7 +4,6 @@
     "Remediation": "Review existing Conditional Access Policies and determine if all device platforms are accounted for. If device platforms are not accounted for, it is recommended to configure or create policies to target the missing platforms.",
     "DefaultValue": "All",
     "ExpectedValue": "All",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "AzureAD",

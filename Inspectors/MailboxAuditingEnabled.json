@@ -4,7 +4,6 @@
     "Remediation": "Mailbox auditing can be quickly enabled for a user with the Set-Mailbox commandlet as follows: Set-Mailbox -Identity [user_email] -AuditEnabled $true. A list of affected email addresses for this finding is embedded in this report.",
     "DefaultValue": "True",
     "ExpectedValue": "True",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "Exchange",

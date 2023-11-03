@@ -4,7 +4,6 @@
     "Remediation": "There are multiple different ways to roll out MFA and several considerations to take into account before rolling out MFA to the organization. Multi-factor authentication rollout can require significant effort. Follow the detailed O365 MFA guide described below.",
     "DefaultValue": "All administrative user accounts",
     "ExpectedValue": "None",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "AzureAD",

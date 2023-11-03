@@ -4,7 +4,6 @@
     "Remediation": "Safe Attachments can be configured by navigating to the Threat Management portal in the Office 365 Security and Compliance center. The first reference below is a detailed guide to configuring ATP Safe Attachments.",
     "DefaultValue": "True",
     "ExpectedValue": "True",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "Exchange,SecurityandCompliance",

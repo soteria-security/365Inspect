@@ -4,7 +4,6 @@
     "Remediation": "In the Office 365 Security and Compliance Center, navigate to Search &rarr; Audit Log Search and click the Turn On Auditing button. An illustrated guide is linked in the References section.",
     "DefaultValue": "False",
     "ExpectedValue": "True",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "Tenant",

@@ -4,11 +4,10 @@
     "Remediation": "In the SharePoint administration center, navigate to Sharing &rarr; Choose expiration and permissions options for Anyone links. Select a link expiry period and save the settings. Prior to taking this action, discuss amongst the organization whether anyone is using non-expiring Anyone links for a legitimate purpose.",
     "DefaultValue": "-1",
     "ExpectedValue": "Value of 1 or higher",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "SharePoint",
-    "PowerShell": "",
+    "PowerShell": "Set-PnPTenant -RequireAnonymousLinksExpireInDays 7",
     "References": [
         {
             "Url": "https://docs.microsoft.com/en-us/microsoft-365/solutions/best-practices-anonymous-sharing?view=o365-worldwide",

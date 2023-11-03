@@ -4,30 +4,30 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 . $errorHandling
 
-
 $path = @($out_path)
 
 function Inspect-CAPolicies {
     Try {
-        $tenantLicense = (Get-MgSubscribedSku)
+        $tenantLicense = ((Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/subscribedSkus").Value).ServicePlans
     
-        If (($tenantLicense.ServicePlans.ServicePlanName -match "AAD_PREMIUM*")) {
-        
-            $secureDefault = Get-MgPolicyIdentitySecurityDefaultEnforcementPolicy -Property IsEnabled | Select-Object IsEnabled
-            $conditionalAccess = Get-MgIdentityConditionalAccessPolicy
+        If ($tenantLicense.ServicePlanName -match "AAD_PREMIUM*") {
+            
+            $secureDefault = ((Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/policies/identitySecurityDefaultsEnforcementPolicy").Value)
+            
+            $conditionalAccess = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/v1.0/policies/conditionalAccessPolicies").Value
 
             If ($secureDefault.IsEnabled -eq $true) {
-            
+                
             }
             ElseIf (($secureDefault.IsEnabled -eq $false) -and ($conditionalAccess.count -eq 0)) {
                 return $false
             }
             else {
                 $path = New-Item -ItemType Directory -Force -Path "$($path)\ConditionalAccess"
-            
+                
                 Foreach ($policy in $conditionalAccess) {
 
-                    $name = $policy.displayName
+                    $name = $policy.DisplayName
 
                     $pattern = '[\\\[\]\{\}/():;\*\"#<>\$&+!`|=\?@\s'']'
 
@@ -56,16 +56,11 @@ function Inspect-CAPolicies {
                     }
                     Elseif ($policy.conditions.users.includeusers) {
                         $IncludedUsers = @()
-                        Foreach ($id in ($policy.conditions.users.includeusers)) {
-                            If ($id -eq "GuestsOrExternalUsers") {
-                                $IncludedUsers += "GuestsOrExternalUsers"
-                            }
-                            Else {
-                                $IncludedUsers += (Get-MgDirectoryObject -DirectoryObjectId $id).AdditionalProperties.displayName -join ', '
-                            }
+                        Foreach ($user in $policy.conditions.users.includeusers) {
+                            $IncludedUsers += (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/directoryObjects/$user").DisplayName
                         }
                     }
-                
+                    
                     If ($policy.conditions.users.excludeusers -eq "All") {
                         $ExcludedUsers = "All"
                     }
@@ -77,88 +72,79 @@ function Inspect-CAPolicies {
                     }
                     Elseif ($policy.conditions.users.excludeusers) {
                         $ExcludedUsers = @()
-                        Foreach ($id in ($policy.conditions.users.excludeusers)) {
-                            If ($id -eq "GuestsOrExternalUsers") {
-                                $ExcludedUsers += "GuestsOrExternalUsers"
-                            }
-                            Else {
-                                $ExcludedUsers += (Get-MgDirectoryObject -DirectoryObjectId $id).AdditionalProperties.displayName -join ', '
-                            }
+                        Foreach ($user in $policy.conditions.users.excludeusers) {
+                            $ExcludedUsers += (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/directoryObjects/$user").DisplayName
                         }
                     }
-                
+                    
                     If ($policy.conditions.users.includegroups -eq "All") {
                         $IncludedGroups = "All"
                     }
                     Elseif ($policy.conditions.users.includegroups) {
                         $IncludedGroups = @()
-                        Foreach ($id in ($policy.conditions.users.includegroups)) {
-                            $IncludedGroups += (Get-MgDirectoryObject -DirectoryObjectId $id).AdditionalProperties.displayName -join ', '
+                        Foreach ($group in $policy.conditions.users.includegroups) {
+                            $IncludedGroups += (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/directoryObjects/$group").DisplayName
                         }
                     }
-                
+                    
                     If ($policy.conditions.users.excludegroups -eq "All") {
                         $ExcludedGroups = "All"
                     }
                     Elseif ($policy.conditions.users.excludegroups) {
                         $ExcludedGroups = @()
-                        foreach ($id in ($policy.conditions.users.excludegroups)) {
-                            $ExcludedGroups += (Get-MgDirectoryObject -DirectoryObjectId $id).AdditionalProperties.displayName -join ', '
+                        Foreach ($group in $policy.conditions.users.excludegroups) {
+                            $ExcludedGroups += (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/directoryObjects/$group").DisplayName
                         }
                     }
-                
+                    
                     If ($policy.conditions.users.includeroles -eq "All") {
                         $IncludedRoles = "All"
                     }
                     Elseif ($policy.conditions.users.includeroles) {
                         $IncludedRoles = @()
-                        foreach ($id in ($policy.conditions.users.includeroles)) {
-                            $IncludedRoles += (Get-MgDirectoryObject -DirectoryObjectId $id).AdditionalProperties.displayName -join ', '
+                        Foreach ($role in $policy.conditions.users.includeroles) {
+                            $IncludedRoles += (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/directoryObjects/$role").DisplayName
                         }
                     }
-                
+                    
                     If ($policy.conditions.users.excluderoles -eq "All") {
                         $ExcludedRoles = "All"
                     }
                     Elseif ($policy.conditions.users.excluderoles) {
                         $ExcludedRoles = @()
-                        foreach ($id in ($policy.conditions.users.excluderoles)) {
-                            $ExcludedRoles += (Get-MgDirectoryObject -DirectoryObjectId $id).AdditionalProperties.displayName -join ', '
+                        Foreach ($role in $policy.conditions.users.excluderoles) {
+                            $ExcludedRoles += (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/directoryObjects/$role").DisplayName
                         }
                     }
 
                     $sessionControls = $policy.sessioncontrols
 
                     $result = [PSCustomObject]@{
-                        Name                       = $policy.DisplayName
-                        State                      = $policy.State
-                        IncludedApps               = $policy.conditions.applications.includeapplications
-                        ExcludedApps               = $policy.conditions.applications.excludeapplications
-                        IncludedUserActions        = $policy.conditions.includeuseractions
-                        IncludedProtectionLevels   = $policy.conditions.includeprotectionlevels
-                        IncludedUsers              = $IncludedUsers
-                        ExcludedUsers              = $ExcludedUsers
-                        IncludedGroups             = $IncludedGroups
-                        ExcludedGroups             = $ExcludedGroups
-                        IncludedRoles              = $IncludedRoles
-                        ExcludedRoles              = $ExcludedRoles
-                        IncludedPlatforms          = $policy.conditions.platforms.includeplatforms
-                        ExcludedPlatforms          = $policy.conditions.platforms.excludeplatforms
-                        IncludedLocations          = $policy.conditions.locations.includelocations
-                        ExcludedLocations          = $policy.conditions.locations.excludelocations
-                        IncludedSignInRisk         = $policy.conditions.SignInRiskLevels
-                        ClientAppTypes             = $policy.conditions.ClientAppTypes
-                        GrantConditions            = $policy.grantcontrols.builtincontrols
-                        ApplicationRestrictions    = $sessioncontrols.ApplicationEnforcedRestrictions
-                        DisableResilienceDefaults  = $sessioncontrols.disableResilienceDefaults
-                        ContinuousAccessEvaluation = $sessioncontrols.continuousAccessEvaluation
-                        CloudAppSecurity           = $sessioncontrols.CloudAppSecurity
-                        SessionLifetime            = $sessioncontrols.signinfrequency
-                        PersistentBrowser          = $sessioncontrols.PersistentBrowser.mode
-                        TokenProtection            = $sessionControls.secureSignInSession
-                        UserRisk                   = $policy.conditions.userRiskLevels
+                        Name                     = $policy.DisplayName
+                        State                    = $policy.State
+                        IncludedApps             = $policy.conditions.applications.includeapplications
+                        ExcludedApps             = $policy.conditions.applications.excludeapplications
+                        IncludedUserActions      = $policy.conditions.includeuseractions
+                        IncludedProtectionLevels = $policy.conditions.includeprotectionlevels
+                        IncludedUsers            = $IncludedUsers
+                        ExcludedUsers            = $ExcludedUsers
+                        IncludedGroups           = $IncludedGroups
+                        ExcludedGroups           = $ExcludedGroups
+                        IncludedRoles            = $IncludedRoles
+                        ExcludedRoles            = $ExcludedRoles
+                        IncludedPlatforms        = $policy.conditions.platforms.includeplatforms
+                        ExcludedPlatforms        = $policy.conditions.platforms.excludeplatforms
+                        IncludedLocations        = $policy.conditions.locations.includelocations
+                        ExcludedLocations        = $policy.conditions.locations.excludelocations
+                        IncludedSignInRisk       = $policy.conditions.SignInRiskLevels
+                        ClientAppTypes           = $policy.conditions.ClientAppTypes
+                        GrantConditions          = $policy.grantcontrols.builtincontrols
+                        ApplicationRestrictions  = $sessioncontrols.ApplicationEnforcedRestrictions
+                        CloudAppSecurity         = $sessioncontrols.CloudAppSecurity
+                        SessionLifetime          = $sessioncontrols.signinfrequency
+                        PersistentBrowser        = $sessioncontrols.PersistentBrowser
                     }
-
+                
                     $result | ConvertTo-Json -Depth 100 | Out-File -FilePath "$($path)\$($name)_Policy.json"
                 }
             }

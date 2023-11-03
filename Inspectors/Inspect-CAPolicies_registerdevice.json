@@ -4,7 +4,6 @@
     "Remediation": "Create Conditional Access Policies that enforces multi-factor authentication when registering a device with Azure Active Directory. Navigate to Azure Active Directory/Microsoft Entra &rarr; Navigate to Conditional Access (Security &rarr; Conditional Access in Azure Active Directory/Protect & Secure &rarr; Conditional Access in Microsoft Entra) &rarr; Select '+ New Policy' &rarr; Select Users &rarr; 'All Users' &rarr; Select 'Cloud apps or actions' &rarr; change the dropdown to 'User Actions' &rarr; Select 'Register or join devices' &rarr; Select 'Grant Controls' &rarr; Select 'Require multifactor authentication' (alternatively, select 'Require authentication strength' and configure the required strength levels) &rarr; Change the 'Enable policy' value to 'On' &rarr; Select 'Create'.",
     "DefaultValue": "None",
     "ExpectedValue": "Configured Conditional Access Policy",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "AzureAD",

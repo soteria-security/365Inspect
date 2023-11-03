@@ -4,7 +4,6 @@
     "Remediation": "This can be mitigated by navigating to the Teams admin center and turning off 'Anonymous users can join a meeting' under Meeting settings. This disables anonymous access globally. Alternatively, specific users and groups can be targeted by creating a new Meeting Policy and issuing the listed command in PowerShell.",
     "DefaultValue": "True for default policies: Global, Tag:AllOn, Tag:RestrictedAnonymousAccess, Tag:AllOff, Tag:RestrictedAnonymousNoRecording, Tag:Default, Tag:Kiosk",
     "ExpectedValue": "Not applicable",
-    "ReturnedValue": "",
     "Impact": "Low",
     "AffectedObjects": "",
     "Service": "Teams",

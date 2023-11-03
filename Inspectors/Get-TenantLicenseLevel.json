@@ -4,7 +4,6 @@
     "Remediation": "None.",
     "DefaultValue": "None",
     "ExpectedValue": "Not applicable",
-    "ReturnedValue": "",
     "Impact": "Informational",
     "AffectedObjects": "",
     "Service": "Tenant",

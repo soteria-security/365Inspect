@@ -4,7 +4,6 @@
     "Remediation": "This can be mitigated by navigating to the Teams admin center and turning off 'Allow URL Previews' under Messaging settings. This disables link previews globally. Alternatively, specific users and groups can be targeted by creating a new Messaging Policy and issuing the listed command in PowerShell.",
     "DefaultValue": "True",
     "ExpectedValue": "False",
-    "ReturnedValue": "",
     "Impact": "Low",
     "AffectedObjects": "",
     "Service": "Teams",

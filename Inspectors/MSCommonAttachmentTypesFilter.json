@@ -4,7 +4,6 @@
     "Remediation": "This feature is accessible in the Security portal of the O365 Admin Center. Click through to Threat management &rarr; Policy &rarr; Anti-malware and toggle the Common Attachment Types Filter to 'On'. Additionally, other known dangerous attachment types may be quickly filtered by adding them to this policy's list, although creating a new policy to do this would be a more ideal long-term solution. Before doing this, consider polling key stakeholders in the organization or using available data to determine whether any of these file types are commonly exchanged via email within the organization.",
     "DefaultValue": "ace, ani, app, docm, exe, jar, reg, scr, vbe, vbs",
     "ExpectedValue": "None",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "Exchange,SecurityandCompliance",

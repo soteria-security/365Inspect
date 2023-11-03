@@ -4,25 +4,9 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 . $errorHandling
 
-
-<#
-.SYNOPSIS
-    Check for Microsoft Azure Active Directory and Microsoft Graph Command Line Tools Service Prinicipals.
-.DESCRIPTION
-    This script checks for configured Service Prinicipals needed to secure access to Microsoft Azure Active Directory and Microsoft Graph Command Line Tools modules.  
-.COMPONENT
-    PowerShell, Azure Active Directory PowerShell Module, and sufficient rights to change Tenant settings
-.ROLE
-    Recommended to run as Global Admin or Application Admin
-.FUNCTIONALITY
-    Check for Microsoft Azure Active Directory and Microsoft Graph Command Line Tools Service Prinicipals.
-#>
-
-
 Function Inspect-AZPSModules {
     Try {
-
-        $appIds = @("1b730954-1685-4b74-9bfd-dac224a7b894", "14d82eec-204b-4c2f-b7e8-296a70dab67e")
+        $applications = @("Microsoft Graph Command Line Tools", "Microsoft Graph PowerShell", "Azure Active Directory PowerShell")
 
         $void = "No Service Principals Found"
 
@@ -31,10 +15,9 @@ Function Inspect-AZPSModules {
         $graph = $false
 
         #Check for Service Prinicpals
-        Foreach ($appId in $appIds) {
+        Foreach ($application in $applications) {
             Try {
-                $sp = Get-MgServicePrincipal -Filter "appId eq '$appId'"
-                $app = Get-MgServicePrincipal -ServicePrincipalId $sp.Id
+                $app = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/servicePrincipals?filter=displayName eq '$application'").Value
             }
             Catch {
                 return $void
@@ -54,7 +37,7 @@ Function Inspect-AZPSModules {
 
         $appGraph = "Microsoft Graph Command Line Tools is not configured"
 
-        $both = "Neither Azure Active Directory PowerShell or Microsoft Graph Command Line Tools is configured"
+        $both = "Neither Azure Active Directory PowerShell nor Microsoft Graph Command Line Tools is configured"
 
         If ($aad -eq $false -and $graph -eq $false) {
             Return $both
@@ -66,7 +49,7 @@ Function Inspect-AZPSModules {
             Return $appGraph
         }
         else {
-            Return $null
+                
         }
     }
     Catch {
@@ -80,7 +63,7 @@ Function Inspect-AZPSModules {
         $failinglinenumber = $_.InvocationInfo.ScriptLineNumber
         $scriptname = $_.InvocationInfo.ScriptName
         Write-Verbose "Write to log"
-        Write-ErrorLog -message $message -exception $exception -scriptname $scriptname
+        Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
         Write-Verbose "Errors written to log"
     }
 }

@@ -4,7 +4,6 @@
     "Remediation": "Create an SPF TXT DNS record as described in the references below. Remember that configuring SPF may affect the deliverability of mail from that domain. An SPF rollout should be measured and gradual.",
     "DefaultValue": "Null for all custom domains",
     "ExpectedValue": "v=spf1 include:spf.protection.outlook.com include:<domain name&rarr; -all",
-    "ReturnedValue": "",
     "Impact": "High",
     "AffectedObjects": "",
     "Service": "Exchange",

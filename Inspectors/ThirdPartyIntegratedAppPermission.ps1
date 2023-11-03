@@ -6,34 +6,34 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 
 function Inspect-ThirdPartyIntegratedAppPermission {
-Try {
+    Try {
+        $adminConsent = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/policies/adminConsentRequestPolicy" -ErrorAction Stop)
 
-	$permissions = (Get-MgPolicyAuthorizationPolicy).defaultuserrolepermissions
+        If ($adminConsent.IsEnabled -eq $false) {
+            $permissions = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/policies/authorizationPolicy").Value.defaultUserRolePermissions
 
-	If ($permissions.AllowedToCreateApps -eq $true) {
-		return $permissions.AllowedToCreateApps
-	}
-	
-	return $null
-
-}
-Catch {
-Write-Warning "Error message: $_"
-$message = $_.ToString()
-$exception = $_.Exception
-$strace = $_.ScriptStackTrace
-$failingline = $_.InvocationInfo.Line
-$positionmsg = $_.InvocationInfo.PositionMessage
-$pscommandpath = $_.InvocationInfo.PSCommandPath
-$failinglinenumber = $_.InvocationInfo.ScriptLineNumber
-$scriptname = $_.InvocationInfo.ScriptName
-Write-Verbose "Write to log"
-Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
-Write-Verbose "Errors written to log"
-}
-
+            If ($permissions.AllowedToCreateApps -eq $true) {
+                return $permissions.AllowedToCreateApps
+            }
+        }
+        Else {
+            Return "Admin Consent Workflow is enabled."
+        }
+    }
+    Catch {
+        Write-Warning "Error message: $_"
+        $message = $_.ToString()
+        $exception = $_.Exception
+        $strace = $_.ScriptStackTrace
+        $failingline = $_.InvocationInfo.Line
+        $positionmsg = $_.InvocationInfo.PositionMessage
+        $pscommandpath = $_.InvocationInfo.PSCommandPath
+        $failinglinenumber = $_.InvocationInfo.ScriptLineNumber
+        $scriptname = $_.InvocationInfo.ScriptName
+        Write-Verbose "Write to log"
+        Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
+        Write-Verbose "Errors written to log"
+    }
 }
 
 return Inspect-ThirdPartyIntegratedAppPermission
-
-

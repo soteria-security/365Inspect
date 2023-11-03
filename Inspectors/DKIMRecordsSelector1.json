@@ -4,7 +4,6 @@
     "Remediation": "Follow the guide in the References section to learn the full significance of the DKIM Selector1 record to O365 DKIM configuration. DKIM rollout can be a very involved process, for which there is a complete reference in the 'Use DKIM to validate the outbound email sent from your custom domain' guide in the References section below.",
     "DefaultValue": "False for all custom domains",
     "ExpectedValue": "None",
-    "ReturnedValue": "",
     "Impact": "High",
     "AffectedObjects": "",
     "Service": "Exchange",

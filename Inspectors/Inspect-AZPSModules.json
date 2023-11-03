@@ -4,7 +4,6 @@
     "Remediation": "These permissions can be mitigated by creating and assigning Service Principals for the applications using the instructions in the linked blog post.",
     "DefaultValue": "None",
     "ExpectedValue": "Azure AD Service Principal objects for Microsoft Graph PowerShell and Azure Active Directory PowerShell.",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "AzureAD",

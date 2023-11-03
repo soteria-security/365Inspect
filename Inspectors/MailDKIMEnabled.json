@@ -4,7 +4,6 @@
     "Remediation": "DKIM rollout can be a very involved process, for which there is a complete reference in the 'Use DKIM to validate the outbound email sent from your custom domain' guide in the References section below. This finding refers specifically to enabling the DKIM signing configuration within O365 itself, which can be done using the Set-DkimSigningConfig PowerShell function or the Security and Compliance Center in the O365 administration portal.",
     "DefaultValue": "False on all custom domains",
     "ExpectedValue": "None",
-    "ReturnedValue": "",
     "Impact": "High",
     "AffectedObjects": "",
     "Service": "Exchange",

@@ -4,7 +4,6 @@
     "Remediation": "Ensure that there are separate accounts for daily user activities and Azure administration. Remove unneeded administrative users to reduce the risk of successful account compromise attempts. Privileged Identity Management (PIM) in Azure can be used to further reduce risk associated with administrative accounts and privileged roles. NOTE - Not all directory roles will be returned by the query. Directory roles must be enabled, either directly or by user assignment, to be returned in the query. Once a role is enabled it will continue to be returned by this query, even if the user(s) are removed from the role.",
     "DefaultValue": "None",
     "ExpectedValue": "Not applicable",
-    "ReturnedValue": "",
     "Impact": "Informational",
     "AffectedObjects": "",
     "Service": "AzureAD",

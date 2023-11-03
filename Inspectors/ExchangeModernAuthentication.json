@@ -4,7 +4,6 @@
     "Remediation": "Use the Set-OrganizationConfig PowerShell command as listed below. Multiple reference guides are linked in the References section below.",
     "DefaultValue": "True",
     "ExpectedValue": "True",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "Exchange",

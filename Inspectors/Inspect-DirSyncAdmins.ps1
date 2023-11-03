@@ -9,35 +9,27 @@ $path = @($out_path)
 
 Function Inspect-DirSyncAdmins {
     Try {
+        $dirsyncAdmins = @()
 
-        $path = New-Item -ItemType Directory -Force -Path "$($path)\DirSync"
+        $syncEnabled = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/organization").Value.onPremisesSyncEnabled
+        
+        If ($syncEnabled -eq $true) {
+            $adminRoles = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/directoryRoles").Value | Where-Object { $_.displayName -match "Administrator" }
 
-        $adminRoles = Get-MgDirectoryRole | Where-Object { $_.DisplayName -like "*Administrator" }
-
-        $allDirsyncAdmins = @()
-
-        ForEach ($role in $adminRoles) {
-            $roleMembers = Get-MgDirectoryRoleMember -DirectoryRoleId $role.Id
-
-            Foreach ($user in $roleMembers) {
-                $member = Get-MgDirectoryObject -DirectoryObjectId $user.Id
-                If ($member.OnPremisesSyncEnabled -eq $true) {
-                    $dirsyncAdmins += "$role : $($member.UserPrincipalName)`n"
+            foreach ($role in $adminRoles) {
+                $members = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/directoryRoles/$($role.id)/members").Value
+                
+                foreach ($user in $members) {
+                    If ($user.onPremisesSyncEnabled -eq $true) {
+                        $dirsyncAdmins += "$($user.displayName) - $($role.displayName)"
+                    }
                 }
             }
-
-            If ($dirsyncAdmins.count -ne 0) {
-                $dirsyncAdmins | Out-File "$path\$($role.DisplayName).txt"
-                $allDirsyncAdmins += $dirsyncAdmins
-            }
-        }
-	
-        If ($allDirsyncAdmins.count -ne 0) {
-            return $allDirsyncAdmins
         }
 
-        Return $null
-
+        If ($dirsyncAdmins) {
+            Return $dirsyncAdmins
+        }
     }
     Catch {
         Write-Warning "Error message: $_"
@@ -53,9 +45,6 @@ Function Inspect-DirSyncAdmins {
         Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
         Write-Verbose "Errors written to log"
     }
-
 }
 
 Return Inspect-DirSyncAdmins
-
-

@@ -4,7 +4,6 @@
     "Remediation": "Use the Security and Compliance Center to review the administrative privileges granted to the users listed and determine if each user truly requires their administrative privileges. In many cases a more granular set of permissions may be appropriate. Reduce the privileges of each user as appropriate.",
     "DefaultValue": "1",
     "ExpectedValue": "Between two and four",
-    "ReturnedValue": "",
     "Impact": "High",
     "AffectedObjects": "",
     "Service": "Tenant,AzureAD",
