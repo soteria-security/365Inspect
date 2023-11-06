@@ -36,16 +36,24 @@ param (
         HelpMessage = 'UserPrincipalName required for Exchange Connection')]
     [string] $UserPrincipalName,
     [Parameter(Mandatory = $false,
-        HelpMessage = 'Skips required module check. Designed for troubleshooting purposes.')]
-    [switch] $SkipModuleCheck,
-    [Parameter(Mandatory = $false,
         HelpMessage = "Report Output Format")]
     [ValidateSet("All", "HTML", "CSV", "XML", "JSON",
         IgnoreCase = $true)]
     [string] $reportType = "All",
-    [Parameter(Mandatory = $true,
+    [Parameter(Mandatory = $false,
+        HelpMessage = 'Skip Module Check')]
+    [switch]$SkipModuleCheck,
+    [Parameter(Mandatory = $false,
+        HelpMessage = 'Skip Update Check')]
+    [switch]$SkipUpdateCheck,
+    [Parameter(Mandatory = $false,
+        HelpMessage = 'Environment type')]
+    [ValidateSet('Default', 'USGovGCCHigh', 'USGovDoD', 'Germany', 'China',
+        IgnoreCase = $false)]
+    [string] $Environment = "Default",
+    [Parameter(Mandatory = $false,
         HelpMessage = 'Auth type')]
-    [ValidateSet('ALREADY_AUTHED', 'MFA',
+    [ValidateSet('ALREADY_AUTHED', 'MFA', 'APP',
         IgnoreCase = $false)]
     [string] $Auth = "MFA",
     [string[]] $SelectedInspectors = @(),
@@ -57,22 +65,38 @@ $out_path = $OutPath
 $selected_inspectors = $SelectedInspectors
 $excluded_inspectors = $ExcludedInspectors
 
-. .\Write-ErrorLog.ps1
+& $PSScriptRoot\Write-ErrorLog.ps1
 
 $MaximumFunctionCount = 32768
+
+If ($auth -eq 'APP') {
+    $domain = Read-Host -Prompt "Enter the mail domain or tenant domain"
+    $appID = Read-Host -Prompt "Enter the Client/App ID"
+    $thumbprint = Read-Host -Prompt "Enter the Certificate thumbprint"
+}
+
 
 Function Connect-Services {
     # Log into every service prior to the analysis.
     If ($auth -EQ "MFA") {
         Try {
-            Write-Output "Connecting to Microsoft Graph"
-            Connect-MgGraph -ContextScope Process -Scopes "AuditLog.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "MailboxSettings.Read", "DeviceManagementManagedDevices.Read.All", "DeviceManagementApps.Read.All", "UserAuthenticationMethod.ReadWrite.All", "DeviceManagementServiceConfig.Read.All", "DeviceManagementConfiguration.Read.All" -Verbose
-            If ((Get-Module -Name Microsoft.Graph.Authentication) -lt [version]2.0.0){
-                Select-MgProfile -Name beta -Verbose
+            switch ($Environment) {
+                "USGovGCCHigh" { $Environment = 'USGov' }
+                "USGovDoD" { $Environment = 'USGovDoD' }
+                "GermanyCloud" { $Environment = 'Global' }
+                "China" { $Environment = 'China' }
+                default { $Environment = 'Global' }
             }
+
+            Write-Output "Connecting to Microsoft Graph"
+            #Connect-MgGraph -ContextScope Process -Scopes "AuditLog.Read.All", "Reports.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "Mail.Read", "MailboxSettings.Read", "DeviceManagementManagedDevices.Read.All", "DeviceManagementApps.Read.All", "UserAuthenticationMethod.ReadWrite.All", "DeviceManagementServiceConfig.Read.All", "DeviceManagementConfiguration.Read.All", "SharePointTenantSettings.Read.All"
+            
+            # National Cloud deployments - Valid environments: 'Global', 'USGov', 'USGovDoD', 'China'
+            Connect-MgGraph -Environment $Environment -ContextScope Process -Scopes "AuditLog.Read.All", "Reports.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "Mail.Read", "MailboxSettings.Read", "DeviceManagementManagedDevices.Read.All", "DeviceManagementApps.Read.All", "UserAuthenticationMethod.ReadWrite.All", "DeviceManagementServiceConfig.Read.All", "DeviceManagementConfiguration.Read.All", "SharePointTenantSettings.Read.All"
+            
             $global:orgInfo = Get-MgOrganization
-            $global:tenantDomain = (($global:orgInfo).VerifiedDomains |  Where-Object { ($_.Name -like "*.onmicrosoft.com") -and ($_.Name -notlike "*mail.onmicrosoft.com") }).Name
-            Write-Output "Connected via Graph to $(($global:orgInfo).DisplayName)"
+            $global:tenantDomain = (($global:orgInfo).VerifiedDomains | Where-Object { ($_.Name -like "*.onmicrosoft.com") -and ($_.Name -notlike "*mail.onmicrosoft.com") }).Name
+            Write-Output "Connected via Graph to $((Get-MgOrganization).DisplayName)"
         }
         Catch {
             Write-Output "Connecting to Microsoft Graph Failed."
@@ -80,8 +104,33 @@ Function Connect-Services {
             Break
         }
         Try {
+            switch ($Environment) {
+                "USGovGCCHigh" { $Environment = 'https://ps.compliance.protection.office365.us/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.us/common' }
+                "USGovDoD" { $Environment = 'https://l5.ps.compliance.protection.office365.us/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.us/common' }
+                "GermanyCloud" { $Environment = 'https://ps.compliance.protection.outlook.com/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.com/common' }
+                "China" { $Environment = 'https://ps.compliance.protection.partner.outlook.cn/powershell-liveid' ; $AADUri = 'https://login.chinacloudapi.cn/common' }
+                default { $Environment = 'https://ps.compliance.protection.outlook.com/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.com/common' }
+            }
+
+            Write-Output "Connecting to Security and Compliance Center"
+            Connect-IPPSSession -ConnectionUri $Environment -AzureADAuthorizationEndpointUri $AADUri -UserPrincipalName $UserPrincipalName
+        }
+        Catch {
+            Write-Output "Connecting to Security and Compliance Center Failed."
+            Write-Error $_.Exception.Message
+            Break
+        }
+        Try {
+            switch ($Environment) {
+                "USGovGCCHigh" { $Environment = 'O365USGovGCCHigh' }
+                "USGovDoD" { $Environment = 'O365USGovDoD' }
+                "GermanyCloud" { $Environment = 'O365GermanyCloud' }
+                "China" { $Environment = 'O365China' }
+                default { $Environment = 'O365Default' }
+            }
+
             Write-Output "Connecting to Exchange Online"
-            Connect-ExchangeOnline -UserPrincipalName $UserPrincipalName -ShowBanner:$false -Verbose
+            Connect-ExchangeOnline -ExchangeEnvironmentName $Environment -UserPrincipalName $UserPrincipalName -ShowBanner:$false -ExchangeEnvironmentName $Environment
         }
         Catch {
             Write-Output "Connecting to Exchange Online Failed."
@@ -89,9 +138,21 @@ Function Connect-Services {
             Break
         }
         Try {
+            switch ($Environment) {
+                "USGovGCCHigh" { $Environment = 'USGovernmentHigh' }
+                "USGovDoD" { $Environment = 'USGovernmentDoD' }
+                "GermanyCloud" { $Environment = 'Germany' }
+                "China" { $Environment = 'China' }
+                default { $Environment = 'Production' }
+            }
+
             Write-Output "Connecting to SharePoint Service"
             $org_name = ($global:tenantDomain -split '.onmicrosoft.com')[0]
-            Connect-SPOService -Url "https://$org_name-admin.sharepoint.com"
+
+            # National Cloud deployment - Valid environments are: 'USGovernment', 'USGovernmentHigh', 'USGovernmentDoD', 'Germany', 'China'
+            Connect-PnPOnline -AzureEnvironment $Environment -Url "https://$org_name-admin.sharepoint.com" -Interactive
+        
+            #Connect-PnPOnline -Url "https://$org_name-admin.sharepoint.com" -Interactive
         }
         Catch {
             Write-Output "Connecting to SharePoint Service Failed."
@@ -99,27 +160,142 @@ Function Connect-Services {
             Break
         }
         Try {
+            switch ($Environment) {
+                "USGovGCCHigh" { $Connection = "Connect-MicrosoftTeams -TeamsEnvironmentName TeamsGCCH " }
+                "USGovDoD" { $Connection = "Connect-MicrosoftTeams -TeamsEnvironmentName TeamsDoD" }
+                "GermanyCloud" { $Connection = "Connect-MicrosoftTeams" }
+                "China" { $Connection = "Connect-MicrosoftTeams -TeamsEnvironmentName TeamsChina" }
+                default { $Connection = "Connect-MicrosoftTeams" }
+            }
+
+            # National Cloud deployment - Valid enironments are: '', 'TeamsGCCH', 'TeamsDOD', 'TeamsChina'
+            #Connect-MicrosoftTeams -TeamsEnvironmentName $Environment
+            Invoke-Expression $Connection
+
             Write-Output "Connecting to Microsoft Teams"
-            Connect-MicrosoftTeams
+
+            # National Cloud deployment - Valid enironments are: '', 'TeamsGCCH', 'TeamsDOD', 'TeamsChina'
+            Connect-MicrosoftTeams -TeamsEnvironmentName $Environment
+
+            #Connect-MicrosoftTeams
         }
         Catch {
             Write-Output "Connecting to Microsoft Teams Failed."
             Write-Error $_.Exception.Message
             Break
         }
+    }
+    ElseIf ($auth -eq 'APP') {
+        If ($domain -like "*@*") {
+            $domain = ($domain -split '@')[1]
+        }
+        $tenantID = (((Invoke-WebRequest -Uri "https://login.microsoftonline.com/$domain/.well-known/openid-configuration" -UseBasicParsing).Content | ConvertFrom-Json).token_endpoint -split '/')[3]
+
         Try {
-            Write-Output "Connecting to Security and Compliance Center"
-            Connect-IPPSSession -UserPrincipalName $UserPrincipalName
+            switch ($Environment) {
+                "USGovGCCHigh" { $Environment = 'USGov' }
+                "USGovDoD" { $Environment = 'USGovDoD' }
+                "GermanyCloud" { $Environment = 'Global' }
+                "China" { $Environment = 'China' }
+                default { $Environment = 'Global' }
+            }
+
+            Write-Output "Connecting to Microsoft Graph"
+            #Connect-MgGraph -ContextScope Process -Scopes "AuditLog.Read.All", "Reports.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "Mail.Read", "MailboxSettings.Read", "DeviceManagementManagedDevices.Read.All", "DeviceManagementApps.Read.All", "UserAuthenticationMethod.ReadWrite.All", "DeviceManagementServiceConfig.Read.All", "DeviceManagementConfiguration.Read.All", "SharePointTenantSettings.Read.All"
+            
+            # National Cloud deployments - Valid environments: 'Global', 'USGov', 'USGovDoD', 'China'
+            Connect-MgGraph -Environment $Environment -ClientId $appID -TenantId $tenantID -CertificateThumbPrint $thumbprint | Out-Null
+            
+            #Connect-MgGraph -ClientId $appID -TenantId $tenantID -CertificateThumbPrint $thumbprint | Out-Null
+            $global:orgInfo = Get-MgOrganization
+            $global:tenantDomain = (($global:orgInfo).VerifiedDomains | Where-Object { ($_.Name -like "*.onmicrosoft.com") -and ($_.Name -notlike "*mail.onmicrosoft.com") }).Name
         }
         Catch {
-            Write-Output "Connecting to Security and Compliance Center Failed."
-            Write-Error $_.Exception.Message
+            Write-Host "Error connecting to " -NoNewLine -ForegroundColor Red
+            Write-Host "Microsoft Graph"
+            $_.Exception
+            Break
+        }
+        Try {
+            switch ($Environment) {
+                "USGovGCCHigh" { $Environment = 'https://ps.compliance.protection.office365.us/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.us/common' }
+                "USGovDoD" { $Environment = 'https://l5.ps.compliance.protection.office365.us/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.us/common' }
+                "GermanyCloud" { $Environment = 'https://ps.compliance.protection.outlook.com/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.com/common' }
+                "China" { $Environment = 'https://ps.compliance.protection.partner.outlook.cn/powershell-liveid' ; $AADUri = 'https://login.chinacloudapi.cn/common' }
+                default { $Environment = 'https://ps.compliance.protection.outlook.com/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.com/common' }
+            }
+
+            Write-Output "Connecting to Security and Compliance Center"
+            Connect-IPPSSession -ConnectionUri $Environment -AzureADAuthorizationEndpointUri $AADUri -AppId $appID -CertificateThumbprint $thumbprint -Organization $global:tenantDomain | Out-Null
+        }
+        Catch {
+            Write-Host "Error connecting to " -NoNewLine -ForegroundColor Red
+            Write-Host "Security Center"
+            $_.Exception
+        }
+        Try {
+            switch ($Environment) {
+                "USGovGCCHigh" { $Environment = 'O365USGovGCCHigh' }
+                "USGovDoD" { $Environment = 'O365USGovDoD' }
+                "GermanyCloud" { $Environment = 'O365GermanyCloud' }
+                "China" { $Environment = 'O365China' }
+                default { $Environment = 'O365Default' }
+            }
+
+            Connect-ExchangeOnline -ExchangeEnvironmentName $Environment -CertificateThumbPrint $thumbprint -AppID $appID -Organization $global:tenantDomain -ShowBanner:$false | Out-Null
+        }
+        Catch {
+            Write-Host "Error connecting to " -NoNewLine -ForegroundColor Red
+            Write-Host "Exchange Online"
+            Write-Host "$($_.Exception.Message)"
+            Break
+        }
+        Try {
+            switch ($Environment) {
+                "USGovGCCHigh" { $Environment = 'USGovernmentHigh' }
+                "USGovDoD" { $Environment = 'USGovernmentDoD' }
+                "GermanyCloud" { $Environment = 'Germany' }
+                "China" { $Environment = 'China' }
+                default { $Environment = 'Production' }
+            }
+
+            Write-Output "Connecting to SharePoint Service"
+            $org_name = ($global:tenantDomain -split '.onmicrosoft.com')[0]
+
+            # National Cloud deployment - Valid environments are: 'USGovernment', 'USGovernmentHigh', 'USGovernmentDoD', 'Germany', 'China'
+            # Production | PPE | China | Germany | USGovernment | USGovernmentHigh | USGovernmentDoD
+            Connect-PnPOnline -AzureEnvironment $Environment -Url "https://$org_name-admin.sharepoint.com" -ClientId $appID -Thumbprint $thumbprint -Tenant $global:tenantDomain | Out-Null
+
+            #Connect-PnPOnline -Url "https://$org_name-admin.sharepoint.com" -ClientId $appID -Thumbprint $thumbprint -Tenant $global:tenantDomain | Out-Null
+        }
+        Catch {
+            Write-Host "Error connecting to " -NoNewLine -ForegroundColor Red
+            Write-Host "PnP/SharePoint"
+            $_.Exception
+            Break
+        }
+        Try {
+            switch ($Environment) {
+                "USGovGCCHigh" { $Connection = "Connect-MicrosoftTeams -TeamsEnvironmentName TeamsGCCH -ApplicationId $appID -TenantId $tenantID -CertificateThumbprint $thumbprint" }
+                "USGovDoD" { $Connection = "Connect-MicrosoftTeams -TeamsEnvironmentName TeamsDoD -ApplicationId $appID -TenantId $tenantID -CertificateThumbprint $thumbprint" }
+                "GermanyCloud" { $Connection = "Connect-MicrosoftTeams -ApplicationId $appID -TenantId $tenantID -CertificateThumbprint $thumbprint" }
+                "China" { $Connection = "Connect-MicrosoftTeams -TeamsEnvironmentName TeamsChina -ApplicationId $appID -TenantId $tenantID -CertificateThumbprint $thumbprint" }
+                default { $Connection = "Connect-MicrosoftTeams -ApplicationId $appID -TenantId $tenantID -CertificateThumbprint $thumbprint" }
+            }
+
+            #Connect-MicrosoftTeams -TeamsEnvironmentName $Environment -ApplicationId $appID -TenantId $tenantID -CertificateThumbprint $thumbprint | Out-Null
+            Invoke-Expression $Connection
+        }
+        Catch {
+            Write-Host "Error connecting to " -NoNewLine -ForegroundColor Red
+            Write-Host "Microsoft Teams"
+            $_.Exception
             Break
         }
     }
     Else {
         $global:orgInfo = Get-MgOrganization
-        $global:tenantDomain = (($global:orgInfo).VerifiedDomains | Where-Object { $_.Name -match 'onmicrosoft.com' })[0].Name
+        $global:tenantDomain = (($global:orgInfo).VerifiedDomains | Where-Object { ($_.Name -like "*.onmicrosoft.com") -and ($_.Name -notlike "*mail.onmicrosoft.com") }).Name
     }
 }
 
@@ -144,7 +320,12 @@ Function Confirm-Close {
 Function Confirm-InstalledModules {
     #Check for required Modules and versions; Prompt for install if missing and import.
     $ExchangeOnlineManagement = @{ Name = "ExchangeOnlineManagement"; MinimumVersion = "2.0.5" }
-    $SharePoint = @{ Name = "Microsoft.Online.SharePoint.PowerShell"; MinimumVersion = "16.0.22601.12000" }
+    If ($PSVersionTable.PSVersion.Major -eq 5) {
+        $SharePoint = @{ Name = "PnP.PowerShell"; MaximumVersion = "1.12.0" }
+    }
+    If ($PSVersionTable.PSVersion.Major -ge 6) {
+        $SharePoint = @{ Name = "PnP.PowerShell"; MinimumVersion = "1.10.0" }
+    }
     $Graph = @{ Name = "Microsoft.Graph"; MinimumVersion = "1.9.6" }
     $MSTeams = @{ Name = "MicrosoftTeams"; MinimumVersion = "4.4.1" }
     $psGet = @{ Name = "PowerShellGet"; RequiredVersion = "2.2.5" }
@@ -195,7 +376,25 @@ Function Confirm-InstalledModules {
     foreach ($module in $modules) {
         $installedVersion = [Version](((Get-InstalledModule -Name $module.Name).Version -split "-")[0])
 
-        If (($module.Name -eq (Get-InstalledModule -Name $module.Name).Name) -and (([Version]$module.MinimumVersion -le $installedVersion))) {
+        If ($module.Name -eq 'PnP.PowerShell') {
+            If (($PSVersionTable.PSVersion.Major -eq 5) -and ($installedVersion -le '1.12.0')) {
+                Write-Host "Environment is $($PSVersionTable.PSVersion)" -ForegroundColor Yellow
+                Write-Host "`t[+] " -NoNewLine -ForeGroundColor Green
+                Write-Output "$($module.Name) is installed."
+            }
+            Elseif (($PSVersionTable.PSVersion.Major -ge 6) -and ($installedVersion -ge '1.12.0')) {
+                If ($IsWindows) {
+                    Write-Host "Environment is $($PSVersionTable.PSVersion)" -ForegroundColor Yellow
+                    Write-Host "`t[+] " -NoNewLine -ForeGroundColor Green
+                    Write-Output "$($module.Name) is installed."
+                }
+                Else {
+                    Write-Host "We're sorry, due to various module dependency requirements, this tool will not work on a non-Windows operating system." -ForegroundColor Yellow
+                    Exit
+                }
+            }
+        }
+        ElseIf (($module.Name -eq (Get-InstalledModule -Name $module.Name).Name) -and (([Version]$module.MinimumVersion -le $installedVersion))) {
             If ($PSVersionTable.PSVersion.Major -eq 5) {
                 Write-Host "Environment is $($PSVersionTable.PSVersion)" -ForegroundColor Yellow
                 Write-Host "`t[+] " -NoNewLine -ForeGroundColor Green
@@ -274,18 +473,18 @@ Function Confirm-InstalledModules {
         }
         Else {
             $message = Write-Output "`n$($module.Name) is not installed."
-            $message1 = Write-Output "The module may be installed by running `"Install-Module -Name $($module.Name) -AllowPrerelease -AllowClobber -Force -MinimumVersion $($module)`" in an elevated PowerShell window."
+            $message1 = Write-Output "The module may be installed by running `"Install-Module -Name $($module.Name) -Force -MinimumVersion $($module)`" in an elevated PowerShell window."
             Colorize Red ($message)
             Colorize Yellow ($message1)
             $install = Read-Host -Prompt "Would you like to attempt installation now? (Y|N)"
             If ($install -eq 'y') {
-                Install-Module -Name $module.Name -AllowPrerelease -AllowClobber -Scope CurrentUser -Force -MinimumVersion $module
+                Install-Module -Name $module.Name -Scope CurrentUser -Force -MinimumVersion $module
                 $count ++
             }
         }
     }
 
-    If ($count -lt 5) {
+    If ($count -lt 4) {
         Write-Output ""
         Write-Output ""
         $message = Write-Output "Dependency checks failed. Please install all missing modules before running this script."
@@ -319,12 +518,20 @@ $tenantDisplayName = ($global:orgInfo).DisplayName
 # Get a list of every available detection module by parsing the PowerShell
 # scripts present in the .\inspectors folder. 
 #Exclude specified Inspectors
+switch ($Environment) {
+    "USGovGCCHigh" { $inspectorPath = 'O365GovGCC' }
+    "USGovDoD" { $inspectorPath = 'O365GovDoD' }
+    "GermanyCloud" { $inspectorPath = 'O365Germany' }
+    "China" { $inspectorPath = 'O365China' }
+    default { $inspectorPath = 'Inspectors' }
+}
+
 If ($excluded_inspectors -and $excluded_inspectors.Count) {
     $excluded_inspectors = foreach ($inspector in $excluded_inspectors) { "$inspector.ps1" }
-    $inspectors = (Get-ChildItem .\inspectors\*.ps1 -exclude $excluded_inspectors).Name | ForEach-Object { ($_ -split ".ps1")[0] }
+    $inspectors = (Get-ChildItem .\$inspectorPath\*.ps1 -exclude $excluded_inspectors).Name | ForEach-Object { ($_ -split ".ps1")[0] }
 }
 else {
-    $inspectors = (Get-ChildItem .\inspectors\*.ps1).Name | ForEach-Object { ($_ -split ".ps1")[0] }
+    $inspectors = (Get-ChildItem .\$inspectorPath\*.ps1).Name | ForEach-Object { ($_ -split ".ps1")[0] }
 }
 
 #Use Selected Inspectors
@@ -369,10 +576,10 @@ ForEach ($selected_inspector in $selected_inspectors) {
         Write-Output "Invoking Inspector: $selected_inspector"
 		
         # Get the static data (finding description, remediation etc.) associated with that inspector module.
-        $finding = Get-Content .\inspectors\$selected_inspector.json | Out-String | ConvertFrom-Json
+        $finding = Get-Content .\$inspectorPath\$selected_inspector.json | Out-String | ConvertFrom-Json
 		
         # Invoke the actual inspector module and store the resulting list of insecure objects.
-        $finding.AffectedObjects = Invoke-Expression ".\inspectors\$selected_inspector.ps1"
+        $finding.AffectedObjects = Invoke-Expression ".\$inspectorPath\$selected_inspector.ps1"
 		
         # Add the finding to the list of all findings.
         $findings += $finding
@@ -559,7 +766,7 @@ Function HTML-Report {
     
     # Insert command line execution information. This is coupled kinda badly, as is the Affected Objects html.
     $flags = "<b>Prepared for organization:</b><b> $tenantDisplayName - $org_name</b><br/><br/>"
-    #$flags = $flags + "<b>Stats</b>:<br/> <b>" + $findings_count + "</b> out of <b>" + $inspectors.Count + "</b> executed inspector modules identified possible opportunities for improvement.<br/><br/>"  
+    $flags = $flags + "<b>Prepared by:</b><b> $UserPrincipalName </b><br/><br/>"  
     $flags = $flags + "<b>Stats</b>:<br/> <b>" + $findings_count + "</b> opportunities for improvement identified from <b>" + $inspectors.Count + "</b> points of inspection.<br/><br/>"
     #$flags = $flags + "<b>Inspector Modules Executed</b>:<br/>" + [String]::Join("<br/>", $selected_inspectors)
     
@@ -720,20 +927,12 @@ Function All-Report {
     HTML-Report
 }
 
-If ($reportType -eq "HTML") {
-    HTML-Report
-}
-Elseif ($reportType -eq "CSV") {
-    CSV-Report
-}
-Elseif ($reportType -eq "XML") {
-    XML-Report
-}
-Elseif ($reportType -eq "JSON") {
-    JSON-Report
-}
-Else {
-    All-Report
+switch ($reportType) {
+    "HTML" { HTML-Report }
+    "CSV" { CSV-Report }
+    "XML" { XML-Report }
+    "JSON" { JSON-Report }
+    default { All-Report }
 }
 
 $compress = @{
@@ -745,14 +944,17 @@ Compress-Archive @compress
 
 function Disconnect {
     Write-Output "Disconnect from Exchange Online"
-    Disconnect-ExchangeOnline -Confirm:$false
+    Disconnect-ExchangeOnline -Confirm:$false -Force
+    Remove-Module ExchangeOnlineManagement
+    Get-Module | Where-Object { $_.name -like "tmpEXO_*" } | Remove-Module
     Write-Output "Disconnect from SharePoint Service"
-    Disconnect-SPOService
+    Disconnect-PnPOnline
+    Remove-Module PnP.PowerShell
     Write-Output "Disconnect from Microsoft Teams"
     Disconnect-MicrosoftTeams
-    Write-Output "Disconnect from Microsoft Intune"
     Write-Output "Disconnect from Microsoft Graph"
     Disconnect-MgGraph
+    Get-Module | Where-Object { $_.name -like "Microsoft.Graph*" } | Remove-Module -Force
 }
 
 $removeSession = Read-Host -Prompt "Do you wish to disconnect your session? (Y|N)"
