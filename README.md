@@ -61,9 +61,31 @@ For example, to log in by entering your credentials in a browser with MFA suppor
 
         .\365Inspect.ps1 -OutPath ..\365_report -UserPrincipalName myuser@mytenant.onmicrosoft.com -Auth MFA
 
+To login to a Government or other National Cloud Deployment (China, Germany, etc.) the `-Environment` parameter should be specified as follows:
+
+        .\365Inspect.ps1 -OutPath ..\365_report -UserPrincipalName myuser@mytenant.onmicrosoft.com -Auth MFA -Environment USGovGCCHigh
+
+Valid arguments for the `-Environment` are:
+* Default - Default Microsoft 365 tenant authorization endpoints. This is the default argument if the Environment parameter is not specified.
+* USGovGCCHigh - US Government GCC High tenants
+* USGovDoD - US Government DoD tenants
+* Germany - Microsoft 365 Azure Germany hosted tenants 
+* China - Microsoft 365 China/Vianet hosted tenants
+
 Application Authentication can be achieved by executing the script with the following parameters:
 
         .\365Inspect.ps1 -OutPath ..\365_report -UserPrincipalName myuser@mytenant.onmicrosoft.com -Auth APP
+
+To login to a Government or other National Cloud Deployment (China, Germany, etc.) the `-Environment` parameter should be specified as follows:
+
+        .\365Inspect.ps1 -OutPath ..\365_report -UserPrincipalName myuser@mytenant.onmicrosoft.com -Auth APP -Environment USGovGCCHigh
+
+Valid arguments for the `-Environment` are:
+* Default - Default Microsoft 365 tenant authorization endpoints. This is the default argument if the Environment parameter is not specified.
+* USGovGCCHigh - US Government GCC High tenants
+* USGovDoD - US Government DoD tenants
+* Germany - Microsoft 365 Azure Germany hosted tenants 
+* China - Microsoft 365 China/Vianet hosted tenants
 
 __NOTE:__ There are prerequisites for execution of 365Inspect with application authentication. [Go to Application Authentication Requirements](#Application-Authentication-Requirements)
 
@@ -108,6 +130,8 @@ To break down the parameters further:
 * *UserPrincipalName* - UserPrincipalName of the assessor, this is included to reduce the number of times you need to enter credentials in supported modules.
     * Required? Yes
 * *ReportType* - Output format of the generated report. Current supported vales are HTML (default), CSV, and XML.
+    * Required? No
+* *Environment* - Specify the Azure Cloud instance to connect to for non-standard/consumer Microsoft 365 tenants.
     * Required? No
 
 When you execute 365*Inspect* with *-Auth MFA*, it may produce several graphical login prompts that you must sequentially log into. This is normal behavior as Exchange, SharePoint etc. have separate administration modules and each requires a different login session. If you simply log in the requested number of times, 365*Inspect* should begin to execute. This is the opposite of fun and we're seeking a workaround, but needless to say we feel the results are worth the minute spent looking at MFA codes.
