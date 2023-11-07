@@ -103,7 +103,7 @@ Function Connect-Services {
         }
         Try {
             Write-Output "Connecting to Exchange Online"
-            Connect-ExchangeOnline -UserPrincipalName $UserPrincipalName -ShowBanner:$false -ExchangeEnvironmentName $Environment
+            Connect-ExchangeOnline -UserPrincipalName $UserPrincipalName -ShowBanner:$false
         }
         Catch {
             Write-Output "Connecting to Exchange Online Failed."
