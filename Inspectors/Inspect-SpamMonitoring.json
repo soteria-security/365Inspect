@@ -4,7 +4,6 @@
     "Remediation": "This setting is most easily accessible via the Set-HostedOutboundSpamFilterPolicy function in the Exchange Online PowerShell module. Use the Set-HostedOutboundSpamFilterPolicy function as listed below.",
     "DefaultValue": "None",
     "ExpectedValue": "A configured recipient mailbox",
-    "ReturnedValue": "",
     "Impact": "High",
     "AffectedObjects": "",
     "Service": "SecurityandCompliance",

@@ -8,38 +8,36 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 $path = @($out_path)
 
 Function Inspect-EmailVerifiedUserCreation {
-Try {
+    Try {
 
-    $emailVerifiedUsers = Get-MgUser -All:$true | Where-Object {$_.CreationType -eq "EmailVerified"}
+        $emailVerifiedUsers = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/users?filter=creationtype eq 'EmailVerified'" -ErrorAction Stop).Value
 
-    $results = @()
+        $results = @()
 
-    $emailVerifiedUsers | Select-Object AccountEnabled,DisplayName,ShowInAddressList,UserPrincipalName,OtherMails | Format-Table -AutoSize | Out-File "$path\EmailVerifiedUserCreation.txt" 
+        If (($emailVerifiedUsers | Measure-Object).Count -gt 0) {
+            $emailVerifiedUsers | Select-Object AccountEnabled, DisplayName, ShowInAddressList, UserPrincipalName, OtherMails | Format-Table -AutoSize | Out-File "$path\EmailVerifiedUserCreation.txt" 
+        }
 
-    foreach ($account in $emailVerifiedUsers){
-        $results += $account.UserPrincipalName
+        foreach ($account in $emailVerifiedUsers) {
+            $results += $account.UserPrincipalName
+        }
+
+        Return $results
     }
-
-    Return $results
-
-}
-Catch {
-Write-Warning "Error message: $_"
-$message = $_.ToString()
-$exception = $_.Exception
-$strace = $_.ScriptStackTrace
-$failingline = $_.InvocationInfo.Line
-$positionmsg = $_.InvocationInfo.PositionMessage
-$pscommandpath = $_.InvocationInfo.PSCommandPath
-$failinglinenumber = $_.InvocationInfo.ScriptLineNumber
-$scriptname = $_.InvocationInfo.ScriptName
-Write-Verbose "Write to log"
-Write-ErrorLog -message $message -exception $exception -scriptname $scriptname
-Write-Verbose "Errors written to log"
-}
-
+    Catch {
+        Write-Warning "Error message: $_"
+        $message = $_.ToString()
+        $exception = $_.Exception
+        $strace = $_.ScriptStackTrace
+        $failingline = $_.InvocationInfo.Line
+        $positionmsg = $_.InvocationInfo.PositionMessage
+        $pscommandpath = $_.InvocationInfo.PSCommandPath
+        $failinglinenumber = $_.InvocationInfo.ScriptLineNumber
+        $scriptname = $_.InvocationInfo.ScriptName
+        Write-Verbose "Write to log"
+        Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
+        Write-Verbose "Errors written to log"
+    }
 }
 
 Return Inspect-EmailVerifiedUserCreation
-
-

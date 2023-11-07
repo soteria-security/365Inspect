@@ -6,37 +6,29 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 
 function Inspect-SMTPAuthGloballyDisabled {
-Try {
-
-	# Query Security defaults to see if it's enabled. If it is, skip this check.
-	$secureDefault = Get-MgPolicyIdentitySecurityDefaultEnforcementPolicy -Property IsEnabled | Select-Object IsEnabled
-    If ($secureDefault.IsEnabled -eq $false){
-		If (Get-TransportConfig | Where-Object {!$_.SmtpClientAuthenticationDisabled}) {
-			return "SmtpClientAuthenticationDisabled: $((Get-TransportConfig).SmtpClientAuthenticationDisabled)"
-		}
-	}
-	
-	return $null
-
-}
-Catch {
-Write-Warning "Error message: $_"
-$message = $_.ToString()
-$exception = $_.Exception
-$strace = $_.ScriptStackTrace
-$failingline = $_.InvocationInfo.Line
-$positionmsg = $_.InvocationInfo.PositionMessage
-$pscommandpath = $_.InvocationInfo.PSCommandPath
-$failinglinenumber = $_.InvocationInfo.ScriptLineNumber
-$scriptname = $_.InvocationInfo.ScriptName
-Write-Verbose "Write to log"
-Write-ErrorLog -message $message -exception $exception -scriptname $scriptname
-Write-Verbose "Errors written to log"
-}
-
+    Try {
+        # Query Security defaults to see if it's enabled. If it is, skip this check.
+        $secureDefault = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/policies/identitySecurityDefaultsEnforcementPolicy")
+        If ($secureDefault.IsEnabled -eq $false) {
+            If (Get-TransportConfig | Where-Object { !$_.SmtpClientAuthenticationDisabled }) {
+                return "SmtpClientAuthenticationDisabled: $((Get-TransportConfig).SmtpClientAuthenticationDisabled)"
+            }
+        }
+    }
+    Catch {
+        Write-Warning "Error message: $_"
+        $message = $_.ToString()
+        $exception = $_.Exception
+        $strace = $_.ScriptStackTrace
+        $failingline = $_.InvocationInfo.Line
+        $positionmsg = $_.InvocationInfo.PositionMessage
+        $pscommandpath = $_.InvocationInfo.PSCommandPath
+        $failinglinenumber = $_.InvocationInfo.ScriptLineNumber
+        $scriptname = $_.InvocationInfo.ScriptName
+        Write-Verbose "Write to log"
+        Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
+        Write-Verbose "Errors written to log"
+    }
 }
 
 return Inspect-SMTPAuthGloballyDisabled
-
-
-

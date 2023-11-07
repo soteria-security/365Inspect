@@ -4,7 +4,6 @@
     "Remediation": "Review the Tenant Allow/Block List under Spoofing in the Security console.",
     "DefaultValue": "None",
     "ExpectedValue": "None",
-    "ReturnedValue": "",
     "Impact": "High",
     "AffectedObjects": "",
     "Service": "Exchange,SecurityandCompliance",

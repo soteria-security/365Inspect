@@ -4,7 +4,6 @@
     "Remediation": "Review Microsoft Teams External Access Policies and validate that all results are expected, and no conflicting rules are in place.",
     "DefaultValue": "Global, Tag:FederationAndPICDefault, Tag:FederationOnly, Tag:NoFederationAndPIC",
     "ExpectedValue": "Not applicable",
-    "ReturnedValue": "",
     "Impact": "Informational",
     "AffectedObjects": "",
     "Service": "Teams",

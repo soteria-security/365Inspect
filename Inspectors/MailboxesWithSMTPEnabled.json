@@ -4,7 +4,6 @@
     "Remediation": "SMTP can be globally disabled using Exchange Online PowerShell using the Set-TransportConfig command, such as: Set-TransportConfig -SmtpClientAuthenticationDisabled $true. However, this finding refers to individual mailboxes that have SMTP enabled. For these mailboxes, SMTP authentication can be disabled using the Set-CASMailbox commandlet as follows: Set-CASMailbox -Identity [MailboxName] -SmtpClientAuthenticationDisabled $true where the -Identity flag is the user's email address. A list of affected email addresses is included in this report.",
     "DefaultValue": "False",
     "ExpectedValue": "True",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "Exchange",

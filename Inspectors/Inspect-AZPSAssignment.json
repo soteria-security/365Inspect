@@ -4,7 +4,6 @@
     "Remediation": "These permissions can be mitigated by creating and assigning Service Principals for the applications using the instructions in the linked blog post and setting the AppRoleAssignmentRequired attribute to $true for each Service Principal.",
     "DefaultValue": "None",
     "ExpectedValue": "Assigned Users, Groups, or Directory Roles",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "AzureAD",

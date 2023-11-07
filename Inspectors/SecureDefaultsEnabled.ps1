@@ -23,26 +23,24 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 function Inspect-SecureDefaults {
     Try {
-
-        $conditionalAccess = Get-MgIdentityConditionalAccessPolicy
+        $conditionalAccess = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/policies/conditionalAccessPolicies" -ErrorAction Stop).Value
 
         If (($conditionalAccess | Measure-Object).Count -eq 0) {
             $SDCreationDate = "October 22, 2019"
-            $tenantCreationDate = (Get-MgOrganization).CreatedDateTime
-            $secureDefault = Get-MgPolicyIdentitySecurityDefaultEnforcementPolicy -Property IsEnabled | Select-Object IsEnabled
+            $tenantCreationDate = (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/organization?select=createdDateTime").Value.CreatedDateTime
+            $secureDefault = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/policies/identitySecurityDefaultsEnforcementPolicy" -ErrorAction Stop).IsEnabled
             $disabled = "Secure Defaults Not Enabled on this Tenant."
             $olderThan = "Tenant creation predates Secure Defaults, and as a result Secure Defaults is not enabled"
-            If (($tenantCreationDate -lt $SDCreationDate) -and ($secureDefault.IsEnabled -eq $false)) {
+            If (([datetime]$tenantCreationDate -lt [datetime]$SDCreationDate) -and ($secureDefault.IsEnabled -eq $false)) {
                 Return "$($secureDefault.IsEnabled): $olderThan"
             }
             elseif ($secureDefault.IsEnabled -eq $false) {
-                return "$($secureDefault.IsEnabled): $disabled"
+                return $null
             }
         }
         Else {
-            return $null
+        
         }
-
     }
     Catch {
         Write-Warning "Error message: $_"
@@ -58,9 +56,6 @@ function Inspect-SecureDefaults {
         Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
         Write-Verbose "Errors written to log"
     }
-
 }
 
 Return Inspect-SecureDefaults
-
-

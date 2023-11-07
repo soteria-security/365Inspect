@@ -1,14 +1,13 @@
 {
     "FindingName": "SharePoint Legacy Authentication is Enabled",
     "Description": "SharePoint legacy authentication is enabled. Cyber adversaries frequently attempt credential stuffing and other attacks against legacy authentication protocols because they are subject to less scrutiny and are typically exempt from Multi-Factor Authentication and other modern access requirements. It is recommended to globally disable SharePoint legacy authentication.",
-    "Remediation": "Consider using the SharePoint PowerShell module to disable legacy authentication protocols as listed below. Note that globally disabling legacy authentication could have an adverse effect on some users or applications that require legacy authentication to perform their functions. In such cases, it is possible to more granularly set up a Conditional Access Policy that blocks legacy authentication for only those users and applications who do not strictly require it. Documentation for both approaches is provided in the references below.",
+    "Remediation": "Consider using the SharePoint PowerShell module to disable legacy authentication protocols. Note that globally disabling legacy authentication could have an adverse effect on some users or applications that require legacy authentication to perform their functions. In such cases, it is possible to more granularly set up a Conditional Access Policy that blocks legacy authentication for only those users and applications who do not strictly require it. Documentation for both approaches is provided in the references below.",
     "DefaultValue": "True",
     "ExpectedValue": "False",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "SharePoint",
-    "PowerShell": "<pre><code class=\"language-powershell\">Set-SPOTenant -LegacyAuthProtocolsEnabled $False</code></pre>",
+    "PowerShell": "Set-PnPTenant -LegacyAuthProtocolsEnabled $False",
     "References": [
         {
             "Url": "https://docs.microsoft.com/en-us/powershell/module/sharepoint-online/set-spotenant?view=sharepoint-ps",

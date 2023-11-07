@@ -4,7 +4,6 @@
     "Remediation": "If the organization's DMARC configuration is correct, consider changing the DMARC policy action to a more meaningful policy action such as 'quarantine' or 'reject'. This will direct mail recipient servers to not deliver messages which are identified as spoofed, therefore gaining a security benefit from DMARC. Note that this can cause interoperability issues and may result in undelivered emails in certain edge cases, with certain automated applications, or if the organization's DMARC settings are not correctly configured. It is recommended to have a mechanism by which users can report undelivered emails or other misbehaviors. Review the references on DMARC implementation below for more extensive advice to begin planning a DMARC rollout.",
     "DefaultValue": "Null",
     "ExpectedValue": "'p=quarantine' or 'p=reject'",
-    "ReturnedValue": "",
     "Impact": "High",
     "AffectedObjects": "",
     "Service": "Exchange",

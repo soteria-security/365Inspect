@@ -4,7 +4,6 @@
     "Remediation": "Modify the affected sharing policies and disable calendar sharing. This is possible from the O365 Admin Center, in the Exchange &rarr; Organization &rarr; Sharing screen. The Set-SharingPolicy PowerShell commandlets can also be used to perform this remediation.",
     "DefaultValue": "None",
     "ExpectedValue": "Not applicable",
-    "ReturnedValue": "",
     "Impact": "Medium",
     "AffectedObjects": "",
     "Service": "Exchange",

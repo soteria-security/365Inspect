@@ -5,22 +5,10 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 . $errorHandling
 
 
-Function Get-DirSyncSvcAcct {
+function Inspect-SharepointLegacyAuthEnabled {
     Try {
-        $syncEnabled = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/organization").Value.onPremisesSyncEnabled
-
-        $syncSvcAccounts = @()
-    
-        If ($syncEnabled -eq $true) {
-            $syncSvcAccount = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/users?filter=startswith(displayName, 'On-Premises')").Value
-            
-            Foreach ($acct in $syncSvcAccount) {
-                $syncSvcAccounts += "$($acct.displayName) - $($acct.userPrincipalName)"
-            }
-        }
-    
-        If ($syncSvcAccounts) {
-            Return $syncSvcAccounts
+        If ($(Get-PnPTenant).LegacyAuthProtocolsEnabled) {
+            return "Tenant LegacyAuthProtocolsEnabled configuration: $((Get-PnPTenant).LegacyAuthProtocolsEnabled)"
         }
     }
     Catch {
@@ -39,4 +27,4 @@ Function Get-DirSyncSvcAcct {
     }
 }
 
-Return Get-DirSyncSvcAcct
+return Inspect-SharepointLegacyAuthEnabled

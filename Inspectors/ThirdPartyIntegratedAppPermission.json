@@ -4,7 +4,6 @@
     "Remediation": "In the Office 365 administration center, navigate to the Org Settings page, then select Services &rarr; User Consent to Apps and turn user consent off.",
     "DefaultValue": "True",
     "ExpectedValue": "False",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "Tenant,AzureAD",

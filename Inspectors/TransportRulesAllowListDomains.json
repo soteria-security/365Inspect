@@ -4,7 +4,6 @@
     "Remediation": "Locate the rules 365Inspect has identified (they are listed in this report) and determine who created the rules. Pursue a dialogue or analysis of whether the Exchange Online Protection is necessary for continued operations and whether another solution is possible. If the rules are not necessary, remove the rules.",
     "DefaultValue": "None",
     "ExpectedValue": "None",
-    "ReturnedValue": "",
     "Impact": "High",
     "AffectedObjects": "",
     "Service": "Exchange",

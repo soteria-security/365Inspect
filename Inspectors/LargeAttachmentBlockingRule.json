@@ -4,7 +4,6 @@
     "Remediation": "Go to the Exchange Mail Flow rules screen and create a new rule which blocks attachments over a designated size.",
     "DefaultValue": "None",
     "ExpectedValue": "Configured Transport Rule",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "Exchange",

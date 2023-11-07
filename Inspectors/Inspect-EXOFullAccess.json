@@ -4,7 +4,6 @@
     "Remediation": "This finding refers to individual mailboxes that have Full Access delegated permissions. For these mailboxes, verify that the delegate access is expected, appropriate, and does not violate company policy. Remediation can be accomplished by running the listed PowerShell command. A list of affected email addresses is included in this report.",
     "DefaultValue": "None",
     "ExpectedValue": "None",
-    "ReturnedValue": "",
     "Impact": "High",
     "AffectedObjects": "",
     "Service": "Exchange",

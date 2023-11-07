@@ -4,7 +4,6 @@
     "Remediation": "Validate the configuration of your service account if the default installation was not used. Follow Microsoft guidance and best practices to ensure your hybrid configuration meets your business needs and policies.",
     "DefaultValue": "",
     "ExpectedValue": " ",
-    "ReturnedValue": "",
     "Impact": "Informational",
     "AffectedObjects": "",
     "Service": "AzureAD",

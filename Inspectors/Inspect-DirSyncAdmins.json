@@ -4,7 +4,6 @@
     "Remediation": "Follow Microsoft guidance and restrict all administrative privileges to Azure-only accounts using strong authentication methods, and if possible, only allow those accounts to be accessed from Azure-based workstations.",
     "DefaultValue": "None",
     "ExpectedValue": "None",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "AzureAD",

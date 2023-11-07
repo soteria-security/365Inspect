@@ -4,7 +4,6 @@
     "Remediation": "This finding refers to individual mailboxes that have IMAP enabled. For these mailboxes, IMAP can be disabled using the Set-CASMailbox commandlet as follows: Set-CASMailbox -Identity [MailboxName] -IMAPEnabled $false where the -Identity flag is the user's email address. A list of affected email addresses is included in this report. Key stakeholders should be polled prior to making this change, as there is a chance IMAP is used within the organization for legacy applications or service accounts.",
     "DefaultValue": "True",
     "ExpectedValue": "False",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "Exchange",

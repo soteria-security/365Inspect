@@ -2,6 +2,8 @@
 
 Further the state of O365 security by authoring a PowerShell script that automates the security assessment of Microsoft Office 365 environments.
 
+
+
 # Setup
 
 365*Inspect* requires the administrative PowerShell modules for Exchange administration, Microsoft Graph, Microsoft Teams, and the Sharepoint administration module.
@@ -14,7 +16,11 @@ If you do not have these modules installed, you will be prompted to install them
 
     Install-Module -Name ExchangeOnlineManagement -AllowClobber -Force
     
-    Install-Module -Name Microsoft.Online.SharePoint.PowerShell -AllowClobber -Force
+    # NOTE: If you are using PowerShell 5.1 you must set the MaximumVersion Parameter for PnP PowerShell 
+    Install-Module -Name PnP.PowerShell -AllowClobber -MaximumVersion 1.12.0 -Force
+
+    # NOTE: If you are using PowerShell 6.0 or higher you can install the current version of PnP PowerShell 
+    Install-Module -Name PnP.PowerShell -AllowClobber -Force
     
     Install-Module -Name Microsoft.Graph -AllowClobber -Force
     
@@ -22,11 +28,11 @@ If you do not have these modules installed, you will be prompted to install them
 
 [Install Exchange Online PowerShell](https://docs.microsoft.com/en-us/powershell/exchange/exchange-online-powershell-v2?view=exchange-ps)
 
-[Install SharePoint](https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-online/connect-sharepoint-online?view=sharepoint-ps)
+[Install SharePoint PnP PowerShell Module](https://pnp.github.io/powershell/articles/installation.html)
 
 [Install Microsoft Graph SDK](https://docs.microsoft.com/en-us/graph/powershell/installation)
 
-[Install Microsoft Teams PowerShell Module](https://docs.microsoft.com/en-us/microsoftteams/teams-powershell-install)
+[Install Microsoft Teams](https://learn.microsoft.com/en-us/microsoftteams/teams-powershell-install)
 
 Once the above are installed, download the 365*Inspect* source code folder from Github using your browser or by using *git clone*.
 
@@ -44,11 +50,22 @@ All 365*Inspect* requires to inspect your O365 tenant is access via an O365 acco
 
 Execution of 365*Inspect* looks like this:
 
-	.\365Inspect.ps1 -OutPath <value> -UserPrincipalName myuser@mytenant.onmicrosoft.com -Auth <MFA|ALREADY_AUTHED>
+	.\365Inspect.ps1 -OutPath <value> -UserPrincipalName myuser@mytenant.onmicrosoft.com -Auth <MFA|ALREADY_AUTHED|APP>
+
+<details>
+<summary>Execution Examples</summary>
+
+## Script Execution
 
 For example, to log in by entering your credentials in a browser with MFA support:
 
         .\365Inspect.ps1 -OutPath ..\365_report -UserPrincipalName myuser@mytenant.onmicrosoft.com -Auth MFA
+
+Application Authentication can be achieved by executing the script with the following parameters:
+
+        .\365Inspect.ps1 -OutPath ..\365_report -UserPrincipalName myuser@mytenant.onmicrosoft.com -Auth APP
+
+__NOTE:__ There are prerequisites for execution of 365Inspect with application authentication. [Go to Application Authentication Requirements](#Application-Authentication-Requirements)
 
 365*Inspect* now supports report output to HTML (default value), CSV, and XML formats.
 
@@ -72,8 +89,17 @@ To break down the parameters further:
     * Required? Yes
 * *Auth* is a selector that should be one of the literal values "MFA" or "ALREADY_AUTHED". 
 	* *Auth* controls how 365*Inspect* will authenticate to all of the Office 365 services. 
+    <details>
+    <summary>Options</summary>
+
 	* *Auth MFA* will produce a graphical popup in which you can type your credentials and even enter an MFA code for MFA-enabled accounts. 
 	* *Auth ALREADY_AUTHED* instructs 365*Inspect* not to authenticate before scanning. This may be preferable if you are executing 365*Inspect* from a PowerShell prompt where you already have valid sessions for all of the described services, such as one where you have already executed 365*Inspect*.
+    * *Auth APP* instructs 365*Inspect* to prompt for Microsoft Entra ID Application Service Principal information. Required parameter variables are:
+       * AppId - The application ID of the registered application
+       * Certificate Thumbprint - Thumbprint of the created self-signed certificate
+       * Domain - The mail domain (user@company.com or company.com) or tenant domain (company.onmicrosoft.com) of the tenant to be scanned.
+
+    </details>
     * Required? Yes
 * *SelectedInspectors* is the name or names of the inspector or inspectors you wish to run with 365*Inspect*. If multiple inspectors are selected they must be comma separated. Only the named inspectors will be run.
     * Required? No
@@ -85,6 +111,8 @@ To break down the parameters further:
     * Required? No
 
 When you execute 365*Inspect* with *-Auth MFA*, it may produce several graphical login prompts that you must sequentially log into. This is normal behavior as Exchange, SharePoint etc. have separate administration modules and each requires a different login session. If you simply log in the requested number of times, 365*Inspect* should begin to execute. This is the opposite of fun and we're seeking a workaround, but needless to say we feel the results are worth the minute spent looking at MFA codes.
+
+</details>
 
 As 365*Inspect* executes, it will steadily print status updates indicating which inspection task is running.
 
@@ -100,12 +128,23 @@ As 365*Inspect* executes, it will steadily print status updates indicating which
 * *Log directory*: 365*Inspect* logs any errors encountered during the scripts execution to a timestamped log file found in the Log directory
 
 ### CSV Output
+
 Due to the nature of some of the returned items, the csv report is delimited on the carat (^) character. 
 It is recommended to open the CSV report in a text editor rather than Excel, as Excel defaults to a comma (,) delimiter and will render the report incorrectly.
 Once opened in a text editor, the data may be pasted into Excel.
 
+# Coming Soon!
+
+* Support for [National Cloud Deployments](https://learn.microsoft.com/en-us/graph/deployments)
+
 # Change Log
 
+* 365*Inspect* now supports Application Authentication
+
+<details>
+<summary>Older Changes</summary>
+
+## Older Changes
 * 365*Inspect*'s HTML report format has changed
     * Include new visual indicators of risk in the form of two charts
         ![Risk Charts](Images/Charts.png)
@@ -114,6 +153,8 @@ Once opened in a text editor, the data may be pasted into Excel.
     * Moved the list of Inspectors executed to an appendix at the bottom of the report
         ![Appendix](Images/Appendix.png)
 
+</details>
+
 # Necessary Privileges
 
 365*Inspect* can't run properly unless the O365 account you authenticate with has appropriate privileges. 365*Inspect* requires, at minimum, the following:
@@ -121,7 +162,179 @@ Once opened in a text editor, the data may be pasted into Excel.
 * Global Administrator
 * SharePoint Administrator
 
-We realize that these are extremely permissive roles, unfortunately due to the use of Microsoft Graph, we are restricted from using lesser privileges by Microsoft. Application and Cloud Application Administrator roles (used to grant delegated and application permissions) are restricted from granting permissions for Microsoft Graph or Azure AD PowerShell modules. [https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-administrator](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-administrator) 
+We realize that these are extremely permissive roles, unfortunately due to the use of Microsoft Graph, we are restricted from using lesser privileges by Microsoft. Application and Cloud Application Administrator roles (used to grant delegated and application permissions) are restricted from granting permissions for Microsoft Graph or Azure AD PowerShell modules. [Microsoft Docs - Application Administrator](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-administrator) 
+
+If executing 365*Inspect* using the application auth parameter, additional roles must be granted to allow the application to perform all executed tasks. See [Application Authentication requirements](#application-authentication-requirements)
+
+# Application Authentication Requirements
+
+Before 365*Inspect* can be utilized all other requisite components must be in place.
+<details>
+<summary>Prerequisite Preparation</summary>
+
+For the most efficient use of time, it is recommended to perform the requisite functions in the following order:
+1. Prepare the client machine
+   1. Client machine __MUST__ be a Microsoft Windows OS
+   1. Install required PowerShell modules listed in the [Setup](#setup) section above.
+   1. Ensure proper access controls are in place
+1. Create the necessary certificate
+   1. Create self-signed certificate for Azure Application authentication
+1. Create Azure Application
+   1. Create the Service Principal
+   1. Assign necessary rights to the application [API permissions](#Required-Permissions)
+   1. Assign the required roles to the application's Service Principal
+      1. Global Administrator
+      1. Exchange Administrator
+      1. Teams Administrator
+      1. SharePoint Administrator
+   1. Upload certificate
+   1. Document required information
+1. Acquire 365Inspect tool
+   1. Download and extract the tool to the desired location on the client
+
+</details>
+
+See the following references:
+* [Tutorial: Register an app with Microsoft Entra ID](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/walkthrough-register-app-azure-active-directory)
+* [App-only authentication for unattended scripts in Exchange Online PowerShell and Security & Compliance PowerShell](https://docs.microsoft.com/en-us/powershell/exchange/app-only-auth-powershell-v2)
+* [Application and service principal objects in Microsoft Entra ID](https://learn.microsoft.com/en-us/entra/identity-platform/app-objects-and-service-principals?tabs=browser)
+
+## Required Permissions
+<details>
+<summary>Expand</summary>
+	
+## Required Permissions
+* User.Read.All
+* Calendars.Read
+* Mail.Read
+* Contacts.Read
+* TeamMember.Read.All
+* Place.Read.All
+* Chat.UpdatePolicyViolation.All
+* Policy.Read.ConditionalAccess
+* AppCatalog.Read.All
+* TeamsAppInstallation.ReadForUser.All
+* eDiscovery.Read.All
+* UserShiftPreferences.Read.All
+* CustomSecAttributeDefinition.Read.All
+* AgreementAcceptance.Read.All
+* ExternalConnection.Read.All
+* EduRoster.Read.All
+* ServicePrincipalEndpoint.Read.All
+* CloudPC.Read.All
+* DeviceManagementManagedDevices.Read.All
+* OnlineMeetings.Read.All
+* Device.Read.All
+* TeamsTab.Read.All
+* DelegatedAdminRelationship.Read.All
+* UserAuthenticationMethod.Read.All
+* TeamsActivity.Read.All
+* Printer.Read.All
+* OrgContact.Read.All
+* TeamsAppInstallation.ReadForChat.All
+* Policy.Read.PermissionGrant
+* OnlineMeetingArtifact.Read.All
+* SharePointTenantSettings.Read.All
+* ChannelSettings.Read.All
+* SecurityEvents.Read.All
+* DelegatedPermissionGrant.ReadWrite.All
+* OnlineMeetingRecording.Read.All
+* IdentityRiskyServicePrincipal.Read.All
+* CrossTenantUserProfileSharing.Read.All
+* Calendars.Read
+* Mail.ReadBasic.All
+* PrivilegedAccess.Read.AzureAD
+* RoleManagement.Read.Directory
+* Channel.ReadBasic.All
+* People.Read.All
+* SecurityAlert.Read.All
+* Group.Read.All
+* AdministrativeUnit.Read.All
+* MailboxSettings.Read
+* CrossTenantInformation.ReadBasic.All
+* EduAdministration.Read.All
+* Sites.Read.All
+* PrintJob.Read.All
+* DeviceManagementServiceConfig.Read.All
+* ServiceMessage.Read.All
+* PrintSettings.Read.All
+* DirectoryRecommendations.Read.All
+* Notes.Read.All
+* EntitlementManagement.Read.All
+* CallRecords.Read.All
+* IdentityUserFlow.Read.All
+* ChatMessage.Read.All
+* Directory.Read.All
+* ConsentRequest.Read.All
+* RoleManagement.Read.All
+* CallRecord*PstnCalls.Read.All
+* PrivilegedAccess.Read.AzureResources
+* User.Read.All
+* Domain.Read.All
+* EduAssignments.ReadBasic.All
+* EduRoster.ReadBasic.All
+* Agreement.Read.All
+* OnlineMeetingTranscript.Read.All
+* ChannelMember.Read.All
+* Schedule.Read.All
+* SecurityIncident.Read.All
+* GroupMember.Read.All
+* DeviceManagementRBAC.Read.All
+* RoleManagement.Read.CloudPC
+* Files.Read.All
+* CustomSecAttributeAssignment.Read.All
+* SearchConfiguration.Read.All
+* DeviceManagementConfiguration.Read.All
+* Team.ReadBasic.All
+* APIConnectors.Read.All
+* Mail.Read
+* Chat.Read.All
+* ExternalItem.Read.All
+* ChannelMessage.Read.All
+* EduAssignments.Read.All
+* SecurityActions.Read.All
+* ThreatAssessment.Read.All
+* IdentityProvider.Read.All
+* TeamSettings.Read.All
+* IdentityRiskyUser.Read.All
+* AccessReview.Read.All
+* LicenseAssignment.ReadWrite.All
+* TermStore.Read.All
+* TeamworkTag.Read.All
+* PrivilegedAccess.Read.AzureADGroup
+* InformationProtectionPolicy.Read.All
+* Organization.Read.All
+* Contacts.Read
+* IdentityRiskEvent.Read.All
+* Mail.ReadBasic
+* AuditLog.Read.All
+* Policy.Read.All
+* Policy.ReadWrite.CrossTenantAccess
+* Member.Read.Hidden
+* Chat.ReadBasic.All
+* Application.Read.All
+* ProgramControl.Read.All
+* ServiceHealth.Read.All
+* ChatMember.Read.All
+* DeviceManagementApps.Read.All
+* ThreatIndicators.Read.All
+* TeamsAppInstallation.ReadForTeam.All
+* ShortNotes.Read.All
+* Reports.Read.All
+* PrintJob.ReadBasic.All
+* TrustFrameworkKeySet.Read.All
+* ThreatHunting.Read.All
+* TeamworkDevice.Read.All
+* Synchronization.Read.All
+* AuthenticationContext.Read.All
+* CustomAuthenticationExtension.Read.All
+* ThreatSubmission.Read.All
+* LifecycleWorkflows.Read.All
+* ReportSettings.Read.All
+* RecordsManagement.Read.All
+* RoleManagementAlert.Read.Directory
+  
+</details>
 
 # Developing Inspector Modules
 
@@ -137,8 +350,10 @@ It is simple to create an inspector module. Inspectors have two files:
 Templates are included in the Templates folder. Simply add your code and values in the respective locations.
 The PowerShell and JSON file names must be identical for 365*Inspect* to recognize that the two belong together. There are numerous examples in 365*Inspect*'s built-in suite of modules, but we'll put an example here too.
 
-Example .ps1 file, BypassingSafeAttachments.ps1:
-```
+<details>
+<summary>Example .ps1 file, BypassingSafeAttachments.ps1:</summary>
+
+```powershell
 # Define a function that we will later invoke.
 # 365Inspect's built-in modules all follow this pattern.
 function Inspect-BypassingSafeAttachments {
@@ -162,19 +377,22 @@ function Inspect-BypassingSafeAttachments {
 return Inspect-BypassingSafeAttachments
 ```
 
-Example .json file, BypassingSafeAttachments.json:
-```
+</details>
+
+<details>
+<summary>Example .json file, BypassingSafeAttachments.json:</summary>
+
+```json
 {
     "FindingName": "Do Not Bypass the Safe Attachments Filter",
     "Description": "In Exchange, it is possible to create mail transport rules that bypass the Safe Attachments detection capability. The rules listed above bypass the Safe Attachments capability. Consider reviewing these rules, as bypassing the Safe Attachments capability even for a subset of senders could be considered insecure depending on the context or may be an indicator of compromise.",
     "Remediation": "Navigate to the Mail Flow &rarr; Rules screen in the Exchange Admin Center. Look for the offending rules and begin the process of assessing who created them and whether they are necessary to the continued function of the organization. If they are not, remove the rules.",
     "DefaultValue": "None",
     "ExpectedValue": "None",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
-    "Service": "Exchange",  Valid values are Exchange, SharePoint, Teams, Intune, AzureAD, SecurityandCompliance, Tenant //
-    "PowerShell": "",
+    "Service": "Exchange",  // Valid values are Exchange, SharePoint, Teams, Intune, AzureAD, SecurityandCompliance, Tenant //
+    "PowerShell": "", // Any PowerShell remediation command examples should be placed here //
     "References": [
         {
             "Url": "https://docs.microsoft.com/en-us/exchange/security-and-compliance/mail-flow-rules/manage-mail-flow-rules",
@@ -187,6 +405,8 @@ Example .json file, BypassingSafeAttachments.json:
     ]
 }
 ```
+
+</details>
 
 Once you drop these two files in the .\inspectors folder, they are considered part of 365*Inspect*'s module inventory and will run the next time you execute 365*Inspect*.
 

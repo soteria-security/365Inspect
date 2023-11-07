@@ -5,22 +5,11 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 . $errorHandling
 
 
-Function Get-DirSyncSvcAcct {
+function Inspect-SharepointModernAuthentication {
     Try {
-        $syncEnabled = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/organization").Value.onPremisesSyncEnabled
-
-        $syncSvcAccounts = @()
-    
-        If ($syncEnabled -eq $true) {
-            $syncSvcAccount = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/users?filter=startswith(displayName, 'On-Premises')").Value
-            
-            Foreach ($acct in $syncSvcAccount) {
-                $syncSvcAccounts += "$($acct.displayName) - $($acct.userPrincipalName)"
-            }
-        }
-    
-        If ($syncSvcAccounts) {
-            Return $syncSvcAccounts
+        $sharepoint_modern_auth_disabled = $(Get-PnPTenant).OfficeClientADALDisabled
+        If ($sharepoint_modern_auth_disabled) {
+            Return [string](Get-PnPTenant).OfficeClientADALDisabled
         }
     }
     Catch {
@@ -39,4 +28,4 @@ Function Get-DirSyncSvcAcct {
     }
 }
 
-Return Get-DirSyncSvcAcct
+return Inspect-SharepointModernAuthentication

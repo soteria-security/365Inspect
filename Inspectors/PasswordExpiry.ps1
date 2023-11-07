@@ -6,33 +6,37 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 
 function Inspect-PasswordExpiry {
-Try {
+    Try {
+        $pass_expiry = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/v1.0/domains").Value
 
-	$pass_expiry = (Get-MgDomain)
+        $expPolicies = @()
 	
-	If (-NOT ($pass_expiry.PasswordValidityPeriodInDays -eq 2147483647)) {
-		return "$($pass_expiry.Id) password expiration in days: $($pass_expiry.PasswordValidityPeriodInDays)"
-	}
-	return $null
+        If (-NOT ($pass_expiry.PasswordValidityPeriodInDays -eq 2147483647)) {
+            Foreach ($x in $pass_expiry) {
+                If ($null -ne $x.PasswordValidityPeriodInDays) {
+                    $expPolicies += "$($x.Id) password expiration in days: $($x.PasswordValidityPeriodInDays)"
+                }
+            }
+        }
 
-}
-Catch {
-Write-Warning "Error message: $_"
-$message = $_.ToString()
-$exception = $_.Exception
-$strace = $_.ScriptStackTrace
-$failingline = $_.InvocationInfo.Line
-$positionmsg = $_.InvocationInfo.PositionMessage
-$pscommandpath = $_.InvocationInfo.PSCommandPath
-$failinglinenumber = $_.InvocationInfo.ScriptLineNumber
-$scriptname = $_.InvocationInfo.ScriptName
-Write-Verbose "Write to log"
-Write-ErrorLog -message $message -exception $exception -scriptname $scriptname
-Write-Verbose "Errors written to log"
-}
-
+        if ($null -ne $expPolicies) {
+            return $expPolicies
+        }
+    }
+    Catch {
+        Write-Warning "Error message: $_"
+        $message = $_.ToString()
+        $exception = $_.Exception
+        $strace = $_.ScriptStackTrace
+        $failingline = $_.InvocationInfo.Line
+        $positionmsg = $_.InvocationInfo.PositionMessage
+        $pscommandpath = $_.InvocationInfo.PSCommandPath
+        $failinglinenumber = $_.InvocationInfo.ScriptLineNumber
+        $scriptname = $_.InvocationInfo.ScriptName
+        Write-Verbose "Write to log"
+        Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
+        Write-Verbose "Errors written to log"
+    }
 }
 
 return Inspect-PasswordExpiry
-
-

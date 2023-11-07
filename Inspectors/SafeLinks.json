@@ -4,7 +4,6 @@
     "Remediation": "Safe Links can be configured by navigating to the Threat Management portal in the Office 365 Security and Compliance center. The first guide below is a quick introduction to enabling Safe Links while the second is a detailed reference.",
     "DefaultValue": "SafeLinks Enabled",
     "ExpectedValue": "SafeLinks Enabled",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "Exchange,Teams,SecurityandCompliance",

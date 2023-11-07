@@ -4,7 +4,6 @@
     "Remediation": "Follow the 'Anti-Phishing Policies in Microsoft 365' article below to begin constructing a custom Anti-Phishing Policy.",
     "DefaultValue": "None",
     "ExpectedValue": "Not applicable",
-    "ReturnedValue": "",
     "Impact": "Medium",
     "AffectedObjects": "",
     "Service": "Exchange,SecurityandCompliance",

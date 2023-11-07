@@ -4,7 +4,6 @@
     "Remediation": "Review Mail Flow rules and validate that all results are expected and no conflicting rules are in place.",
     "DefaultValue": "None",
     "ExpectedValue": "Not applicable",
-    "ReturnedValue": "",
     "Impact": "Informational",
     "AffectedObjects": "",
     "Service": "Exchange",

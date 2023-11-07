@@ -4,7 +4,6 @@
     "Remediation": "Determine if a custom DLP policy is beneficial for the Tenant, identify any gaps between desired end state and default policy configurations, and implement any new policies as needed.",
     "DefaultValue": "None",
     "ExpectedValue": "Not applicable",
-    "ReturnedValue": "",
     "Impact": "Low",
     "AffectedObjects": "",
     "Service": "Exchange,SharePoint,SecurityandCompliance",

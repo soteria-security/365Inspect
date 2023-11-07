@@ -4,7 +4,6 @@
     "Remediation": "Validate that the current state of the policies returned are expected and remediate as necessary.",
     "DefaultValue": "Enable",
     "ExpectedValue": "Enable",
-    "ReturnedValue": "",
     "Impact": "Low",
     "AffectedObjects": "",
     "Service": "Exchange,SharePoint,SecurityandCompliance",

@@ -8,12 +8,12 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 Function Inspect-PasswordSync {
     Try {
 
-        $syncTime = (Get-MgOrganization).OnPremisesLastSyncDateTime
+        $syncTime = (Invoke-GraphRequest -Method GET -Uri 'https://graph.microsoft.com/beta/organization').Value.onPremisesLastPasswordSyncDateTime
 
         If ($null -ne $syncTime) {
             return "Password Synchronization is enabled. Last synced $syncTime"
         }
-        Return $null
+	
 
     }
     Catch {
@@ -27,12 +27,10 @@ Function Inspect-PasswordSync {
         $failinglinenumber = $_.InvocationInfo.ScriptLineNumber
         $scriptname = $_.InvocationInfo.ScriptName
         Write-Verbose "Write to log"
-        Write-ErrorLog -message $message -exception $exception -scriptname $scriptname
+        Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
         Write-Verbose "Errors written to log"
     }
 
 }
 
 Return Inspect-PasswordSync
-
-

@@ -4,7 +4,6 @@
     "Remediation": "None. If Secure Defaults are not enabled, ensure that equivalent protections have been enforced.",
     "DefaultValue": "True",
     "ExpectedValue": "True",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "AzureAD,Tenant",

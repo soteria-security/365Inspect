@@ -4,7 +4,6 @@
     "Remediation": "Review the list of users who are assigned this role, determine if these assignments are appropriate for the Tenant and remove any users who should not hold this role.",
     "DefaultValue": "None",
     "ExpectedValue": "Approved, designated users",
-    "ReturnedValue": "",
     "Impact": "High",
     "AffectedObjects": "",
     "Service": "SecurityandCompliance",

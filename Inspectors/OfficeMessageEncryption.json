@@ -4,7 +4,6 @@
     "Remediation": "Enabling Office Message Encryption can be a significant process that entails enabling the technology, determining which cryptographic key management strategy will be used, and enabling Exchange mail transport rules that will automatically encrypt the organization's email. For many organizations, this process can be simplified by using Microsoft's default cryptographic key management scheme; however, this is a decision that can only be made by someone with contextual knowledge of the organization's constraints. Please follow the detailed guide linked in the References section for more information.",
     "DefaultValue": "None",
     "ExpectedValue": "True",
-    "ReturnedValue": "",
     "Impact": "High",
     "AffectedObjects": "",
     "Service": "Exchange,SecurityandCompliance",

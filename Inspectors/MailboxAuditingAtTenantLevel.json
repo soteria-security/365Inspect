@@ -4,7 +4,6 @@
     "Remediation": "Mailbox auditing can be globally enabled within the Tenant using the Set-OrganizationConfig commandlet as follows: Set-OrganizationConfig -AuditDisabled $false.",
     "DefaultValue": "False",
     "ExpectedValue": "False",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "Exchange",

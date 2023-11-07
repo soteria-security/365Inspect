@@ -4,7 +4,6 @@
     "Remediation": "Use the Exchange Online administration module for PowerShell to execute the listed PowerShell command. Note that SMTP authentication for individual mailboxes may still need to be located and disabled using the Set-CASMailbox command with the -SmtpClientAuthenticationDisabled script.",
     "DefaultValue": "True",
     "ExpectedValue": "True",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "Exchange",

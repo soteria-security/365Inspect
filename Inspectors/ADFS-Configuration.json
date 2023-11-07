@@ -4,7 +4,6 @@
     "Remediation": "Review ADFS configuration for claims rules that may replace or negate findings in this report (eg, Forced MFA when outside of corporate networks).",
     "DefaultValue": "None",
     "ExpectedValue": "Not applicable",
-    "ReturnedValue": "",
     "Impact": "Informational",
     "AffectedObjects": "",
     "Service": "Tenant,AzureAD",

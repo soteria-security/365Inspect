@@ -6,45 +6,46 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 
 function Inspect-SPFRecords {
-Try {
-
-	$domains = Get-MgDomain | Where-Object {$_.Id -notlike "*.*microsoft*.com"}
-	$domains_without_records = @()
+    Try {
+        $domains = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/domains").Value | Where-Object { $_.id -notlike "*.*microsoft*.com" }
+        $domains_without_records = @()
 	
-	# The redirection is kind of a cheesy hack to prevent the output from
-	# cluttering the screen.
-	ForEach($domain in $domains.Name) {
-		($spf_record = ((nslookup -querytype=txt $domain 2>&1 | Select-String "spf1") -replace "`t", "")) | Out-Null
+        # The redirection is kind of a cheesy hack to prevent the output from
+        # cluttering the screen.
+        ForEach ($domain in $domains.Id) {
+            Try {
+		    ($spf_record = (Resolve-DnsName -Name $domain -Type TXT -Server 8.8.8.8 -ErrorAction Stop | Where-Object { $_.strings -match "spf" } | Select-Object @{N = "Strings"; e = { $_.Strings } }).Strings) | Out-Null
+            }
+            Catch {
+                $exception = $_.Exception
+                If ($exception -like "*Non-existent domain*") {
+                    $spf_record = "$domain is not registered publicly."
+                }
+            }
 		
-		If (-NOT $spf_record) {
-			$domains_without_records += $domain
-		}
-	}
+            If (-NOT $spf_record) {
+                $domains_without_records += $domain
+            }
+        }
 	
-	If ($domains_without_records.Count -ne 0) {
-		return $domains_without_records
-	}
-	
-	return $null
-
-}
-Catch {
-Write-Warning "Error message: $_"
-$message = $_.ToString()
-$exception = $_.Exception
-$strace = $_.ScriptStackTrace
-$failingline = $_.InvocationInfo.Line
-$positionmsg = $_.InvocationInfo.PositionMessage
-$pscommandpath = $_.InvocationInfo.PSCommandPath
-$failinglinenumber = $_.InvocationInfo.ScriptLineNumber
-$scriptname = $_.InvocationInfo.ScriptName
-Write-Verbose "Write to log"
-Write-ErrorLog -message $message -exception $exception -scriptname $scriptname
-Write-Verbose "Errors written to log"
-}
-
+        If ($domains_without_records.Count -ne 0) {
+            return $domains_without_records
+        }
+    }
+    Catch {
+        Write-Warning "Error message: $_"
+        $message = $_.ToString()
+        $exception = $_.Exception
+        $strace = $_.ScriptStackTrace
+        $failingline = $_.InvocationInfo.Line
+        $positionmsg = $_.InvocationInfo.PositionMessage
+        $pscommandpath = $_.InvocationInfo.PSCommandPath
+        $failinglinenumber = $_.InvocationInfo.ScriptLineNumber
+        $scriptname = $_.InvocationInfo.ScriptName
+        Write-Verbose "Write to log"
+        Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
+        Write-Verbose "Errors written to log"
+    }
 }
 
 return Inspect-SPFRecords
-
-

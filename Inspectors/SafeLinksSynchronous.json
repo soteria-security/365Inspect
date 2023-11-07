@@ -4,7 +4,6 @@
     "Remediation": "Use the Set-SafeLinksPolicy function in the Exchange Online PowerShell module as follows: Set-SafeLinksPolicy -DeliverMessageAfterScan $false.",
     "DefaultValue": "True",
     "ExpectedValue": "False",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "Exchange,Teams,SecurityandCompliance",

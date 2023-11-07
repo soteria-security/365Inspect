@@ -4,7 +4,6 @@
     "Remediation": "The excessive user permissions can be mitigated by running the listed PowerShell commands as a Global Admin. User access to the Azure AD blade can be restricted by navigating to the Azure Active Directory blade &rarr; User Settings and toggling the 'Restrict access to Azure AD administration portal' to Yes. Guest invites may be restricted by navigating to the Azure Active Directory blade &rarr; External Identities &rarr; External Collaboration Settings, or by going to the Azure Active Directory blade &rarr; User Settings &rarr; Manage external collaboration settings and toggling 'Members can invite' and 'Guests can invite' to No.",
     "DefaultValue": "True",
     "ExpectedValue": "False",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "AzureAD",

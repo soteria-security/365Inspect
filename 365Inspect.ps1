@@ -36,16 +36,24 @@ param (
         HelpMessage = 'UserPrincipalName required for Exchange Connection')]
     [string] $UserPrincipalName,
     [Parameter(Mandatory = $false,
-        HelpMessage = 'Skips required module check. Designed for troubleshooting purposes.')]
-    [switch] $SkipModuleCheck,
-    [Parameter(Mandatory = $false,
         HelpMessage = "Report Output Format")]
     [ValidateSet("All", "HTML", "CSV", "XML", "JSON",
         IgnoreCase = $true)]
     [string] $reportType = "All",
-    [Parameter(Mandatory = $true,
+    [Parameter(Mandatory = $false,
+        HelpMessage = 'Skip Module Check')]
+    [switch]$SkipModuleCheck,
+    [Parameter(Mandatory = $false,
+        HelpMessage = 'Skip Update Check')]
+    [switch]$SkipUpdateCheck,
+    <#     [Parameter(Mandatory = $false,
+        HelpMessage = 'Environment type')]
+    [ValidateSet('O365Default', 'O365USGovGCCHigh', 'O365USGovDoD', 'O365GermanyCloud', 'O365China',
+        IgnoreCase = $false)]
+    [string] $Environment = "O365Default", #>
+    [Parameter(Mandatory = $false,
         HelpMessage = 'Auth type')]
-    [ValidateSet('ALREADY_AUTHED', 'MFA',
+    [ValidateSet('ALREADY_AUTHED', 'MFA', 'APP',
         IgnoreCase = $false)]
     [string] $Auth = "MFA",
     [string[]] $SelectedInspectors = @(),
@@ -57,22 +65,27 @@ $out_path = $OutPath
 $selected_inspectors = $SelectedInspectors
 $excluded_inspectors = $ExcludedInspectors
 
-. .\Write-ErrorLog.ps1
+& $PSScriptRoot\Write-ErrorLog.ps1
 
 $MaximumFunctionCount = 32768
+
+If ($auth -eq 'APP') {
+    $domain = Read-Host -Prompt "Enter the mail domain or tenant domain"
+    $appID = Read-Host -Prompt "Enter the Client/App ID"
+    $thumbprint = Read-Host -Prompt "Enter the Certificate thumbprint"
+}
+
 
 Function Connect-Services {
     # Log into every service prior to the analysis.
     If ($auth -EQ "MFA") {
         Try {
             Write-Output "Connecting to Microsoft Graph"
-            Connect-MgGraph -ContextScope Process -Scopes "AuditLog.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "MailboxSettings.Read", "DeviceManagementManagedDevices.Read.All", "DeviceManagementApps.Read.All", "UserAuthenticationMethod.ReadWrite.All", "DeviceManagementServiceConfig.Read.All", "DeviceManagementConfiguration.Read.All" -Verbose
-            If ((Get-Module -Name Microsoft.Graph.Authentication) -lt [version]2.0.0){
-                Select-MgProfile -Name beta -Verbose
-            }
+            Connect-MgGraph -ContextScope Process -Scopes "AuditLog.Read.All", "Reports.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "Mail.Read", "MailboxSettings.Read", "DeviceManagementManagedDevices.Read.All", "DeviceManagementApps.Read.All", "UserAuthenticationMethod.ReadWrite.All", "DeviceManagementServiceConfig.Read.All", "DeviceManagementConfiguration.Read.All", "SharePointTenantSettings.Read.All"
+            #Select-MgProfile -Name beta
             $global:orgInfo = Get-MgOrganization
-            $global:tenantDomain = (($global:orgInfo).VerifiedDomains |  Where-Object { ($_.Name -like "*.onmicrosoft.com") -and ($_.Name -notlike "*mail.onmicrosoft.com") }).Name
-            Write-Output "Connected via Graph to $(($global:orgInfo).DisplayName)"
+            $global:tenantDomain = (($global:orgInfo).VerifiedDomains | Where-Object { ($_.Name -like "*.onmicrosoft.com") -and ($_.Name -notlike "*mail.onmicrosoft.com") }).Name
+            Write-Output "Connected via Graph to $((Get-MgOrganization).DisplayName)"
         }
         Catch {
             Write-Output "Connecting to Microsoft Graph Failed."
@@ -80,8 +93,17 @@ Function Connect-Services {
             Break
         }
         Try {
+            Write-Output "Connecting to Security and Compliance Center"
+            Connect-IPPSSession -UserPrincipalName $UserPrincipalName
+        }
+        Catch {
+            Write-Output "Connecting to Security and Compliance Center Failed."
+            Write-Error $_.Exception.Message
+            Break
+        }
+        Try {
             Write-Output "Connecting to Exchange Online"
-            Connect-ExchangeOnline -UserPrincipalName $UserPrincipalName -ShowBanner:$false -Verbose
+            Connect-ExchangeOnline -UserPrincipalName $UserPrincipalName -ShowBanner:$false -ExchangeEnvironmentName $Environment
         }
         Catch {
             Write-Output "Connecting to Exchange Online Failed."
@@ -91,7 +113,7 @@ Function Connect-Services {
         Try {
             Write-Output "Connecting to SharePoint Service"
             $org_name = ($global:tenantDomain -split '.onmicrosoft.com')[0]
-            Connect-SPOService -Url "https://$org_name-admin.sharepoint.com"
+            Connect-PnPOnline -Url "https://$org_name-admin.sharepoint.com" -Interactive
         }
         Catch {
             Write-Output "Connecting to SharePoint Service Failed."
@@ -107,19 +129,65 @@ Function Connect-Services {
             Write-Error $_.Exception.Message
             Break
         }
+    }
+    ElseIf ($auth -eq 'APP') {
+        If ($domain -like "*@*") {
+            $domain = ($domain -split '@')[1]
+        }
+        $tenantID = (((Invoke-WebRequest -Uri "https://login.microsoftonline.com/$domain/.well-known/openid-configuration" -UseBasicParsing).Content | ConvertFrom-Json).token_endpoint -split '/')[3]
+
         Try {
-            Write-Output "Connecting to Security and Compliance Center"
-            Connect-IPPSSession -UserPrincipalName $UserPrincipalName
+            Connect-MgGraph -ClientId $appID -TenantId $tenantID -CertificateThumbPrint $thumbprint | Out-Null
+            $global:orgInfo = Get-MgOrganization
+            $global:tenantDomain = (($global:orgInfo).VerifiedDomains | Where-Object { ($_.Name -like "*.onmicrosoft.com") -and ($_.Name -notlike "*mail.onmicrosoft.com") }).Name
         }
         Catch {
-            Write-Output "Connecting to Security and Compliance Center Failed."
-            Write-Error $_.Exception.Message
+            Write-Host "Error connecting to " -NoNewLine -ForegroundColor Red
+            Write-Host "Microsoft Graph"
+            $_.Exception
+            Break
+        }
+        Try {
+            Connect-IPPSSession -AppId $appID -CertificateThumbprint $thumbprint -Organization $global:tenantDomain | Out-Null
+        }
+        Catch {
+            Write-Host "Error connecting to " -NoNewLine -ForegroundColor Red
+            Write-Host "Security Center"
+            $_.Exception
+        }
+        Try {
+            Connect-ExchangeOnline -CertificateThumbPrint $thumbprint -AppID $appID -Organization $global:tenantDomain -ShowBanner:$false | Out-Null
+        }
+        Catch {
+            Write-Host "Error connecting to " -NoNewLine -ForegroundColor Red
+            Write-Host "Exchange Online"
+            Write-Host "$($_.Exception.Message)"
+            Break
+        }
+        Try {
+            $env:PNPPOWERSHELL_UPDATECHECK = $false
+            $org_name = ($global:tenantDomain -split '.onmicrosoft.com')[0]
+            Connect-PnPOnline -Url "https://$org_name-admin.sharepoint.com" -ClientId $appID -Thumbprint $thumbprint -Tenant $global:tenantDomain | Out-Null
+        }
+        Catch {
+            Write-Host "Error connecting to " -NoNewLine -ForegroundColor Red
+            Write-Host "PnP/SharePoint"
+            $_.Exception
+            Break
+        }
+        Try {
+            Connect-MicrosoftTeams -ApplicationId $appID -TenantId $tenantID -CertificateThumbprint $thumbprint | Out-Null
+        }
+        Catch {
+            Write-Host "Error connecting to " -NoNewLine -ForegroundColor Red
+            Write-Host "Microsoft Teams"
+            $_.Exception
             Break
         }
     }
     Else {
         $global:orgInfo = Get-MgOrganization
-        $global:tenantDomain = (($global:orgInfo).VerifiedDomains | Where-Object { $_.Name -match 'onmicrosoft.com' })[0].Name
+        $global:tenantDomain = (($global:orgInfo).VerifiedDomains | Where-Object { ($_.Name -like "*.onmicrosoft.com") -and ($_.Name -notlike "*mail.onmicrosoft.com") }).Name
     }
 }
 
@@ -144,7 +212,12 @@ Function Confirm-Close {
 Function Confirm-InstalledModules {
     #Check for required Modules and versions; Prompt for install if missing and import.
     $ExchangeOnlineManagement = @{ Name = "ExchangeOnlineManagement"; MinimumVersion = "2.0.5" }
-    $SharePoint = @{ Name = "Microsoft.Online.SharePoint.PowerShell"; MinimumVersion = "16.0.22601.12000" }
+    If ($PSVersionTable.PSVersion.Major -eq 5) {
+        $SharePoint = @{ Name = "PnP.PowerShell"; MaximumVersion = "1.12.0" }
+    }
+    If ($PSVersionTable.PSVersion.Major -ge 6) {
+        $SharePoint = @{ Name = "PnP.PowerShell"; MinimumVersion = "1.10.0" }
+    }
     $Graph = @{ Name = "Microsoft.Graph"; MinimumVersion = "1.9.6" }
     $MSTeams = @{ Name = "MicrosoftTeams"; MinimumVersion = "4.4.1" }
     $psGet = @{ Name = "PowerShellGet"; RequiredVersion = "2.2.5" }
@@ -195,7 +268,25 @@ Function Confirm-InstalledModules {
     foreach ($module in $modules) {
         $installedVersion = [Version](((Get-InstalledModule -Name $module.Name).Version -split "-")[0])
 
-        If (($module.Name -eq (Get-InstalledModule -Name $module.Name).Name) -and (([Version]$module.MinimumVersion -le $installedVersion))) {
+        If ($module.Name -eq 'PnP.PowerShell') {
+            If (($PSVersionTable.PSVersion.Major -eq 5) -and ($installedVersion -le '1.12.0')) {
+                Write-Host "Environment is $($PSVersionTable.PSVersion)" -ForegroundColor Yellow
+                Write-Host "`t[+] " -NoNewLine -ForeGroundColor Green
+                Write-Output "$($module.Name) is installed."
+            }
+            Elseif (($PSVersionTable.PSVersion.Major -ge 6) -and ($installedVersion -ge '1.12.0')) {
+                If ($IsWindows) {
+                    Write-Host "Environment is $($PSVersionTable.PSVersion)" -ForegroundColor Yellow
+                    Write-Host "`t[+] " -NoNewLine -ForeGroundColor Green
+                    Write-Output "$($module.Name) is installed."
+                }
+                Else {
+                    Write-Host "We're sorry, due to various module dependency requirements, this tool will not work on a non-Windows operating system." -ForegroundColor Yellow
+                    Exit
+                }
+            }
+        }
+        ElseIf (($module.Name -eq (Get-InstalledModule -Name $module.Name).Name) -and (([Version]$module.MinimumVersion -le $installedVersion))) {
             If ($PSVersionTable.PSVersion.Major -eq 5) {
                 Write-Host "Environment is $($PSVersionTable.PSVersion)" -ForegroundColor Yellow
                 Write-Host "`t[+] " -NoNewLine -ForeGroundColor Green
@@ -274,18 +365,18 @@ Function Confirm-InstalledModules {
         }
         Else {
             $message = Write-Output "`n$($module.Name) is not installed."
-            $message1 = Write-Output "The module may be installed by running `"Install-Module -Name $($module.Name) -AllowPrerelease -AllowClobber -Force -MinimumVersion $($module)`" in an elevated PowerShell window."
+            $message1 = Write-Output "The module may be installed by running `"Install-Module -Name $($module.Name) -Force -MinimumVersion $($module)`" in an elevated PowerShell window."
             Colorize Red ($message)
             Colorize Yellow ($message1)
             $install = Read-Host -Prompt "Would you like to attempt installation now? (Y|N)"
             If ($install -eq 'y') {
-                Install-Module -Name $module.Name -AllowPrerelease -AllowClobber -Scope CurrentUser -Force -MinimumVersion $module
+                Install-Module -Name $module.Name -Scope CurrentUser -Force -MinimumVersion $module
                 $count ++
             }
         }
     }
 
-    If ($count -lt 5) {
+    If ($count -lt 4) {
         Write-Output ""
         Write-Output ""
         $message = Write-Output "Dependency checks failed. Please install all missing modules before running this script."
@@ -559,7 +650,7 @@ Function HTML-Report {
     
     # Insert command line execution information. This is coupled kinda badly, as is the Affected Objects html.
     $flags = "<b>Prepared for organization:</b><b> $tenantDisplayName - $org_name</b><br/><br/>"
-    #$flags = $flags + "<b>Stats</b>:<br/> <b>" + $findings_count + "</b> out of <b>" + $inspectors.Count + "</b> executed inspector modules identified possible opportunities for improvement.<br/><br/>"  
+    $flags = $flags + "<b>Prepared by:</b><b> $UserPrincipalName </b><br/><br/>"  
     $flags = $flags + "<b>Stats</b>:<br/> <b>" + $findings_count + "</b> opportunities for improvement identified from <b>" + $inspectors.Count + "</b> points of inspection.<br/><br/>"
     #$flags = $flags + "<b>Inspector Modules Executed</b>:<br/>" + [String]::Join("<br/>", $selected_inspectors)
     
@@ -745,14 +836,17 @@ Compress-Archive @compress
 
 function Disconnect {
     Write-Output "Disconnect from Exchange Online"
-    Disconnect-ExchangeOnline -Confirm:$false
+    Disconnect-ExchangeOnline -Confirm:$false -Force
+    Remove-Module ExchangeOnlineManagement
+    Get-Module | Where-Object { $_.name -like "tmpEXO_*" } | Remove-Module
     Write-Output "Disconnect from SharePoint Service"
-    Disconnect-SPOService
+    Disconnect-PnPOnline
+    Remove-Module PnP.PowerShell
     Write-Output "Disconnect from Microsoft Teams"
     Disconnect-MicrosoftTeams
-    Write-Output "Disconnect from Microsoft Intune"
     Write-Output "Disconnect from Microsoft Graph"
     Disconnect-MgGraph
+    Get-Module | Where-Object { $_.name -like "Microsoft.Graph*" } | Remove-Module -Force
 }
 
 $removeSession = Read-Host -Prompt "Do you wish to disconnect your session? (Y|N)"

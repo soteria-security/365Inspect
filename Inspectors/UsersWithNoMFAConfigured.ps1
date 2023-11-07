@@ -1,34 +1,37 @@
 $ErrorActionPreference = "Stop"
 
+# Import error log function
 $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1"
 
 . $errorHandling
 
-
-function Inspect-UsersWithNoMFAConfigured {
+function Inspect-NoMFA {
     Try {
-        $conditionalAccess = Get-MgIdentityConditionalAccessPolicy
+        # Query Security defaults to see if it's enabled. If it is, skip this check.
+        $unenforced_users = @()
 
-        $flag = $false
-        
-        Foreach ($policy in $conditionalAccess) {
-            If (($policy.conditions.users.includeusers -eq "All") -and ($policy.grantcontrols.builtincontrols -like "Mfa")) {
-                $flag = $true
+        $secureDefault = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/policies/identitySecurityDefaultsEnforcementPolicy")
+        $tenantLicense = ((Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/subscribedSkus").Value).ServicePlans
+    
+        If ($tenantLicense.ServicePlanName -match "AAD_PREMIUM*") {
+            $MFAviaCA = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/policies/conditionalAccessPolicies").Value | Where-Object { ($_.state -eq "Enabled") -and ($_.conditions.users.includeusers -eq "All") -and ($_.grantcontrols.builtincontrols -eq "Mfa") }
+            
+            If (($secureDefault.IsEnabled -eq $false) -and (-NOT $MFAviaCA)) {
+                $unenforced_users += (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/reports/credentialUserRegistrationDetails").Value | Where-Object { $_.isMfaRegistered -eq $false }
+            }
+
+            
+            If (($unenforced_users | Measure-Object).Count -NE 0) {
+                return $unenforced_users.UserPrincipalName
             }
         }
-
-        If (!$flag) {
-            $unenabled_users = (Get-MgReportAuthenticationMethodUserRegistrationDetail | Where-Object { $_.isMfaRegistered -eq $false }).UserPrincipalName
-            
-            If ($unenabled_users -ne 0) {
-                return $unenabled_users
-            }
+        ElseIf (($secureDefault.IsEnabled -eq $false) -and ($tenantLicense.ServicePlanName -notmatch "AAD_PREMIUM")) {
+            Return "Secure Defaults is not enabled, and the tenant is not licensed to query this information."
         }
-            
-        return $null
     }
     Catch {
         Write-Warning "Error message: $_"
+		
         $message = $_.ToString()
         $exception = $_.Exception
         $strace = $_.ScriptStackTrace
@@ -43,4 +46,4 @@ function Inspect-UsersWithNoMFAConfigured {
     }
 }
 
-return Inspect-UsersWithNoMFAConfigured
+return Inspect-NoMFA

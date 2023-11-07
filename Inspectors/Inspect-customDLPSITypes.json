@@ -4,7 +4,6 @@
     "Remediation": "Determine if there is a need for custom DLP Sensitive Information types and add as needed.",
     "DefaultValue": "None",
     "ExpectedValue": "Not applicable",
-    "ReturnedValue": "",
     "Impact": "Low",
     "AffectedObjects": "",
     "Service": "Exchange,SharePoint,SecurityandCompliance",

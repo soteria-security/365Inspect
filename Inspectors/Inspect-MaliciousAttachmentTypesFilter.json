@@ -4,7 +4,6 @@
     "Remediation": "This feature is accessible in the Security portal of the O365 Admin Center. Click through to Threat management &rarr; Policy &rarr; Anti-malware, and either edit the Default policy to include the above extensions, or create a custom policy to filter these extensions. Additionally, if other known dangerous attachment types are added to this exceptions list, they may be quickly filtered. However it is recommended to create a new policy to accomplish this as it is a more ideal long-term solution. Before doing this, consider polling key stakeholders in the organization or using available data to determine whether any of these file types are commonly exchanged via email within the organization. The complete list of additional file types may be added using the listed PowerShell commands.",
     "DefaultValue": "None",
     "ExpectedValue": "None",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "Exchange,SecurityandCompliance",

@@ -5,22 +5,15 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 . $errorHandling
 
 
-Function Get-DirSyncSvcAcct {
+function Inspect-SharepointLinkExpiry {
     Try {
-        $syncEnabled = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/organization").Value.onPremisesSyncEnabled
-
-        $syncSvcAccounts = @()
-    
-        If ($syncEnabled -eq $true) {
-            $syncSvcAccount = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/users?filter=startswith(displayName, 'On-Premises')").Value
-            
-            Foreach ($acct in $syncSvcAccount) {
-                $syncSvcAccounts += "$($acct.displayName) - $($acct.userPrincipalName)"
+        If ((Get-PnPTenant).SharingCapability -eq "ExternalUserAndGuestSharing") {
+            If ((Get-PnPTenant).RequireAnonymousLinksExpireInDays -eq -1) {
+                Return [string](Get-PnPTenant).RequireAnonymousLinksExpireInDays
             }
-        }
-    
-        If ($syncSvcAccounts) {
-            Return $syncSvcAccounts
+            Else {
+		
+            }
         }
     }
     Catch {
@@ -39,4 +32,4 @@ Function Get-DirSyncSvcAcct {
     }
 }
 
-Return Get-DirSyncSvcAcct
+return Inspect-SharepointLinkExpiry

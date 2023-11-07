@@ -4,7 +4,6 @@
     "Remediation": "Disabling Basic Authentication and enforcing Modern Authentication is the only way to remediate this finding. Microsoft plans to forcefully disable Basic Auth on all tenants on October 1, 2022 - regardless of the protocols in use.",
     "DefaultValue": "True",
     "ExpectedValue": "False",
-    "ReturnedValue": "",
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "Tenant",
