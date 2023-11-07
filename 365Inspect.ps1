@@ -93,7 +93,7 @@ Function Connect-Services {
             
             # National Cloud deployments - Valid environments: 'Global', 'USGov', 'USGovDoD', 'China'
             Connect-MgGraph -Environment $Environment -ContextScope Process -Scopes "AuditLog.Read.All", "Reports.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "Mail.Read", "MailboxSettings.Read", "DeviceManagementManagedDevices.Read.All", "DeviceManagementApps.Read.All", "UserAuthenticationMethod.ReadWrite.All", "DeviceManagementServiceConfig.Read.All", "DeviceManagementConfiguration.Read.All", "SharePointTenantSettings.Read.All"
-            
+
             $global:orgInfo = Get-MgOrganization
             $global:tenantDomain = (($global:orgInfo).VerifiedDomains | Where-Object { ($_.Name -like "*.onmicrosoft.com") -and ($_.Name -notlike "*mail.onmicrosoft.com") }).Name
             Write-Output "Connected via Graph to $((Get-MgOrganization).DisplayName)"
@@ -151,8 +151,6 @@ Function Connect-Services {
 
             # National Cloud deployment - Valid environments are: 'USGovernment', 'USGovernmentHigh', 'USGovernmentDoD', 'Germany', 'China'
             Connect-PnPOnline -AzureEnvironment $Environment -Url "https://$org_name-admin.sharepoint.com" -Interactive
-        
-            #Connect-PnPOnline -Url "https://$org_name-admin.sharepoint.com" -Interactive
         }
         Catch {
             Write-Output "Connecting to SharePoint Service Failed."
@@ -201,8 +199,7 @@ Function Connect-Services {
             }
 
             Write-Output "Connecting to Microsoft Graph"
-            #Connect-MgGraph -ContextScope Process -Scopes "AuditLog.Read.All", "Reports.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "Mail.Read", "MailboxSettings.Read", "DeviceManagementManagedDevices.Read.All", "DeviceManagementApps.Read.All", "UserAuthenticationMethod.ReadWrite.All", "DeviceManagementServiceConfig.Read.All", "DeviceManagementConfiguration.Read.All", "SharePointTenantSettings.Read.All"
-            
+                       
             # National Cloud deployments - Valid environments: 'Global', 'USGov', 'USGovDoD', 'China'
             Connect-MgGraph -Environment $Environment -ClientId $appID -TenantId $tenantID -CertificateThumbPrint $thumbprint | Out-Null
             
@@ -265,8 +262,6 @@ Function Connect-Services {
             # National Cloud deployment - Valid environments are: 'USGovernment', 'USGovernmentHigh', 'USGovernmentDoD', 'Germany', 'China'
             # Production | PPE | China | Germany | USGovernment | USGovernmentHigh | USGovernmentDoD
             Connect-PnPOnline -AzureEnvironment $Environment -Url "https://$org_name-admin.sharepoint.com" -ClientId $appID -Thumbprint $thumbprint -Tenant $global:tenantDomain | Out-Null
-
-            #Connect-PnPOnline -Url "https://$org_name-admin.sharepoint.com" -ClientId $appID -Thumbprint $thumbprint -Tenant $global:tenantDomain | Out-Null
         }
         Catch {
             Write-Host "Error connecting to " -NoNewLine -ForegroundColor Red
@@ -283,7 +278,6 @@ Function Connect-Services {
                 default { $Connection = "Connect-MicrosoftTeams -ApplicationId $appID -TenantId $tenantID -CertificateThumbprint $thumbprint" }
             }
 
-            #Connect-MicrosoftTeams -TeamsEnvironmentName $Environment -ApplicationId $appID -TenantId $tenantID -CertificateThumbprint $thumbprint | Out-Null
             Invoke-Expression $Connection
         }
         Catch {

@@ -61,6 +61,7 @@ For example, to log in by entering your credentials in a browser with MFA suppor
 
         .\365Inspect.ps1 -OutPath ..\365_report -UserPrincipalName myuser@mytenant.onmicrosoft.com -Auth MFA
 
+
 To login to a Government or other National Cloud Deployment (China, Germany, etc.) the `-Environment` parameter should be specified as follows:
 
         .\365Inspect.ps1 -OutPath ..\365_report -UserPrincipalName myuser@mytenant.onmicrosoft.com -Auth MFA -Environment USGovGCCHigh
@@ -75,6 +76,7 @@ Valid arguments for the `-Environment` are:
 Application Authentication can be achieved by executing the script with the following parameters:
 
         .\365Inspect.ps1 -OutPath ..\365_report -UserPrincipalName myuser@mytenant.onmicrosoft.com -Auth APP
+
 
 To login to a Government or other National Cloud Deployment (China, Germany, etc.) the `-Environment` parameter should be specified as follows:
 
@@ -164,7 +166,6 @@ Once opened in a text editor, the data may be pasted into Excel.
 # Change Log
 
 * Support for [National Cloud Deployments](https://learn.microsoft.com/en-us/graph/deployments)
-
 
 <details>
 <summary>Older Changes</summary>
