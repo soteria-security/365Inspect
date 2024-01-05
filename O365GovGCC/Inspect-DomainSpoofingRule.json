@@ -1,0 +1,17 @@
+{
+    "FindingName": "No Transport Rules to Block Domain Spoofing",
+    "Description": "No Exchange Online Transport Rules are in place to block emails that are spoofing Tenant owned domains. Domain spoofing occurs when an external entity sends email using a mail domain owned by another entity. There are legitimate use cases where domain spoofing is allowed. It is recommended to speak with stakeholders and determine if this type of rule is beneficial and if any exceptions are needed. Microsoft configures some Anti-Spoofing settings by default in the Anti-Phishing policies on tenants, this rule would complement default settings.",
+    "Remediation": "Go to the Exchange Mail Flow rules screen and create a new rule which blocks emails sent from outside the organization, to inside the organization, where the sender's domain is any of the organization's owned domains.",
+    "DefaultValue": "None",
+    "ExpectedValue": "Configured Transport Rules",
+    "Impact": "High",
+    "AffectedObjects": "",
+    "Service": "Exchange",
+    "PowerShell": "",
+    "References": [
+        {
+            "Url": "https://docs.microsoft.com/en-us/microsoft-365/security/office-365-security/anti-spoofing-protection?view=o365-worldwide",
+            "Text": "Anti-spoofing protection in EOP"
+        }
+    ]
+}

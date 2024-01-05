@@ -1,0 +1,21 @@
+{
+    "FindingName": "No Custom DLP Policies Found",
+    "Description": "Organizations have sensitive information under their control such as financial data, proprietary data, credit card numbers, health records, or social security numbers. To help protect this sensitive data and reduce risk, they need a way to prevent their users from inappropriately sharing it with people who should not have it. Default configurations may not meet the business needs, or compliance requirements of the organization. Custom policies can be configured to address any gaps that default settings do not remediate.",
+    "Remediation": "Determine if a custom DLP policy is beneficial for the Tenant, identify any gaps between desired end state and default policy configurations, and implement any new policies as needed.",
+    "DefaultValue": "None",
+    "ExpectedValue": "Not applicable",
+    "Impact": "Low",
+    "AffectedObjects": "",
+    "Service": "Exchange,SharePoint,SecurityandCompliance",
+    "PowerShell": "",
+    "References": [
+        {
+            "Url": "https://docs.microsoft.com/en-us/microsoft-365/compliance/dlp-learn-about-dlp?view=o365-worldwide",
+            "Text": "Learn about data loss prevention"
+        },
+        {
+            "Url": "https://docs.microsoft.com/en-us/microsoft-365/compliance/create-test-tune-dlp-policy?view=o365-worldwide",
+            "Text": "Create, test, and tune a DLP policy"
+        }
+    ]
+}
