@@ -130,7 +130,7 @@ Function Connect-Services {
             }
 
             Write-Output "Connecting to Exchange Online"
-            Connect-ExchangeOnline -ExchangeEnvironmentName $Environment -UserPrincipalName $UserPrincipalName -ShowBanner:$false -ExchangeEnvironmentName $Environment
+            Connect-ExchangeOnline -ExchangeEnvironmentName $Environment -UserPrincipalName $UserPrincipalName -ShowBanner:$false
         }
         Catch {
             Write-Output "Connecting to Exchange Online Failed."
@@ -171,11 +171,6 @@ Function Connect-Services {
             Invoke-Expression $Connection
 
             Write-Output "Connecting to Microsoft Teams"
-
-            # National Cloud deployment - Valid enironments are: '', 'TeamsGCCH', 'TeamsDOD', 'TeamsChina'
-            Connect-MicrosoftTeams -TeamsEnvironmentName $Environment
-
-            #Connect-MicrosoftTeams
         }
         Catch {
             Write-Output "Connecting to Microsoft Teams Failed."
@@ -938,7 +933,7 @@ Compress-Archive @compress
 
 function Disconnect {
     Write-Output "Disconnect from Exchange Online"
-    Disconnect-ExchangeOnline -Confirm:$false -Force
+    Disconnect-ExchangeOnline -Confirm:$false
     Remove-Module ExchangeOnlineManagement
     Get-Module | Where-Object { $_.name -like "tmpEXO_*" } | Remove-Module
     Write-Output "Disconnect from SharePoint Service"
