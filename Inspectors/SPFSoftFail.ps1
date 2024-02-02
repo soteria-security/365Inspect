@@ -7,7 +7,7 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 function Inspect-SPFSoftFail {
     Try {
-        $domains = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/domains").Value | Where-Object { $_.id -notlike "*.*microsoft*.com" }
+        $domains = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/domains").Value | Where-Object { $_.id -notlike "*.*microsoft*.com" }
         $domains_with_soft_fail = @()
 	
         ForEach ($domain in $domains.Id) {

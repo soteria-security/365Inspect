@@ -6,17 +6,17 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 function Inspect-ProperAdminCount {
     Try {
-        $license = (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/subscribedSkus").Value.ServicePlans | Where-Object { $_.ServicePlanName -eq 'AAD_PREMIUM_P2' }
+        $license = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/subscribedSkus").Value.ServicePlans | Where-Object { $_.ServicePlanName -eq 'AAD_PREMIUM_P2' }
 
         If ($license) {
-            $gaRole = (Invoke-GraphRequest  -Method Get -Uri "https://graph.microsoft.com/beta/roleManagement/directory/roleDefinitions?filter=displayName eq 'Global Administrator'").Value
+            $gaRole = (Invoke-GraphRequest  -Method Get -Uri "https://$(@($global:graphURI))/beta/roleManagement/directory/roleDefinitions?filter=displayName eq 'Global Administrator'").Value
 
-            $gaRoleMembers = (Invoke-GraphRequest  -Method Get -Uri "https://graph.microsoft.com/beta/roleManagement/directory/roleAssignments?filter=roleDefinitionId eq '$(($gaRole).templateId)'").Value
+            $gaRoleMembers = (Invoke-GraphRequest  -Method Get -Uri "https://$(@($global:graphURI))/beta/roleManagement/directory/roleAssignments?filter=roleDefinitionId eq '$(($gaRole).templateId)'").Value
 
             $results = @()
 
             foreach ($member in $gaRoleMembers) {
-                $user = (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/directoryObjects/$($member.principalId)")
+                $user = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryObjects/$($member.principalId)")
                 $info = [PSCustomObject]@{
                     Name       = ($user.displayName)
                     UPN        = ($user.userPrincipalName)
@@ -35,16 +35,16 @@ function Inspect-ProperAdminCount {
             }
         }
         Else {
-            $tenantLicense = ((Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/subscribedSkus").Value).ServicePlans
+            $tenantLicense = ((Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/subscribedSkus").Value).ServicePlans
     
             If ($tenantLicense.ServicePlanName -match "AAD_PREMIUM*") {   
-                $gaRole = (Invoke-GraphRequest  -Method Get -Uri "https://graph.microsoft.com/beta/directoryRoles?filter=displayName eq 'Global Administrator'").Value
-                $gaRoleMembers = (Invoke-GraphRequest  -Method Get -Uri "https://graph.microsoft.com/beta/directoryRoles/$(($gaRole).Id)/members").Value
+                $gaRole = (Invoke-GraphRequest  -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryRoles?filter=displayName eq 'Global Administrator'").Value
+                $gaRoleMembers = (Invoke-GraphRequest  -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryRoles/$(($gaRole).Id)/members").Value
 
                 $results = @()
 
                 foreach ($member in $gaRoleMembers) {
-                    $user = (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/directoryObjects/$($member.principalId)")
+                    $user = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryObjects/$($member.principalId)")
                     $info = [PSCustomObject]@{
                         Name     = ($member.displayName)
                         UPN      = ($member.userPrincipalName)

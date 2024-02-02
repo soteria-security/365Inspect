@@ -10,7 +10,7 @@ $path = @($out_path)
 Function Inspect-EmailVerifiedUserCreation {
     Try {
 
-        $emailVerifiedUsers = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/users?filter=creationtype eq 'EmailVerified'" -ErrorAction Stop).Value
+        $emailVerifiedUsers = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/users?filter=creationtype eq 'EmailVerified'" -ErrorAction Stop).Value
 
         $results = @()
 

@@ -10,14 +10,14 @@ function Inspect-NoMFA {
         # Query Security defaults to see if it's enabled. If it is, skip this check.
         $unenforced_users = @()
 
-        $secureDefault = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/policies/identitySecurityDefaultsEnforcementPolicy")
-        $tenantLicense = ((Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/subscribedSkus").Value).ServicePlans
+        $secureDefault = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/policies/identitySecurityDefaultsEnforcementPolicy")
+        $tenantLicense = ((Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/subscribedSkus").Value).ServicePlans
     
         If ($tenantLicense.ServicePlanName -match "AAD_PREMIUM*") {
-            $MFAviaCA = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/policies/conditionalAccessPolicies").Value | Where-Object { ($_.state -eq "Enabled") -and ($_.conditions.users.includeusers -eq "All") -and ($_.grantcontrols.builtincontrols -eq "Mfa") }
+            $MFAviaCA = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/policies/conditionalAccessPolicies").Value | Where-Object { ($_.state -eq "Enabled") -and ($_.conditions.users.includeusers -eq "All") -and ($_.grantcontrols.builtincontrols -eq "Mfa") }
             
             If (($secureDefault.IsEnabled -eq $false) -and (-NOT $MFAviaCA)) {
-                $unenforced_users += (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/reports/credentialUserRegistrationDetails").Value | Where-Object { $_.isMfaRegistered -eq $false }
+                $unenforced_users += (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/reports/credentialUserRegistrationDetails").Value | Where-Object { $_.isMfaRegistered -eq $false }
             }
 
             

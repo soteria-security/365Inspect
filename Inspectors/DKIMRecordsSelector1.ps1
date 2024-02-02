@@ -7,7 +7,7 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 function Inspect-DKIMRecordsSelector1 {
     Try {
-        $domains = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/domains" -ErrorAction Stop).Value | Where-Object { $_.Id -notlike "*.*microsoft*.com" }
+        $domains = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/domains" -ErrorAction Stop).Value | Where-Object { $_.Id -notlike "*.*microsoft*.com" }
         $domains_without_records = @()
 	
         ForEach ($domain in $domains.Id) {

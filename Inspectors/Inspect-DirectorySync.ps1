@@ -7,7 +7,7 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 Function Inspect-DirectorySync {
     Try {
-        $permissions = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/organization").Value
+        $permissions = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/organization").Value
 
         If ($permissions.OnPremisesSyncEnabled -eq $true) {
             $lastSync = $permissions.OnPremisesLastSyncDateTime

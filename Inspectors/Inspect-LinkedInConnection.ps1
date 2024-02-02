@@ -8,7 +8,7 @@ $path = @($out_path)
 
 Function Inspect-LinkedInConnection {
     Try {
-        $result = (Invoke-GraphRequest -Method GET -Uri "https://graph.microsoft.com/beta/servicePrincipals?filter=displayname eq 'O365 LinkedIn Connection'").Value
+        $result = (Invoke-GraphRequest -Method GET -Uri "https://$(@($global:graphURI))/beta/servicePrincipals?filter=displayname eq 'O365 LinkedIn Connection'").Value
 
         If ($result.accountEnabled -and ($null -eq $result.tags)) {
             Return 'All users allowed to connect their work or school account with LinkedIn'
@@ -23,7 +23,7 @@ Function Inspect-LinkedInConnection {
                 }
             }
 
-            $group = (Invoke-GraphRequest -Method GET -Uri "https://graph.microsoft.com/beta/groups?filter=id eq '$grpAssigned'&select=displayName").Value.displayName
+            $group = (Invoke-GraphRequest -Method GET -Uri "https://$(@($global:graphURI))/beta/groups?filter=id eq '$grpAssigned'&select=displayName").Value.displayName
             
             Return "Members of the group $group are allowed to connect their work or school account with LinkedIn"
         }

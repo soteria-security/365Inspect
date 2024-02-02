@@ -8,7 +8,7 @@ $path = @($out_path)
 
 Function Inspect-MSOLPowerShell {
     Try {
-        $settings = (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/policies/authorizationPolicy").value.blockMsolPowerShell
+        $settings = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/policies/authorizationPolicy").value.blockMsolPowerShell
 
         If (! $settings) {
             Return "MSOL PowerShell is enabled on the tenant."

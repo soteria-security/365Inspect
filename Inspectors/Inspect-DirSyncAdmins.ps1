@@ -11,13 +11,13 @@ Function Inspect-DirSyncAdmins {
     Try {
         $dirsyncAdmins = @()
 
-        $syncEnabled = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/organization").Value.onPremisesSyncEnabled
+        $syncEnabled = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/organization").Value.onPremisesSyncEnabled
         
         If ($syncEnabled -eq $true) {
-            $adminRoles = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/directoryRoles").Value | Where-Object { $_.displayName -match "Administrator" }
+            $adminRoles = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/directoryRoles").Value | Where-Object { $_.displayName -match "Administrator" }
 
             foreach ($role in $adminRoles) {
-                $members = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/directoryRoles/$($role.id)/members").Value
+                $members = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/directoryRoles/$($role.id)/members").Value
                 
                 foreach ($user in $members) {
                     If ($user.onPremisesSyncEnabled -eq $true) {

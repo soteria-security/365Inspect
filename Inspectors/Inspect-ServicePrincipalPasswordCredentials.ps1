@@ -12,7 +12,7 @@ Function Inspect-ServicePrincipalPasswordCredentials {
 
         $servicePrincipals = @()
 
-        $query = (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/servicePrincipals")
+        $query = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/servicePrincipals")
 
         $servicePrincipals += ($query).Value
 

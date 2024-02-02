@@ -7,7 +7,7 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 function Inspect-SelfServePasswordReset {
     Try {
-        $self_serve_reset_enabled = (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/policies/authorizationPolicy").Value.AllowedToUseSspr
+        $self_serve_reset_enabled = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/policies/authorizationPolicy").Value.AllowedToUseSspr
 
         If (-NOT $self_serve_reset_enabled) {
             return @($org_name)

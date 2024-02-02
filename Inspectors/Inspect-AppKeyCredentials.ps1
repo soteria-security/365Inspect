@@ -12,7 +12,7 @@ Function Inspect-AppKeyCredentials {
 
         $applications = @()
 
-        $query = (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/applications")
+        $query = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/applications")
         
         $applications += ($query).Value
         

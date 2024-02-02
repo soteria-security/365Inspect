@@ -11,13 +11,13 @@ $path = "$($env:USERPROFILE)\Documents\Reports\365Inspect_Report_$(Get-Date -For
 function Inspect-CAPolicies_registerdevice {
     Try {
 
-        $tenantLicense = ((Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/subscribedSkus").Value).ServicePlans
+        $tenantLicense = ((Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/subscribedSkus").Value).ServicePlans
     
         If ($tenantLicense.ServicePlanName -match "AAD_PREMIUM*") {
         
-            $secureDefault = ((Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/policies/identitySecurityDefaultsEnforcementPolicy").Value)
+            $secureDefault = ((Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/policies/identitySecurityDefaultsEnforcementPolicy").Value)
         
-            $conditionalAccess = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/policies/conditionalAccessPolicies").Value
+            $conditionalAccess = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/policies/conditionalAccessPolicies").Value
 
             If ($secureDefault.IsEnabled -eq $true) {
             
