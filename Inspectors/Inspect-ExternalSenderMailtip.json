@@ -1,0 +1,22 @@
+{
+    "FindingName": "External Sender Message Tagging Not Enabled",
+    "Description": "By default, Exchange Online does not display a warning on messages from external senders. Enabling this setting adds a mailtip banner to all messages from external senders, alerting mail recipients of the email's origins outside the organization.",
+    "Remediation": "Mitigation of the finding can be achieved by executing the below PowerShell command. Alternatively, this finding can be mitigated through Transport Rules that prepend or append similar notices to the body of the message. Some organizations may prefer use of Transport Rules as mailtips are sometimes easily overlooked.",
+    "DefaultValue": "False",
+    "ExpectedValue": "True",
+    "Impact": "Critical",
+    "RiskRating": "",
+    "AffectedObjects": "",
+    "Service": "Exchange",
+    "PowerShell": "<pre><code class=\"language-powershell\">Set-ExternalInOutlook -Enabled $true</code></pre>",
+    "References": [
+        {
+            "Url": "https://docs.microsoft.com/en-us/powershell/module/exchange/set-externalinoutlook?view=exchange-ps",
+            "Text": "Set-ExternalInOutlook"
+        },
+        {
+            "Url": "https://office365itpros.com/2021/03/11/external-email-tagging-exo/",
+            "Text": "How to Enable and Use Exchange Online's External Email Tagging Feature"
+        }
+    ]
+}

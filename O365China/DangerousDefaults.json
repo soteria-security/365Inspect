@@ -7,7 +7,7 @@
     "Impact": "Critical",
     "AffectedObjects": "",
     "Service": "AzureAD",
-    "PowerShell": "<pre><code class=\"language-powershell\">Set-MsolCompanySettings -UsersPermissionToReadOtherUsersEnabled $false</code></pre>\n<pre><code class=\"language-powershell\">Set-MsolCompanySettings -UsersPermissionToCreateGroupsEnabled $false</code></pre>\n<pre><code class=\"language-powershell\">Set-AzureADMSAuthorizationPolicy -id (Get-AzureADMSAuthorizationPolicy).id -AllowEmailVerifiedUsersToJoinOrganization $false</code></pre>",
+    "PowerShell": "<pre><code class=\"language-powershell\">$permissions = @{AllowedToCreateSecurityGroups = $False;AllowedToCreateApps = $false;AllowedToCreateTenants = $false;}; Update-MgPolicyAuthorizationPolicy -AllowEmailVerifiedUsersToJoinOrganization:$false -DefaultUserRolePermissions $permissions</code></pre>",
     "References": [
         {
             "Url": "https://docs.microsoft.com/en-us/azure/active-directory/enterprise-users/directory-self-service-signup",
