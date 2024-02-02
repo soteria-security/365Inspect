@@ -1,0 +1,18 @@
+{
+    "FindingName": "Exchange Mailboxes Hidden from Global Address Lists Found",
+    "Description": "The Exchange Online mailboxes listed above have been hidden from the Global Address Lists. There are documented cases of malicious actors creating hidden mailboxes to use for persistence or data exfiltration.",
+    "Remediation": "This finding refers to individual mailboxes that have been hidden from the Global Address List. Recommended remediation steps are to review the returned mailboxes and determine if this configuration is appropriate. Remove any unwanted configurations or mailboxes. A list of affected email addresses is included in this report.",
+    "DefaultValue": "None",
+    "ExpectedValue": "None",
+    "Impact": "High",
+    "RiskRating": "",
+    "AffectedObjects": "",
+    "Service": "Exchange",
+    "PowerShell": "",
+    "References": [
+        {
+            "Url": "http://woshub.com/how-to-hide-users-from-exchange-distribution-group/",
+            "Text": "How to Hide Users and Groups from the Global Address List on Exchange/Office 365?"
+        }
+    ]
+}

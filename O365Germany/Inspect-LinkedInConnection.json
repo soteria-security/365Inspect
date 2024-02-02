@@ -1,0 +1,26 @@
+{
+    "FindingName": "Users Allowed to Link Work Accounts to LinkedIn",
+    "Description": "Allowing users to link their organizational accounts to LinkedIn enables the sharing of data between the organization's Microsoft 365 tenant and LinkedIn. Depending on the options the user chooses, this connection may enable bidirectional sharing of the user's profile data, calendar information (including meeting names, times, locations, and attendees), Microsoft service usage data (termed 'Interests'), licensed features (apps and services offered by the organization), and contacts in Outlook, Skype, Microsoft Teams and other Microsoft services. The organization has no control over the option chosen, nor does the organization have any visibility into the option a user chooses. Any data synchronized to LinkedIn from a linked account persists on LinkedIn even after accounts are unlinked. This configuration is enabled by default and allows for the potential loss of sensitive information and enumeration of internal accounts, applications, and data.",
+    "Remediation": "Remediation of this finding can be accomplished by navigating to Microsoft Entra admin center &rarr; Users %rarr; User settings and selecting the desired option under LinkedIn account connections.",
+    "DefaultValue": "Yes",
+    "ExpectedValue": "No",
+    "Impact": "High",
+    "RiskRating": "Review Required",
+    "AffectedObjects": "",
+    "Service": "AzureAD",
+    "PowerShell": "",
+    "References": [
+        {
+            "Url": "https://www.linkedin.com/help/linkedin/answer/a553054",
+            "Text": "LinkedIn in Microsoft Applications with Your Work or School Account"
+        },
+        {
+            "Url": "https://support.microsoft.com/en-us/office/your-data-ae9c08a7-4d06-45b5-a065-320a97bc1400",
+            "Text": "LinkedIn integration - Your data"
+        },
+        {
+            "Url": "https://learn.microsoft.com/en-us/entra/identity/users/linkedin-integration",
+            "Text": "Integrate LinkedIn account connections in Microsoft Entra ID"
+        }
+    ]
+}
