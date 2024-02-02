@@ -24,3 +24,19 @@ Your feedback has been amazing and we greatly appreciate it!
 
 [PaulaSillars](https://github.com/PaulaSillars):
     - Additional Report Formats
+
+[Cybersecurity Associates](https://csa.limited/)
+    - Inspect-AppKeyCredentials
+    - Inspect-AppPasswords
+    - Inspect-ExchangeMobilePolicy
+    - Inspect-EXOHiddenMailboxes
+    - Inspect-ExternalSenderMailtip
+    - Inspect-Federation
+    - Inspect-FederationTrust
+    - Inspect-LinkedInConnection
+    - Inspect-MSOLPowerShell
+    - Inspect-MSTeamsFileSharing
+    - Inspect-PhishZAP
+    - Inspect-ServicePrincipalKeyCredentials
+    - Inspect-ServicePrincipalPasswordCredentials
+    - Inspect-SpamZAP
