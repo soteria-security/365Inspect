@@ -7,7 +7,7 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 function Inspect-PasswordExpiry {
     Try {
-        $pass_expiry = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/v1.0/domains").Value
+        $pass_expiry = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/v1.0/domains").Value
 
         $expPolicies = @()
 	

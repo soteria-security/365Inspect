@@ -75,6 +75,13 @@ If ($auth -eq 'APP') {
     $thumbprint = Read-Host -Prompt "Enter the Certificate thumbprint"
 }
 
+switch ($Environment) {
+    "USGovGCCHigh" { $global:graphURI = 'graph.microsoft.us' }
+    "USGovDoD" { $global:graphURI = 'dod-graph.microsoft.us' }
+    "GermanyCloud" { $global:graphURI = 'graph.microsoft.com' }
+    "China" { $global:graphURI = 'microsoftgraph.chinacloudapi.cn' }
+    default { $global:graphURI = 'graph.microsoft.com' }
+}
 
 Function Connect-Services {
     # Log into every service prior to the analysis.
@@ -89,8 +96,7 @@ Function Connect-Services {
             }
 
             Write-Output "Connecting to Microsoft Graph"
-            #Connect-MgGraph -ContextScope Process -Scopes "AuditLog.Read.All", "Reports.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "Mail.Read", "MailboxSettings.Read", "DeviceManagementManagedDevices.Read.All", "DeviceManagementApps.Read.All", "UserAuthenticationMethod.ReadWrite.All", "DeviceManagementServiceConfig.Read.All", "DeviceManagementConfiguration.Read.All", "SharePointTenantSettings.Read.All"
-            
+              
             # National Cloud deployments - Valid environments: 'Global', 'USGov', 'USGovDoD', 'China'
             Connect-MgGraph -Environment $Environment -ContextScope Process -Scopes "AuditLog.Read.All", "Reports.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "Mail.Read", "MailboxSettings.Read", "DeviceManagementManagedDevices.Read.All", "DeviceManagementApps.Read.All", "UserAuthenticationMethod.ReadWrite.All", "DeviceManagementServiceConfig.Read.All", "DeviceManagementConfiguration.Read.All", "SharePointTenantSettings.Read.All"
 

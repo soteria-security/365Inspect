@@ -363,7 +363,7 @@ $skuids = @{
 
 Function Get-TenantLicenseLevel {
     Try {
-        $licenses = (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/subscribedSkus").Value
+        $licenses = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/subscribedSkus").Value
 
         $org_licenses = @()
 

@@ -10,7 +10,7 @@ Function Inspect-AppPasswords {
     Try {
         $results = @()
 
-        $apps = (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/applications").value | Where-Object { $null -ne $_.passwordCredentials.KeyId }
+        $apps = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/applications").value | Where-Object { $null -ne $_.passwordCredentials.KeyId }
         
         ForEach ($app in $apps) {
             $result = [PSCustomObject]@{

@@ -23,12 +23,12 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 function Inspect-SecureDefaults {
     Try {
-        $conditionalAccess = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/policies/conditionalAccessPolicies" -ErrorAction Stop).Value
+        $conditionalAccess = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/policies/conditionalAccessPolicies" -ErrorAction Stop).Value
 
         If (($conditionalAccess | Measure-Object).Count -eq 0) {
             $SDCreationDate = "October 22, 2019"
-            $tenantCreationDate = (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/organization?select=createdDateTime").Value.CreatedDateTime
-            $secureDefault = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/policies/identitySecurityDefaultsEnforcementPolicy" -ErrorAction Stop).IsEnabled
+            $tenantCreationDate = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/organization?select=createdDateTime").Value.CreatedDateTime
+            $secureDefault = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/policies/identitySecurityDefaultsEnforcementPolicy" -ErrorAction Stop).IsEnabled
             $disabled = "Secure Defaults Not Enabled on this Tenant."
             $olderThan = "Tenant creation predates Secure Defaults, and as a result Secure Defaults is not enabled"
             If (([datetime]$tenantCreationDate -lt [datetime]$SDCreationDate) -and ($secureDefault.IsEnabled -eq $false)) {

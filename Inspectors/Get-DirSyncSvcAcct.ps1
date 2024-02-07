@@ -7,12 +7,12 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 Function Get-DirSyncSvcAcct {
     Try {
-        $syncEnabled = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/organization").Value.onPremisesSyncEnabled
+        $syncEnabled = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/organization").Value.onPremisesSyncEnabled
 
         $syncSvcAccounts = @()
     
         If ($syncEnabled -eq $true) {
-            $syncSvcAccount = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/users?filter=startswith(displayName, 'On-Premises')").Value
+            $syncSvcAccount = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/users?filter=startswith(displayName, 'On-Premises')").Value
             
             Foreach ($acct in $syncSvcAccount) {
                 $syncSvcAccounts += "$($acct.displayName) - $($acct.userPrincipalName)"

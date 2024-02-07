@@ -8,13 +8,13 @@ $path = @($out_path)
 
 function Inspect-CAPolicies {
     Try {
-        $tenantLicense = ((Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/subscribedSkus").Value).ServicePlans
+        $tenantLicense = ((Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/subscribedSkus").Value).ServicePlans
     
         If ($tenantLicense.ServicePlanName -match "AAD_PREMIUM*") {
             
-            $secureDefault = ((Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/policies/identitySecurityDefaultsEnforcementPolicy").Value)
+            $secureDefault = ((Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/policies/identitySecurityDefaultsEnforcementPolicy").Value)
             
-            $conditionalAccess = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/v1.0/policies/conditionalAccessPolicies").Value
+            $conditionalAccess = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/v1.0/policies/conditionalAccessPolicies").Value
 
             If ($secureDefault.IsEnabled -eq $true) {
                 
@@ -57,7 +57,7 @@ function Inspect-CAPolicies {
                     Elseif ($policy.conditions.users.includeusers) {
                         $IncludedUsers = @()
                         Foreach ($user in $policy.conditions.users.includeusers) {
-                            $IncludedUsers += (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/directoryObjects/$user").DisplayName
+                            $IncludedUsers += (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryObjects/$user").DisplayName
                         }
                     }
                     
@@ -73,7 +73,7 @@ function Inspect-CAPolicies {
                     Elseif ($policy.conditions.users.excludeusers) {
                         $ExcludedUsers = @()
                         Foreach ($user in $policy.conditions.users.excludeusers) {
-                            $ExcludedUsers += (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/directoryObjects/$user").DisplayName
+                            $ExcludedUsers += (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryObjects/$user").DisplayName
                         }
                     }
                     
@@ -83,7 +83,7 @@ function Inspect-CAPolicies {
                     Elseif ($policy.conditions.users.includegroups) {
                         $IncludedGroups = @()
                         Foreach ($group in $policy.conditions.users.includegroups) {
-                            $IncludedGroups += (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/directoryObjects/$group").DisplayName
+                            $IncludedGroups += (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryObjects/$group").DisplayName
                         }
                     }
                     
@@ -93,7 +93,7 @@ function Inspect-CAPolicies {
                     Elseif ($policy.conditions.users.excludegroups) {
                         $ExcludedGroups = @()
                         Foreach ($group in $policy.conditions.users.excludegroups) {
-                            $ExcludedGroups += (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/directoryObjects/$group").DisplayName
+                            $ExcludedGroups += (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryObjects/$group").DisplayName
                         }
                     }
                     
@@ -103,7 +103,7 @@ function Inspect-CAPolicies {
                     Elseif ($policy.conditions.users.includeroles) {
                         $IncludedRoles = @()
                         Foreach ($role in $policy.conditions.users.includeroles) {
-                            $IncludedRoles += (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/directoryObjects/$role").DisplayName
+                            $IncludedRoles += (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryObjects/$role").DisplayName
                         }
                     }
                     
@@ -113,7 +113,7 @@ function Inspect-CAPolicies {
                     Elseif ($policy.conditions.users.excluderoles) {
                         $ExcludedRoles = @()
                         Foreach ($role in $policy.conditions.users.excluderoles) {
-                            $ExcludedRoles += (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/directoryObjects/$role").DisplayName
+                            $ExcludedRoles += (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryObjects/$role").DisplayName
                         }
                     }
 

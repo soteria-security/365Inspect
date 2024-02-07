@@ -8,10 +8,10 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 function Inspect-MailboxesWithPOPEnabled {
     Try {
         # Query Security defaults to see if it's enabled. If it is, skip this check.
-        $secureDefault = ((Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/policies/identitySecurityDefaultsEnforcementPolicy"))
+        $secureDefault = ((Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/policies/identitySecurityDefaultsEnforcementPolicy"))
 
         If ($secureDefault.IsEnabled -eq $false) {
-            $conditionalAccess = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/v1.0/policies/conditionalAccessPolicies").Value
+            $conditionalAccess = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/v1.0/policies/conditionalAccessPolicies").Value
 
             $blockingPolicies = @()
 

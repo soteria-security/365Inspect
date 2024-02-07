@@ -11,7 +11,7 @@ Function Get-InternalMailboxForwarding {
     Try {
         $mailboxes = Get-Mailbox -ResultSize Unlimited
 
-        $knownDomains = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/organization?$select=verifiedDomains").Value.verifiedDomains.name
+        $knownDomains = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/organization?$select=verifiedDomains").Value.verifiedDomains.name
 
         $rulesEnabled = @()
 

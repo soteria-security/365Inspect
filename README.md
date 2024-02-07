@@ -1,12 +1,25 @@
 # Purpose
 
-Further the state of O365 security by authoring a PowerShell script that automates the security assessment of Microsoft Office 365 environments.
+Further the state of Microsoft 365 security by authoring a PowerShell script that automates the security assessment of Microsoft 365 environments.
 
+# Soteria Inspect
 
+[Soteria Inspect](https://soteria.io/solutions/soteria-inspect/#) is born from the 365Inspect project and is Soteria's SaaS solution to aid in assessing the security of a Microsoft 365 tenant with over 200 points of inspection across the full suite of Microsoft 365 services. 
+
+Soteria Inspect for Microsoft 365 allows customers to track changes to each finding's affected objects over time as well as remediation efforts, and now includes multi-tenancy for MSP's and parent organizations to keep a finger on the pulse of their child tenants.
+
+Soteria Inspect for Microsoft 365 is available directly through [Soteria](https://soteria.io/solutions/soteria-inspect/#get-started) or through the [Azure Marketplace](https://azuremarketplace.microsoft.com/en-US/marketplace/apps/soteriallc1661865420827.soteria-inspect-365?ocid=GTMRewards_WhatsNewBlog_soteria-inspect-365_11172023)
+
+<details>
+<summary>See the feature comparison!</summary>
+
+![365Inspect Community Edition vs Soteria Inspect for Microsoft 365](Images/365InspectvsSoteriaInspect.png)
+
+</details>
 
 # Setup
 
-365*Inspect* requires the administrative PowerShell modules for Exchange administration, Microsoft Graph, Microsoft Teams, and the Sharepoint administration module.
+365*Inspect* Community Edition requires the administrative PowerShell modules for Exchange administration, Microsoft Graph, Microsoft Teams, and the Sharepoint administration module.
 
 __365*Inspect* is now compatible with PowerShell Core (6+), and requires a Microsoft Windows operating system due to required module dependencies.__
 
@@ -54,7 +67,7 @@ Execution of 365*Inspect* looks like this:
 
 <details>
 <summary>Execution Examples</summary>
-
+    
 ## Script Execution
 
 For example, to log in by entering your credentials in a browser with MFA support:
@@ -453,3 +466,7 @@ Please check out our [Contributing Guidelines](.github/ISSUE_TEMPLATE/CONTRIBUTI
 
 * No untrusted user should have write access to the 365*Inspect* folder/files, as that user could then overwrite scripts or templates therein and induce you to run malicious code.
 * No script module should be placed in .\inspectors unless you trust the source of that script module.
+
+# About Soteria
+
+Soteria offers a wide range of security and advisory solutions including Incident Response, Managed Detection and Response, Security Assessments, Penetration Testing, and more. Contact us for all your needs!

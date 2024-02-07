@@ -17,7 +17,7 @@ Function Inspect-AZPSModules {
         #Check for Service Prinicpals
         Foreach ($application in $applications) {
             Try {
-                $app = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/servicePrincipals?filter=displayName eq '$application'").Value
+                $app = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/servicePrincipals?filter=displayName eq '$application'").Value
             }
             Catch {
                 return $void

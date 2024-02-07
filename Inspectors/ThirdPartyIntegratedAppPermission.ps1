@@ -7,10 +7,10 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 function Inspect-ThirdPartyIntegratedAppPermission {
     Try {
-        $adminConsent = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/policies/adminConsentRequestPolicy" -ErrorAction Stop)
+        $adminConsent = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/policies/adminConsentRequestPolicy" -ErrorAction Stop)
 
         If ($adminConsent.IsEnabled -eq $false) {
-            $permissions = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/policies/authorizationPolicy").Value.defaultUserRolePermissions
+            $permissions = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/policies/authorizationPolicy").Value.defaultUserRolePermissions
 
             If ($permissions.AllowedToCreateApps -eq $true) {
                 return $permissions.AllowedToCreateApps

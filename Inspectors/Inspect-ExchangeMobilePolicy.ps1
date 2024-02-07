@@ -7,16 +7,16 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 $path = @($out_path)
 
 Function APPolicies {
-    $Licenses = ((Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/subscribedSkus").Value).ServicePlans
+    $Licenses = ((Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/subscribedSkus").Value).ServicePlans
 
     $licensed = $Licenses.servicePlanName | Where-Object { $_ -match 'Intune' }
 
     If ((($licensed | Measure-Object).Count -gt 1) -and (($licensed -match "intune") -and ($licensed -ne "INTUNE_O365"))) {
         #$policies = Get-IntuneAppProtectionPolicy
         
-        $iosPolicies = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/deviceAppManagement/iosManagedAppProtections").Value
+        $iosPolicies = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/deviceAppManagement/iosManagedAppProtections").Value
         
-        $androidPolicies = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/deviceAppManagement/androidManagedAppProtections").Value
+        $androidPolicies = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/deviceAppManagement/androidManagedAppProtections").Value
         
         $policies = @($iosPolicies, $androidPolicies)
 
@@ -33,12 +33,12 @@ Function APPolicies {
 }
 
 Function CompPolicies {
-    $Licenses = ((Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/subscribedSkus").Value).ServicePlans
+    $Licenses = ((Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/subscribedSkus").Value).ServicePlans
 
     $licensed = $Licenses.servicePlanName | Where-Object { $_ -match 'Intune' }
 
     If ((($licensed | Measure-Object).Count -gt 1) -and (($licensed -match "intune") -and ($licensed -ne "INTUNE_O365"))) {
-        $compliancePolicies = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/deviceManagement/deviceCompliancePolicies").Value
+        $compliancePolicies = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/deviceManagement/deviceCompliancePolicies").Value
         
         $iosPolicies = $compliancePolicies | Where-Object { $_.'@odata.type' -eq '#microsoft.graph.iosCompliancePolicy' }
         

@@ -12,13 +12,13 @@ Function Inspect-AADRoles {
         $path = New-Item -ItemType Directory -Force -Path "$($path)\AzureAD-Roles"
         $roleAssignments = @()
             
-        $definitions = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/roleManagement/directory/roleDefinitions").Value
+        $definitions = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/roleManagement/directory/roleDefinitions").Value
             
         Foreach ($definition in $definitions) {
-            $assignments = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/roleManagement/directory/roleAssignments").Value | Where-Object { $_.roleDefinitionId -eq $definition.id }
+            $assignments = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/roleManagement/directory/roleAssignments").Value | Where-Object { $_.roleDefinitionId -eq $definition.id }
             
             foreach ($assignment in $assignments) {
-                $objects = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/directoryObjects/$($assignment.principalId)")
+                $objects = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/directoryObjects/$($assignment.principalId)")
             
                 $results = @()
                 Foreach ($object in $objects) {

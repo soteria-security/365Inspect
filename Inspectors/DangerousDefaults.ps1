@@ -6,9 +6,9 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 function Inspect-DangerousDefaults {
     Try {
-        $permissions = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/policies/AuthorizationPolicy").Value.defaultUserRolePermissions
-        $authPolicy = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/beta/policies/AuthorizationPolicy").Value
-        $caPolicy = (Invoke-GraphRequest -method get -uri "https://graph.microsoft.com/v1.0/policies/conditionalAccessPolicies").Value | Where-Object { $_.Conditions.Applications.IncludeApplications -eq '797f4846-ba00-4fd7-ba43-dac1f8f63013' }
+        $permissions = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/policies/AuthorizationPolicy").Value.defaultUserRolePermissions
+        $authPolicy = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/policies/AuthorizationPolicy").Value
+        $caPolicy = (Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/v1.0/policies/conditionalAccessPolicies").Value | Where-Object { $_.Conditions.Applications.IncludeApplications -eq '797f4846-ba00-4fd7-ba43-dac1f8f63013' }
         $tenantCreation = $permissions.allowedToCreateTenants
 
         $dangerousDefaults = @()
