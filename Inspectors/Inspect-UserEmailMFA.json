@@ -1,0 +1,21 @@
+{
+    "FindingName": "Users with Email MFA Enabled",
+    "Description": "Users are able to complete MFA with Email verification. While MFA is enabled for these users, Email MFA is one of the weakest forms of second factor. The email address may be outside of your organization and not comply with internal policies. For example; It may not have MFA enabled on it, and rely solely on first factor authentication.",
+    "Remediation": "Require a stronger form of MFA for all accounts. Administrators are able to navigate to the Entra ID Authentication Methods Policy Portal below and disable Email MFA across the tenant.",
+    "DefaultValue": "No MFA required",
+    "ExpectedValue": "False",
+    "Impact": "High",
+    "AffectedObjects": "",
+    "Service": "AzureAD",
+    "PowerShell": "",
+    "References": [
+        {
+            "Url": "https://portal.azure.com/#view/Microsoft_AAD_IAM/AuthenticationMethodsMenuBlade/~/AdminAuthMethods",
+            "Text": "Entra ID Authentication Methods Policy Portal"
+        },
+        {
+            "Url": "https://learn.microsoft.com/en-us/entra/identity/authentication/concept-authentication-methods-manage",
+            "Text": "Manage authentication methods for Microsoft Entra ID"
+        }
+    ]
+}
