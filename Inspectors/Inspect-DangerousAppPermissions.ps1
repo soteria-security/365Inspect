@@ -6,10 +6,6 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 $path = @($out_path)
 
-$AccessToken = "$((Get-Item $PSScriptRoot).Parent.FullName)\Get-GraphToken.ps1"
-
-$AccessToken = (. $AccessToken)
-
 Function Inspect-DangerousAppPermissions {
     Try {
         <# 
@@ -25,11 +21,11 @@ Function Inspect-DangerousAppPermissions {
     
         $registeredApps = @()
         Try {
-            $query = (Invoke-RestMethod -Method Get -Uri "https://graph.microsoft.com/beta/applications" -Headers $accessToken)
+            $query = (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/applications")
         }
         Catch {
             If ($_.Exception.Message -match "(429)") {
-                $query = (Invoke-RestMethod -Method Get -Uri "https://graph.microsoft.com/beta/applications" -Headers $accessToken)
+                $query = (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/applications")
             }
             Else {
                 Return $_.Exception.Message
@@ -38,19 +34,19 @@ Function Inspect-DangerousAppPermissions {
         $registeredApps += ($query).Value
         if ($query.'@odata.nextlink') {
             Try {
-                $request = (Invoke-RestMethod -Method Get -Uri "$($query.'@odata.nextlink')" -Headers $accessToken)
+                $request = (Invoke-GraphRequest -Method Get -Uri "$($query.'@odata.nextlink')")
                 $registeredApps += $request.Value
                 while ($null -ne $request.'@odata.nextlink') {
-                    $request = (Invoke-RestMethod -Method Get -Uri "$($request.'@odata.nextlink')" -Headers $accessToken)
+                    $request = (Invoke-GraphRequest -Method Get -Uri "$($request.'@odata.nextlink')")
                     $registeredApps += $request.Value
                 }
             }
             Catch {
                 If ($_.Exception.Message -match "(429)") {
-                    $request = (Invoke-RestMethod -Method Get -Uri "$($query.'@odata.nextlink')" -Headers $accessToken)
+                    $request = (Invoke-GraphRequest -Method Get -Uri "$($query.'@odata.nextlink')")
                     $registeredApps += $request.Value
                     while ($null -ne $request.'@odata.nextlink') {
-                        $request = (Invoke-RestMethod -Method Get -Uri "$($request.'@odata.nextlink')" -Headers $accessToken)
+                        $request = (Invoke-GraphRequest -Method Get -Uri "$($request.'@odata.nextlink')")
                         $registeredApps += $request.Value
                     }
                 }
@@ -60,21 +56,21 @@ Function Inspect-DangerousAppPermissions {
             }
         }
     
-        $orgTenant = (Invoke-RestMethod -Method GET -Uri "https://graph.microsoft.com/beta/organization" -Headers $accessToken).value.id
+        $orgTenant = (Invoke-GraphRequest -Method GET -Uri "https://graph.microsoft.com/beta/organization").value.id
     
         $consents = @()
         
         $servicePrincipals = @()
     
-        $query = (Invoke-RestMethod -Method Get -Uri "https://graph.microsoft.com/beta/servicePrincipals?filter=servicePrincipalType eq 'Application'&count=true" -Headers $accessToken)
+        $query = (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/servicePrincipals?filter=servicePrincipalType eq 'Application'&count=true")
         
         $servicePrincipals += ($query).Value
         
         if ($query.'@odata.nextlink') {
-            $request = (Invoke-RestMethod -Method Get -Uri "$($query.'@odata.nextlink')" -Headers $accessToken)
+            $request = (Invoke-GraphRequest -Method Get -Uri "$($query.'@odata.nextlink')")
             $servicePrincipals += $request.Value
             while ($null -ne $request.'@odata.nextlink') {
-                $request = (Invoke-RestMethod -Method Get -Uri "$($request.'@odata.nextlink')" -Headers $accessToken)
+                $request = (Invoke-GraphRequest -Method Get -Uri "$($request.'@odata.nextlink')")
                 $servicePrincipals += $request.Value
             }
         }
@@ -104,7 +100,7 @@ Function Inspect-DangerousAppPermissions {
                 $permissions = $consent.requiredResourceAccess
                 $appPermissions = @()
     
-                $sp = (Invoke-RestMethod -Method Get -Uri "https://graph.microsoft.com/beta/servicePrincipals?filter=appId eq '$($consent.appId)'" -Headers $accessToken).value
+                $sp = (Invoke-GraphRequest -Method Get -Uri "https://graph.microsoft.com/beta/servicePrincipals?filter=appId eq '$($consent.appId)'").value
     
                 foreach ($permission in $permissions) {
                     If ($permission.resourceAccess.type -eq 'Role') {
