@@ -5,9 +5,24 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 . $errorHandling
 
 
-function Inspect-UserEmailMFA {
+function Inspect-SSPRAllowsEmailAuth {
     Try {
-        return Get-MgReportAuthenticationMethodUserRegistrationDetail | Where-Object MethodsRegistered -CContains "email" | select UserPrincipalName, IsAdmin
+
+        $emailPolicy = (Get-MgPolicyAuthenticationMethodPolicy).AuthenticationMethodConfigurations | Where-Object Id -eq "email"
+
+        if ($emailPolicy.State -eq "disabled") {
+            Return $null
+        }
+
+        $users = Get-MgReportAuthenticationMethodUserRegistrationDetail | Where-Object MethodsRegistered -eq "email"
+
+        $results = @()
+
+        Foreach ($result in $users){
+            $results += "User: $($result.UserDisplayName), UserPrincipalName: $($result.UserPrincipalName), IsAdmin: $($user.IsAdmin)"
+        }
+
+        Return $results
     }
     Catch {
         Write-Warning "Error message: $_"
@@ -25,4 +40,4 @@ function Inspect-UserEmailMFA {
     }
 }
 
-return Inspect-UserEmailMFA
+return Inspect-SSPRAllowsEmailAuth

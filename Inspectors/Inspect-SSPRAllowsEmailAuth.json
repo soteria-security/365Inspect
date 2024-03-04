@@ -1,0 +1,21 @@
+{
+    "FindingName": "SSPR Allows Email Authentication",
+    "Description": "SSPR allows users to reset their password by authenticating with a registered MFA method. Unlike normal sign-ins, SSPR allows Email OTP as an MFA method by default.",
+    "Remediation": "Disable Email OTP as an MFA option in the tenat configuration.",
+    "DefaultValue": "No MFA required",
+    "ExpectedValue": "False",
+    "Impact": "Medium",
+    "AffectedObjects": "",
+    "Service": "AzureAD",
+    "PowerShell": "",
+    "References": [
+        {
+            "Url": "https://portal.azure.com/#view/Microsoft_AAD_IAM/AuthenticationMethodsMenuBlade/~/AdminAuthMethods",
+            "Text": "Entra ID Authentication Methods Policy Portal"
+        },
+        {
+            "Url": "https://learn.microsoft.com/en-us/entra/identity/authentication/concept-authentication-methods-manage",
+            "Text": "Manage authentication methods for Microsoft Entra ID"
+        }
+    ]
+}
