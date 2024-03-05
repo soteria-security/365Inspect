@@ -1,3 +1,5 @@
+<img src="https://github.com/soteria-security/365Inspect/assets/88730003/af894eb2-7ed8-4082-a51c-dd2da0663ed3" align=right></br></br></br></br>
+
 # Purpose
 
 Further the state of Microsoft 365 security by authoring a PowerShell script that automates the security assessment of Microsoft 365 environments.
