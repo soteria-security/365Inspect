@@ -5,7 +5,7 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 . $errorHandling
 
 
-function Inspector-Name {
+function Inspector-OAUTHUserConsent {
     Try {
         $policy = (Get-MgPolicyAuthorizationPolicy)[0]
 
@@ -42,4 +42,4 @@ function Inspector-Name {
     }
 }
 
-return Inspector-Name
+return Inspector-OAUTHUserConsent

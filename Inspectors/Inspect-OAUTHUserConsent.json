@@ -1,5 +1,5 @@
 {
-    "FindingName": "Users consent to OAUTH applications not restricted",
+    "FindingName": "User consent to OAUTH applications not restricted",
     "Description": "Users are allowed to consent to applications accessing their data.",
     "Remediation": "Review the configuration and determine if the current setting is appropriate for your organization. By default users are able to consent to a Microsoft managed list of low-impact apps. This includes Microsoft developed apps as well as apps published by verified publishers.",
     "DefaultValue": "User Consent is set to Verified and Registered Apps.",
