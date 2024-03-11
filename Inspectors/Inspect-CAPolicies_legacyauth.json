@@ -3,7 +3,7 @@
     "Description": "Conditional Access Policies were found that do not include legacy authentication methods. A manual review of Conditional Access Policies is required to determine if mitigating policies exist.",
     "Remediation": "Review existing Conditional Access Policies and determine if legacy authentication is in use. If legacy authentication is not required, it is recommended to configure or create policies to target the outdated authentication methods.",
     "DefaultValue": "None",
-    "ExpectedValue": "Configured Conditional Access Policy",
+    "ExpectedValue": "Conditional Access Policy is present",
     "Impact": "High",
     "AffectedObjects": "",
     "Service": "AzureAD",

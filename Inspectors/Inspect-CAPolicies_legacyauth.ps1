@@ -4,7 +4,7 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 . $errorHandling
 
-function Inspector-Name {
+function Inspector-CAPolicies_legacyauth {
     Try {
         $subscriptions = (Get-MgSubscribedSku).ServicePlans | where ServicePlanName -match "AAD_PREMIUM*"
         If ($subscriptions.Length > 0) {
@@ -76,4 +76,4 @@ function Inspector-Name {
     }
 }
 
-return Inspector-Name
+return Inspector-CAPolicies_legacyauth
