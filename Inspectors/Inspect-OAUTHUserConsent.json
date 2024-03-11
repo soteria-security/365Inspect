@@ -1,0 +1,17 @@
+{
+    "FindingName": "Users consent to OAUTH applications not restricted",
+    "Description": "Users are allowed to consent to applications accessing their data.",
+    "Remediation": "Review the configuration and determine if the current setting is appropriate for your organization. By default users are able to consent to a Microsoft managed list of low-impact apps. This includes Microsoft developed apps as well as apps published by verified publishers.",
+    "DefaultValue": "User Consent is set to Verified and Registered Apps.",
+    "ExpectedValue": "User Consent to apps must be explicity allowed by an Administrator.",
+    "Impact": "Critical",
+    "AffectedObjects": "",
+    "Service": "AzureAD",
+    "PowerShell": "<pre><code class=\"language-powershell\">$oldpolicy = (Get-MgPolicyAuthorizationPolicy)[0]\r\n$unsafePolicies = @(\"ManagePermissionGrantsForSelf.microsoft-user-default-low\", \"ManagePermissionGrantsForSelf.microsoft-user-default-legacy\")\r\n$newpolicy = @{\r\n\tPermissionGrantPoliciesAssigned = $oldpolicy.DefaultUserRolePermissions.PermissionGrantPoliciesAssigned | % {if ($unsafePolicies -notcontains $_){$_}}\r\n}\r\nUpdate-MgPolicyAuthorizationPolicy -DefaultUserRolePermissions $newpolicy\r\n</code></pre>",
+    "References": [
+        {
+            "Url": "https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/configure-user-consent?pivots=portal",
+            "Text": "Configure how users consent to applications"
+        }
+    ]
+}
