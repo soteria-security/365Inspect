@@ -1,4 +1,4 @@
-$ErrorActionPreference = "Stop"
+Inspect-SPFRecords$ErrorActionPreference = "Stop"
 
 $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1"
 
