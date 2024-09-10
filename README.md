@@ -51,6 +51,14 @@ If you do not have these modules installed, you will be prompted to install them
 
 Once the above are installed, download the 365*Inspect* source code folder from Github using your browser or by using *git clone*.
 
+__As of September 9, 2024, PnP.PowerShell requires tenant admins to register their own application for use with the SharePoint/PnP service.__ 
+[Register an Entra ID Application to use with PnP PowerShell](https://pnp.github.io/powershell/articles/registerapplication.html)
+
+There is a command that can be run to [automate this step](https://pnp.github.io/powershell/articles/registerapplication.html#automatically-create-an-app-registration-for-interactive-login).
+```powershell
+Register-PnPEntraIDAppForInteractiveLogin -ApplicationName "PnP Rocks" -Tenant [yourtenant].onmicrosoft.com -Interactive
+```
+
 As you will run 365*Inspect* with administrative privileges, you should place it in a logical location and make sure the contents of the folder are readable and writable only by the administrative user. This is especially important if you intend to install 365*Inspect* in a location where it will be executed frequently or used as part of an automated process. __NOTE:__ 365*Inspect* does not need to be run in an administrative PowerShell window to function.
 
 # Usage
