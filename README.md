@@ -211,12 +211,14 @@ Once opened in a text editor, the data may be pasted into Excel.
 
 # Change Log
 
-* Support for [National Cloud Deployments](https://learn.microsoft.com/en-us/graph/deployments)
+* Support for Device Authentication
 
 <details>
 <summary>Older Changes</summary>
 
 ## Older Changes
+
+* Support for [National Cloud Deployments](https://learn.microsoft.com/en-us/graph/deployments)
 
 * 365*Inspect* now supports Application Authentication
 
