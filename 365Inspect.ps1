@@ -53,7 +53,7 @@ param (
     [string] $Environment = "Default",
     [Parameter(Mandatory = $false,
         HelpMessage = 'Auth type')]
-    [ValidateSet('ALREADY_AUTHED', 'MFA', 'APP',
+    [ValidateSet('ALREADY_AUTHED', 'MFA', 'DEVICE', 'APP',
         IgnoreCase = $false)]
     [string] $Auth = "MFA",
     [string[]] $SelectedInspectors = @(),
@@ -81,6 +81,18 @@ switch ($Environment) {
     "GermanyCloud" { $global:graphURI = 'graph.microsoft.com' }
     "China" { $global:graphURI = 'microsoftgraph.chinacloudapi.cn' }
     default { $global:graphURI = 'graph.microsoft.com' }
+}
+
+If ($PSVersionTable.PSVersion.Major -eq 5) {
+    Write-Host "PnP.PowerShell module is not compatible with Windows PowerShell v5.1. Your version: $($PSVersionTable.PSVersion.Major).$($PSVersionTable.PSVersion.Minor)`nExcluding SharePoint Inspectors..."
+    $noSharePoint = $true
+}
+If ($PSVersionTable.PSVersion.Major -lt 7 -and $PSVersionTable.PSVersion.Minor -lt 2) {
+    Write-Host "PnP.PowerShell module requires PowerShell version 7.2 or higher. Your version: $($PSVersionTable.PSVersion.Major).$($PSVersionTable.PSVersion.Minor)`nExcluding SharePoint Inspectors..."
+    $noSharePoint = $true
+}
+If ($PSVersionTable.PSVersion.Major -ge 7 -and $PSVersionTable.PSVersion.Minor -ge 2) {
+    $noSharePoint = $false
 }
 
 Function Connect-Services {
@@ -155,8 +167,10 @@ Function Connect-Services {
             Write-Output "Connecting to SharePoint Service"
             $org_name = ($global:tenantDomain -split '.onmicrosoft.com')[0]
 
+            $pnpApp = Read-Host -Prompt "Please enter the Application/Client ID of the application created to replace PnP.Powershell"
+
             # National Cloud deployment - Valid environments are: 'USGovernment', 'USGovernmentHigh', 'USGovernmentDoD', 'Germany', 'China'
-            Connect-PnPOnline -AzureEnvironment $Environment -Url "https://$org_name-admin.sharepoint.com" -Interactive
+            Connect-PnPOnline -AzureEnvironment $Environment -Url "https://$org_name-admin.sharepoint.com" -ClientId $pnpApp -Interactive
         }
         Catch {
             Write-Output "Connecting to SharePoint Service Failed."
@@ -182,6 +196,127 @@ Function Connect-Services {
             Write-Output "Connecting to Microsoft Teams Failed."
             Write-Error $_.Exception.Message
             Break
+        }
+    }
+    ElseIf ($auth -EQ "DEVICE") {
+        Try {
+            switch ($Environment) {
+                "USGovGCCHigh" { $Environment = 'USGov' }
+                "USGovDoD" { $Environment = 'USGovDoD' }
+                "GermanyCloud" { $Environment = 'Global' }
+                "China" { $Environment = 'China' }
+                default { $Environment = 'Global' }
+            }
+
+            Write-Output "Connecting to Microsoft Graph"
+              
+            # National Cloud deployments - Valid environments: 'Global', 'USGov', 'USGovDoD', 'China'
+            Connect-MgGraph -Environment $Environment -DeviceCode -ContextScope Process -Scopes "AuditLog.Read.All", "Reports.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "Mail.Read", "MailboxSettings.Read", "DeviceManagementManagedDevices.Read.All", "DeviceManagementApps.Read.All", "UserAuthenticationMethod.ReadWrite.All", "DeviceManagementServiceConfig.Read.All", "DeviceManagementConfiguration.Read.All", "SharePointTenantSettings.Read.All", "CrossTenantInformation.ReadBasic.All" -NoWelcome
+
+            $global:orgInfo = Get-MgOrganization
+            $global:tenantDomain = (($global:orgInfo).VerifiedDomains | Where-Object { ($_.Name -like "*.onmicrosoft.com") -and ($_.Name -notlike "*mail.onmicrosoft.com") }).Name
+            Write-Output "Connected via Graph to $((Get-MgOrganization).DisplayName)"
+        }
+        Catch {
+            Write-Output "Connecting to Microsoft Graph Failed."
+            Write-Error $_.Exception.Message
+            Break
+        }
+        Try {
+            switch ($Environment) {
+                "USGovGCCHigh" { $Environment = 'https://ps.compliance.protection.office365.us/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.us/common' }
+                "USGovDoD" { $Environment = 'https://l5.ps.compliance.protection.office365.us/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.us/common' }
+                "GermanyCloud" { $Environment = 'https://ps.compliance.protection.outlook.com/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.com/common' }
+                "China" { $Environment = 'https://ps.compliance.protection.partner.outlook.cn/powershell-liveid' ; $AADUri = 'https://login.chinacloudapi.cn/common' }
+                default { $Environment = 'https://ps.compliance.protection.outlook.com/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.com/common' }
+            }
+
+            Write-Output "Connecting to Security and Compliance Center"
+            Connect-IPPSSession -ConnectionUri $Environment -Device -AzureADAuthorizationEndpointUri $AADUri -UserPrincipalName $UserPrincipalName
+        }
+        Catch {
+            Write-Output "Connecting to Security and Compliance Center Failed."
+            Write-Error $_.Exception.Message
+            Break
+        }
+        Try {
+            switch ($Environment) {
+                "USGovGCCHigh" { $Environment = 'O365USGovGCCHigh' }
+                "USGovDoD" { $Environment = 'O365USGovDoD' }
+                "GermanyCloud" { $Environment = 'O365GermanyCloud' }
+                "China" { $Environment = 'O365China' }
+                default { $Environment = 'O365Default' }
+            }
+
+            Write-Output "Connecting to Exchange Online"
+            Connect-ExchangeOnline -ExchangeEnvironmentName $Environment -Device -UserPrincipalName $UserPrincipalName -ShowBanner:$false
+        }
+        Catch {
+            Write-Output "Connecting to Exchange Online Failed."
+            Write-Error $_.Exception.Message
+            Break
+        }
+        Try {
+            switch ($Environment) {
+                "USGovGCCHigh" { $Environment = 'USGovernmentHigh' }
+                "USGovDoD" { $Environment = 'USGovernmentDoD' }
+                "GermanyCloud" { $Environment = 'Germany' }
+                "China" { $Environment = 'China' }
+                default { $Environment = 'Production' }
+            }
+
+            Write-Output "Connecting to SharePoint Service"
+            $org_name = ($global:tenantDomain -split '.onmicrosoft.com')[0]
+
+            $pnpApp = Read-Host -Prompt "Please enter the Application/Client ID of the application created to replace PnP.Powershell"
+
+            # National Cloud deployment - Valid environments are: 'USGovernment', 'USGovernmentHigh', 'USGovernmentDoD', 'Germany', 'China'
+            Connect-PnPOnline -AzureEnvironment $Environment -DeviceLogin -Url "https://$org_name-admin.sharepoint.com" -ClientId $pnpApp
+        }
+        Catch {
+            Write-Output "Connecting to SharePoint Service Failed."
+            Write-Error $_.Exception.Message
+            Break
+        }
+        Try {
+            switch ($Environment) {
+                "USGovGCCHigh" { $Connection = "Connect-MicrosoftTeams -TeamsEnvironmentName TeamsGCCH -DeviceCode" }
+                "USGovDoD" { $Connection = "Connect-MicrosoftTeams -TeamsEnvironmentName TeamsDoD -DeviceCode" }
+                "GermanyCloud" { $Connection = "Connect-MicrosoftTeams -DeviceCode" }
+                "China" { $Connection = "Connect-MicrosoftTeams -TeamsEnvironmentName TeamsChina -DeviceCode" }
+                default { $Connection = "Connect-MicrosoftTeams -DeviceCode" }
+            }
+
+            # National Cloud deployment - Valid enironments are: '', 'TeamsGCCH', 'TeamsDOD', 'TeamsChina'
+            #Connect-MicrosoftTeams -TeamsEnvironmentName $Environment
+            Invoke-Expression $Connection
+
+            Write-Output "Connecting to Microsoft Teams"
+        }
+        Catch {
+            Write-Output "Connecting to Microsoft Teams Failed."
+            Write-Error $_.Exception.Message
+            Break
+        }
+        If (! $NoPowerPlatform.IsPresent) {
+            Try {
+                switch ($Environment) {
+                    "GCC" { $endpoint = 'usgov' }
+                    "USGovGCCHigh" { $endpoint = 'usgovhigh' }
+                    "USGovDoD" { $endpoint = 'dod' }
+                    "GermanyCloud" { $endpoint = 'prod' }
+                    "China" { $endpoint = 'china' }
+                    default { $endpoint = 'prod' }
+                }
+
+                Add-PowerAppsAccount -Endpoint $endpoint -Username $UserPrincipalName
+            }
+            Catch {
+                Write-Host "Error connecting to " -NoNewLine -ForegroundColor Red
+                Write-Host "Microsoft Power Platform"
+                $_.Exception
+                Break
+            }
         }
     }
     ElseIf ($auth -eq 'APP') {
@@ -319,7 +454,7 @@ Function Confirm-InstalledModules {
         $SharePoint = @{ Name = "PnP.PowerShell"; MaximumVersion = "1.12.0" }
     }
     If ($PSVersionTable.PSVersion.Major -ge 6) {
-        $SharePoint = @{ Name = "PnP.PowerShell"; MinimumVersion = "1.10.0" }
+        $SharePoint = @{ Name = "PnP.PowerShell"; MinimumVersion = "2.0.0" }
     }
     $Graph = @{ Name = "Microsoft.Graph"; MinimumVersion = "1.9.6" }
     $MSTeams = @{ Name = "MicrosoftTeams"; MinimumVersion = "4.4.1" }
@@ -520,6 +655,15 @@ switch ($Environment) {
     "China" { $inspectorPath = 'O365China' }
     default { $inspectorPath = 'Inspectors' }
 }
+
+$incompatible_inspectors = @()
+
+If ($noSharePoint -eq $true) {
+    $incompatible_inspectors += @("Inspect-OutgoingSharingMonitored", "Inspect-SharepointExternalSharing", "Inspect-SharepointExternalUserResharing", "Inspect-SharepointLegacyAuthEnabled", "Inspect-SharepointLinkExpiry", "Inspect-SharepointModernAuthentication")
+}
+
+# Exclude Inspectors not compatible with environment
+$excluded_inspectors += @($incompatible_inspectors)
 
 If ($excluded_inspectors -and $excluded_inspectors.Count) {
     $excluded_inspectors = foreach ($inspector in $excluded_inspectors) { "$inspector.ps1" }

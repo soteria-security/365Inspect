@@ -12,6 +12,8 @@ Soteria Inspect for Microsoft 365 allows customers to track changes to each find
 
 Soteria Inspect for Microsoft 365 is available directly through [Soteria](https://soteria.io/solutions/soteria-inspect/#get-started) or through the [Azure Marketplace](https://azuremarketplace.microsoft.com/en-US/marketplace/apps/soteriallc1661865420827.soteria-inspect-365?ocid=GTMRewards_WhatsNewBlog_soteria-inspect-365_11172023)
 
+See all of our [Soteria Inspect for Microsoft 365 offers](https://azuremarketplace.microsoft.com/en-us/marketplace/apps?search=Soteria&page=1)
+
 <details>
 <summary>See the feature comparison!</summary>
 
@@ -30,11 +32,7 @@ The 365*Inspect*.ps1 PowerShell script will validate the installed modules and m
 If you do not have these modules installed, you will be prompted to install them, and with your approval, the script will attempt installation. Otherwise, you should be able to install them with the following commands in an administrative PowerShell prompt, or by following the instructions at the references below:
 
     Install-Module -Name ExchangeOnlineManagement -AllowClobber -Force
-    
-    # NOTE: If you are using PowerShell 5.1 you must set the MaximumVersion Parameter for PnP PowerShell 
-    Install-Module -Name PnP.PowerShell -AllowClobber -MaximumVersion 1.12.0 -Force
-
-    # NOTE: If you are using PowerShell 6.0 or higher you can install the current version of PnP PowerShell 
+     
     Install-Module -Name PnP.PowerShell -AllowClobber -Force
     
     Install-Module -Name Microsoft.Graph -AllowClobber -Force
@@ -51,13 +49,38 @@ If you do not have these modules installed, you will be prompted to install them
 
 Once the above are installed, download the 365*Inspect* source code folder from Github using your browser or by using *git clone*.
 
+<details>
+<summary>Breaking Changes</summary>
+
+# PnP.PowerShell Module
 __As of September 9, 2024, PnP.PowerShell requires tenant admins to register their own application for use with the SharePoint/PnP service.__ 
+See the following PnP.PowerShell documentation for required steps.
 [Register an Entra ID Application to use with PnP PowerShell](https://pnp.github.io/powershell/articles/registerapplication.html)
+[Determine Permissions](https://pnp.github.io/powershell/articles/determinepermissions.html)
+[Authentication](https://pnp.github.io/powershell/articles/authentication.html)
+
+__NOTE: If you are using PowerShell 5.1 PnP PowerShell is no longer compatible and all SharePoint Inspectors will be excluded at run time.__
 
 There is a command that can be run to [automate this step](https://pnp.github.io/powershell/articles/registerapplication.html#automatically-create-an-app-registration-for-interactive-login).
 ```powershell
 Register-PnPEntraIDAppForInteractiveLogin -ApplicationName "PnP Rocks" -Tenant [yourtenant].onmicrosoft.com -Interactive
 ```
+__Remember the name or the Application/Client ID of the application that was created. This is now required to authenticate and you will be prompted for the AppID!__
+
+# Module Compatibility
+Currently the Microsoft.Graph and Microsoft.Graph.Beta Modules versions 2.23.0 are incompatible with ExchangeOnlineManagement version 3.5.1
+The following versions are compatible:
+- Microsoft.Graph version 2.21.1
+- Microsoft.Graph.Beta version 2.21.1
+- ExchangeOnlineManagement version 3.5.0
+
+The following commands may be used to install compatible versions:
+```powershell
+Install-Module -Name Microsoft.Graph -Scope CurrentUser -RequiredVersion 2.21.1 -AllowClobber -Force
+Install-Module -Name Microsoft.Graph.Beta -Scope CurrentUser -RequiredVersion 2.21.1 -AllowClobber -Force
+Install-Module -Name ExchangeOnlineManagement -Scope CurrentUser -RequiredVersion 3.5.0 -AllowClobber -Force
+```
+</details>
 
 As you will run 365*Inspect* with administrative privileges, you should place it in a logical location and make sure the contents of the folder are readable and writable only by the administrative user. This is especially important if you intend to install 365*Inspect* in a location where it will be executed frequently or used as part of an automated process. __NOTE:__ 365*Inspect* does not need to be run in an administrative PowerShell window to function.
 
@@ -73,7 +96,7 @@ All 365*Inspect* requires to inspect your O365 tenant is access via an O365 acco
 
 Execution of 365*Inspect* looks like this:
 
-	.\365Inspect.ps1 -OutPath <value> -UserPrincipalName myuser@mytenant.onmicrosoft.com -Auth <MFA|ALREADY_AUTHED|APP>
+	.\365Inspect.ps1 -OutPath <value> -UserPrincipalName myuser@mytenant.onmicrosoft.com -Auth <MFA|DEVICE|ALREADY_AUTHED|APP>
 
 <details>
 <summary>Execution Examples</summary>
@@ -188,12 +211,14 @@ Once opened in a text editor, the data may be pasted into Excel.
 
 # Change Log
 
-* Support for [National Cloud Deployments](https://learn.microsoft.com/en-us/graph/deployments)
+* Support for Device Authentication
 
 <details>
 <summary>Older Changes</summary>
 
 ## Older Changes
+
+* Support for [National Cloud Deployments](https://learn.microsoft.com/en-us/graph/deployments)
 
 * 365*Inspect* now supports Application Authentication
 
