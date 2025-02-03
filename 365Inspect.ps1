@@ -641,6 +641,75 @@ Else {
     }
 }
 
+$global:requirements = $null
+$global:ServicePrincipalName = $null
+$global:ReaderRole = $false
+
+Function Check-RequiredRoles {
+    Colorize Yellow ("Checking for required roles")
+    If ((Get-MgContext).AuthType -eq 'AppOnly') {
+        Write-Host "Authenticated as Application`n`n" -ForegroundColor Yellow
+
+        $client = (Get-MgContext).ClientId
+
+        $svcPrincipal = (Invoke-GraphRequest -Method GET -Uri "https://graph.microsoft.com/beta/servicePrincipals?filter=appId eq '$client'").value
+
+        $global:ServicePrincipalName = $svcPrincipal.displayName
+
+        $appRoles = (Invoke-GraphRequest -Method GET -Uri "https://graph.microsoft.com/beta/servicePrincipals/$($svcPrincipal.id)/transitiveMemberOf").Value.displayName
+    
+        $rolesMet = $true
+    
+        If ('Global Administrator' -notin $appRoles) {
+            $rolesMet = $false
+            #Break
+        }
+
+        If (('Global Reader' -in $appRoles) -and ($rolesMet -eq $false)) {
+            $global:ReaderRole = $true
+        }
+    
+        If (! $rolesMet) {
+            $global:requirements = '<span style="color:Crimson;"><strong>NOT MET</strong></span> - Some inspectors may fail!'
+            Write-Host "[-] NOT MET" -ForegroundColor Red -NoNewline
+            Write-Host " - Some inspectors may fail!"
+        }
+        Else {
+            $global:requirements = '<span style="color:Green;"><strong>All requirements met!</strong></span>'
+            Write-Host "[+] ALL REQUIREMENTS MET!" -ForegroundColor Green
+        }
+    }
+    Else {
+        Write-Host "Authenticated as a User`n`n" -ForegroundColor Yellow
+
+        $myRoles = (Invoke-GraphRequest -Method GET -Uri "https://graph.microsoft.com/beta/me/transitiveMemberOf/microsoft.graph.directoryRole?select=displayName").Value.displayName
+    
+        $requiredRoles = @('Global Administrator', 'SharePoint Administrator')
+    
+        $rolesMet = $true
+    
+        Foreach ($role in $requiredRoles) {
+            If ($role -notin $myRoles) {
+                $rolesMet = $false
+                #Break
+            }
+        }
+    
+        If (! $rolesMet) {
+            $global:requirements = '<span style="color:Crimson;"><strong>NOT MET</strong></span> - Some inspectors may fail!'
+            Write-Host "[-] NOT MET" -ForegroundColor Red -NoNewline
+            Write-Host " - Some inspectors may fail!"
+        }
+        Else {
+            $global:requirements = '<span style="color:Green;"><strong>All requirements met!</strong></span>'
+            Write-Host "[+] ALL REQUIREMENTS MET!" -ForegroundColor Green
+        }
+    }
+}
+
+# Check for all required roles assignments
+Check-RequiredRoles
+
 # Obtain tenant info
 $org_name = ($global:tenantDomain -split '.onmicrosoft.com')[0]
 $tenantDisplayName = ($global:orgInfo).DisplayName
@@ -664,6 +733,11 @@ If ($noSharePoint -eq $true) {
 
 # Exclude Inspectors not compatible with environment
 $excluded_inspectors += @($incompatible_inspectors)
+
+If ($global:ReaderRole) {
+    $excluded_inspectors += @("Inspect-eDiscoveryAdmins")
+    Write-Host "Global Reader role assigned. Excluding Inspect-eDiscoveryAdmins. Principals assigned the eDiscovery Administrator role must be manually queried."
+}
 
 If ($excluded_inspectors -and $excluded_inspectors.Count) {
     $excluded_inspectors = foreach ($inspector in $excluded_inspectors) { "$inspector.ps1" }

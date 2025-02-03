@@ -8,7 +8,7 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 Function Inspect-PasswordSync {
     Try {
 
-        $syncTime = (Invoke-GraphRequest -Method GET -Uri 'https://$(@($global:graphURI))/beta/organization').Value.onPremisesLastPasswordSyncDateTime
+        $syncTime = (Invoke-GraphRequest -Method GET -Uri "https://$(@($global:graphURI))/beta/organization").Value.onPremisesLastPasswordSyncDateTime
 
         If ($null -ne $syncTime) {
             return "Password Synchronization is enabled. Last synced $syncTime"
