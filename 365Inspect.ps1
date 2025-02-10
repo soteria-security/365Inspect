@@ -122,16 +122,22 @@ Function Connect-Services {
             Break
         }
         Try {
-            switch ($Environment) {
-                "USGovGCCHigh" { $Environment = 'https://ps.compliance.protection.office365.us/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.us/common' }
-                "USGovDoD" { $Environment = 'https://l5.ps.compliance.protection.office365.us/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.us/common' }
-                "GermanyCloud" { $Environment = 'https://ps.compliance.protection.outlook.com/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.com/common' }
-                "China" { $Environment = 'https://ps.compliance.protection.partner.outlook.cn/powershell-liveid' ; $AADUri = 'https://login.chinacloudapi.cn/common' }
-                default { $Environment = 'https://ps.compliance.protection.outlook.com/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.com/common' }
-            }
-
             Write-Output "Connecting to Security and Compliance Center"
-            Connect-IPPSSession -ConnectionUri $Environment -AzureADAuthorizationEndpointUri $AADUri -UserPrincipalName $UserPrincipalName
+
+            If ($environment -eq 'Default') {
+                Connect-IPPSSession -UserPrincipalName $UserPrincipalName
+            }
+            Else {
+                switch ($Environment) {
+                    "USGovGCCHigh" { $Environment = 'https://ps.compliance.protection.office365.us/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.us/common' }
+                    "USGovDoD" { $Environment = 'https://l5.ps.compliance.protection.office365.us/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.us/common' }
+                    "GermanyCloud" { $Environment = 'https://ps.compliance.protection.outlook.com/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.com/common' }
+                    "China" { $Environment = 'https://ps.compliance.protection.partner.outlook.cn/powershell-liveid' ; $AADUri = 'https://login.chinacloudapi.cn/common' }
+                    default { $Environment = 'https://ps.compliance.protection.outlook.com/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.com/common' }
+                }
+
+                Connect-IPPSSession -ConnectionUri $Environment -AzureADAuthorizationEndpointUri $AADUri -UserPrincipalName $UserPrincipalName
+            }
         }
         Catch {
             Write-Output "Connecting to Security and Compliance Center Failed."
@@ -223,16 +229,20 @@ Function Connect-Services {
             Break
         }
         Try {
-            switch ($Environment) {
-                "USGovGCCHigh" { $Environment = 'https://ps.compliance.protection.office365.us/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.us/common' }
-                "USGovDoD" { $Environment = 'https://l5.ps.compliance.protection.office365.us/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.us/common' }
-                "GermanyCloud" { $Environment = 'https://ps.compliance.protection.outlook.com/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.com/common' }
-                "China" { $Environment = 'https://ps.compliance.protection.partner.outlook.cn/powershell-liveid' ; $AADUri = 'https://login.chinacloudapi.cn/common' }
-                default { $Environment = 'https://ps.compliance.protection.outlook.com/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.com/common' }
-            }
-
             Write-Output "Connecting to Security and Compliance Center"
-            Connect-IPPSSession -ConnectionUri $Environment -Device -AzureADAuthorizationEndpointUri $AADUri -UserPrincipalName $UserPrincipalName
+
+            If ($Environment -eq 'Default') {
+                Connect-IPPSSession -Device -UserPrincipalName $UserPrincipalName
+            }
+            Else {
+                switch ($Environment) {
+                    "USGovGCCHigh" { $Environment = 'https://ps.compliance.protection.office365.us/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.us/common' }
+                    "USGovDoD" { $Environment = 'https://l5.ps.compliance.protection.office365.us/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.us/common' }
+                    "GermanyCloud" { $Environment = 'https://ps.compliance.protection.outlook.com/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.com/common' }
+                    "China" { $Environment = 'https://ps.compliance.protection.partner.outlook.cn/powershell-liveid' ; $AADUri = 'https://login.chinacloudapi.cn/common' }
+                }
+                Connect-IPPSSession -ConnectionUri $Environment -Device -AzureADAuthorizationEndpointUri $AADUri -UserPrincipalName $UserPrincipalName
+            }
         }
         Catch {
             Write-Output "Connecting to Security and Compliance Center Failed."
@@ -350,16 +360,21 @@ Function Connect-Services {
             Break
         }
         Try {
-            switch ($Environment) {
-                "USGovGCCHigh" { $Environment = 'https://ps.compliance.protection.office365.us/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.us/common' }
-                "USGovDoD" { $Environment = 'https://l5.ps.compliance.protection.office365.us/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.us/common' }
-                "GermanyCloud" { $Environment = 'https://ps.compliance.protection.outlook.com/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.com/common' }
-                "China" { $Environment = 'https://ps.compliance.protection.partner.outlook.cn/powershell-liveid' ; $AADUri = 'https://login.chinacloudapi.cn/common' }
-                default { $Environment = 'https://ps.compliance.protection.outlook.com/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.com/common' }
-            }
-
             Write-Output "Connecting to Security and Compliance Center"
-            Connect-IPPSSession -ConnectionUri $Environment -AzureADAuthorizationEndpointUri $AADUri -AppId $appID -CertificateThumbprint $thumbprint -Organization $global:tenantDomain | Out-Null
+
+            If ($Environment -eq 'Default') {
+                Connect-IPPSSession -AppId $appID -CertificateThumbprint $thumbprint -Organization $global:tenantDomain | Out-Null
+            }
+            Else {
+                switch ($Environment) {
+                    "USGovGCCHigh" { $Environment = 'https://ps.compliance.protection.office365.us/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.us/common' }
+                    "USGovDoD" { $Environment = 'https://l5.ps.compliance.protection.office365.us/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.us/common' }
+                    "GermanyCloud" { $Environment = 'https://ps.compliance.protection.outlook.com/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.com/common' }
+                    "China" { $Environment = 'https://ps.compliance.protection.partner.outlook.cn/powershell-liveid' ; $AADUri = 'https://login.chinacloudapi.cn/common' }
+                }
+            
+                Connect-IPPSSession -ConnectionUri $Environment -AzureADAuthorizationEndpointUri $AADUri -AppId $appID -CertificateThumbprint $thumbprint -Organization $global:tenantDomain | Out-Null
+            }
         }
         Catch {
             Write-Host "Error connecting to " -NoNewLine -ForegroundColor Red
