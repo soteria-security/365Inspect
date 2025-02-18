@@ -17,6 +17,9 @@
   .PARAMETER reportType
   Optional parameter allowing a specific report output format. Currently supported formats are HTML, JSON, CSV, and XML. Default value is 'All' and generates all formats.
 
+  .PARAMETER pnpPowerShellClientId
+  Optional parameter allowing a specific Application/Client ID for PnP.Powershell. You must create the Entra ID application to use PnP PowerShell. https://pnp.github.io/powershell/articles/registerapplication.html
+
   .INPUTS
   None. You cannot pipe objects to 365Inspect.ps1.
 
@@ -40,6 +43,9 @@ param (
     [ValidateSet("All", "HTML", "CSV", "XML", "JSON",
         IgnoreCase = $true)]
     [string] $reportType = "All",
+    [Parameter(Mandatory = $false,
+        HelpMessage = 'PnP PowerShell Client ID')]
+    [string] $pnpPowerShellClientId,
     [Parameter(Mandatory = $false,
         HelpMessage = 'Skip Module Check')]
     [switch]$SkipModuleCheck,
@@ -108,7 +114,7 @@ Function Connect-Services {
             }
 
             Write-Output "Connecting to Microsoft Graph"
-              
+
             # National Cloud deployments - Valid environments: 'Global', 'USGov', 'USGovDoD', 'China'
             Connect-MgGraph -Environment $Environment -ContextScope Process -Scopes "AuditLog.Read.All", "Reports.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "Mail.Read", "MailboxSettings.Read", "DeviceManagementManagedDevices.Read.All", "DeviceManagementApps.Read.All", "UserAuthenticationMethod.ReadWrite.All", "DeviceManagementServiceConfig.Read.All", "DeviceManagementConfiguration.Read.All", "SharePointTenantSettings.Read.All"
 
@@ -173,7 +179,12 @@ Function Connect-Services {
             Write-Output "Connecting to SharePoint Service"
             $org_name = ($global:tenantDomain -split '.onmicrosoft.com')[0]
 
-            $pnpApp = Read-Host -Prompt "Please enter the Application/Client ID of the application created to replace PnP.Powershell"
+            if ($pnpPowerShellClientId) {
+                $pnpApp = $pnpPowerShellClientId
+            }
+            else {
+                $pnpApp = Read-Host -Prompt "Please enter the Application/Client ID of the application created to replace PnP.Powershell"
+            }
 
             # National Cloud deployment - Valid environments are: 'USGovernment', 'USGovernmentHigh', 'USGovernmentDoD', 'Germany', 'China'
             Connect-PnPOnline -AzureEnvironment $Environment -Url "https://$org_name-admin.sharepoint.com" -ClientId $pnpApp -Interactive
@@ -215,7 +226,7 @@ Function Connect-Services {
             }
 
             Write-Output "Connecting to Microsoft Graph"
-              
+
             # National Cloud deployments - Valid environments: 'Global', 'USGov', 'USGovDoD', 'China'
             Connect-MgGraph -Environment $Environment -DeviceCode -ContextScope Process -Scopes "AuditLog.Read.All", "Reports.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "Mail.Read", "MailboxSettings.Read", "DeviceManagementManagedDevices.Read.All", "DeviceManagementApps.Read.All", "UserAuthenticationMethod.ReadWrite.All", "DeviceManagementServiceConfig.Read.All", "DeviceManagementConfiguration.Read.All", "SharePointTenantSettings.Read.All", "CrossTenantInformation.ReadBasic.All" -NoWelcome
 
@@ -278,7 +289,12 @@ Function Connect-Services {
             Write-Output "Connecting to SharePoint Service"
             $org_name = ($global:tenantDomain -split '.onmicrosoft.com')[0]
 
-            $pnpApp = Read-Host -Prompt "Please enter the Application/Client ID of the application created to replace PnP.Powershell"
+            if ($pnpPowerShellClientId) {
+                $pnpApp = $pnpPowerShellClientId
+            }
+            else {
+                $pnpApp = Read-Host -Prompt "Please enter the Application/Client ID of the application created to replace PnP.Powershell"
+            }
 
             # National Cloud deployment - Valid environments are: 'USGovernment', 'USGovernmentHigh', 'USGovernmentDoD', 'Germany', 'China'
             Connect-PnPOnline -AzureEnvironment $Environment -DeviceLogin -Url "https://$org_name-admin.sharepoint.com" -ClientId $pnpApp
@@ -322,7 +338,7 @@ Function Connect-Services {
                 Add-PowerAppsAccount -Endpoint $endpoint -Username $UserPrincipalName
             }
             Catch {
-                Write-Host "Error connecting to " -NoNewLine -ForegroundColor Red
+                Write-Host "Error connecting to " -NoNewline -ForegroundColor Red
                 Write-Host "Microsoft Power Platform"
                 $_.Exception
                 Break
@@ -345,16 +361,16 @@ Function Connect-Services {
             }
 
             Write-Output "Connecting to Microsoft Graph"
-                       
+
             # National Cloud deployments - Valid environments: 'Global', 'USGov', 'USGovDoD', 'China'
-            Connect-MgGraph -Environment $Environment -ClientId $appID -TenantId $tenantID -CertificateThumbPrint $thumbprint | Out-Null
-            
+            Connect-MgGraph -Environment $Environment -ClientId $appID -TenantId $tenantID -CertificateThumbprint $thumbprint | Out-Null
+
             #Connect-MgGraph -ClientId $appID -TenantId $tenantID -CertificateThumbPrint $thumbprint | Out-Null
             $global:orgInfo = Get-MgOrganization
             $global:tenantDomain = (($global:orgInfo).VerifiedDomains | Where-Object { ($_.Name -like "*.onmicrosoft.com") -and ($_.Name -notlike "*mail.onmicrosoft.com") }).Name
         }
         Catch {
-            Write-Host "Error connecting to " -NoNewLine -ForegroundColor Red
+            Write-Host "Error connecting to " -NoNewline -ForegroundColor Red
             Write-Host "Microsoft Graph"
             $_.Exception
             Break
@@ -372,12 +388,12 @@ Function Connect-Services {
                     "GermanyCloud" { $Environment = 'https://ps.compliance.protection.outlook.com/powershell-liveid/' ; $AADUri = 'https://login.microsoftonline.com/common' }
                     "China" { $Environment = 'https://ps.compliance.protection.partner.outlook.cn/powershell-liveid' ; $AADUri = 'https://login.chinacloudapi.cn/common' }
                 }
-            
+
                 Connect-IPPSSession -ConnectionUri $Environment -AzureADAuthorizationEndpointUri $AADUri -AppId $appID -CertificateThumbprint $thumbprint -Organization $global:tenantDomain | Out-Null
             }
         }
         Catch {
-            Write-Host "Error connecting to " -NoNewLine -ForegroundColor Red
+            Write-Host "Error connecting to " -NoNewline -ForegroundColor Red
             Write-Host "Security Center"
             $_.Exception
         }
@@ -390,10 +406,10 @@ Function Connect-Services {
                 default { $Environment = 'O365Default' }
             }
 
-            Connect-ExchangeOnline -ExchangeEnvironmentName $Environment -CertificateThumbPrint $thumbprint -AppID $appID -Organization $global:tenantDomain -ShowBanner:$false | Out-Null
+            Connect-ExchangeOnline -ExchangeEnvironmentName $Environment -CertificateThumbprint $thumbprint -AppId $appID -Organization $global:tenantDomain -ShowBanner:$false | Out-Null
         }
         Catch {
-            Write-Host "Error connecting to " -NoNewLine -ForegroundColor Red
+            Write-Host "Error connecting to " -NoNewline -ForegroundColor Red
             Write-Host "Exchange Online"
             Write-Host "$($_.Exception.Message)"
             Break
@@ -415,7 +431,7 @@ Function Connect-Services {
             Connect-PnPOnline -AzureEnvironment $Environment -Url "https://$org_name-admin.sharepoint.com" -ClientId $appID -Thumbprint $thumbprint -Tenant $global:tenantDomain | Out-Null
         }
         Catch {
-            Write-Host "Error connecting to " -NoNewLine -ForegroundColor Red
+            Write-Host "Error connecting to " -NoNewline -ForegroundColor Red
             Write-Host "PnP/SharePoint"
             $_.Exception
             Break
@@ -432,7 +448,7 @@ Function Connect-Services {
             Invoke-Expression $Connection
         }
         Catch {
-            Write-Host "Error connecting to " -NoNewLine -ForegroundColor Red
+            Write-Host "Error connecting to " -NoNewline -ForegroundColor Red
             Write-Host "Microsoft Teams"
             $_.Exception
             Break
@@ -448,11 +464,11 @@ Function Connect-Services {
 Function Colorize($ForeGroundColor) {
     $color = $Host.UI.RawUI.ForegroundColor
     $Host.UI.RawUI.ForegroundColor = $ForeGroundColor
-  
+
     if ($args) {
         Write-Output $args
     }
-  
+
     $Host.UI.RawUI.ForegroundColor = $color
 }
 
@@ -524,13 +540,13 @@ Function Confirm-InstalledModules {
         If ($module.Name -eq 'PnP.PowerShell') {
             If (($PSVersionTable.PSVersion.Major -eq 5) -and ($installedVersion -le '1.12.0')) {
                 Write-Host "Environment is $($PSVersionTable.PSVersion)" -ForegroundColor Yellow
-                Write-Host "`t[+] " -NoNewLine -ForeGroundColor Green
+                Write-Host "`t[+] " -NoNewline -ForegroundColor Green
                 Write-Output "$($module.Name) is installed."
             }
             Elseif (($PSVersionTable.PSVersion.Major -ge 6) -and ($installedVersion -ge '1.12.0')) {
                 If ($IsWindows) {
                     Write-Host "Environment is $($PSVersionTable.PSVersion)" -ForegroundColor Yellow
-                    Write-Host "`t[+] " -NoNewLine -ForeGroundColor Green
+                    Write-Host "`t[+] " -NoNewline -ForegroundColor Green
                     Write-Output "$($module.Name) is installed."
                 }
                 Else {
@@ -542,15 +558,15 @@ Function Confirm-InstalledModules {
         ElseIf (($module.Name -eq (Get-InstalledModule -Name $module.Name).Name) -and (([Version]$module.MinimumVersion -le $installedVersion))) {
             If ($PSVersionTable.PSVersion.Major -eq 5) {
                 Write-Host "Environment is $($PSVersionTable.PSVersion)" -ForegroundColor Yellow
-                Write-Host "`t[+] " -NoNewLine -ForeGroundColor Green
+                Write-Host "`t[+] " -NoNewline -ForegroundColor Green
                 Write-Output "$($module.Name) is installed."
-                
+
                 If ($module.Name -ne 'Microsoft.Graph') {
-                    Write-Host "`tImporting $($module.Name)" -ForeGroundColor Green
+                    Write-Host "`tImporting $($module.Name)" -ForegroundColor Green
                     Import-Module -Name $module.Name | Out-Null
                 }
                 Else {
-                    Write-Host "`tImporting Microsoft.Graph" -ForeGroundColor Green
+                    Write-Host "`tImporting Microsoft.Graph" -ForegroundColor Green
                     Import-Module -Name Microsoft.Graph.Identity.DirectoryManagement | Out-Null
                     Import-Module -Name Microsoft.Graph.Identity.SignIns | Out-Null
                     Import-Module -Name Microsoft.Graph.Users | Out-Null
@@ -560,12 +576,12 @@ Function Confirm-InstalledModules {
             Elseif ($PSVersionTable.PSVersion.Major -ge 6) {
                 If ($IsWindows) {
                     Write-Host "Environment is $($PSVersionTable.PSVersion)" -ForegroundColor Yellow
-                    Write-Host "`t[+] " -NoNewLine -ForeGroundColor Green
+                    Write-Host "`t[+] " -NoNewline -ForegroundColor Green
                     Write-Output "$($module.Name) is installed."
 
                     If (($module.Name -ne 'Microsoft.Graph') -and ($module.Name -ne 'ExchangeOnlineManagement')) {
                         Try {
-                            Write-Host "`tImporting $($module.Name)" -ForeGroundColor Green
+                            Write-Host "`tImporting $($module.Name)" -ForegroundColor Green
                             Import-Module -Name $module.Name -UseWindowsPowerShell -WarningAction SilentlyContinue | Out-Null
                         }
                         Catch {
@@ -587,7 +603,7 @@ Function Confirm-InstalledModules {
                         Try {
                             Write-Host "`tInporting ExchangeOnlineManagement"
                             Import-Module -Name ExchangeOnlineManagement | Out-Null
-                            Write-Host "`tImporting Microsoft.Graph" -ForeGroundColor Green
+                            Write-Host "`tImporting Microsoft.Graph" -ForegroundColor Green
                             Import-Module -Name Microsoft.Graph.Identity.DirectoryManagement | Out-Null
                             Import-Module -Name Microsoft.Graph.Identity.SignIns | Out-Null
                             Import-Module -Name Microsoft.Graph.Users | Out-Null
@@ -672,9 +688,9 @@ Function Check-RequiredRoles {
         $global:ServicePrincipalName = $svcPrincipal.displayName
 
         $appRoles = (Invoke-GraphRequest -Method GET -Uri "https://graph.microsoft.com/beta/servicePrincipals/$($svcPrincipal.id)/transitiveMemberOf").Value.displayName
-    
+
         $rolesMet = $true
-    
+
         If ('Global Administrator' -notin $appRoles) {
             $rolesMet = $false
             #Break
@@ -683,7 +699,7 @@ Function Check-RequiredRoles {
         If (('Global Reader' -in $appRoles) -and ($rolesMet -eq $false)) {
             $global:ReaderRole = $true
         }
-    
+
         If (! $rolesMet) {
             $global:requirements = '<span style="color:Crimson;"><strong>NOT MET</strong></span> - Some inspectors may fail!'
             Write-Host "[-] NOT MET" -ForegroundColor Red -NoNewline
@@ -698,18 +714,18 @@ Function Check-RequiredRoles {
         Write-Host "Authenticated as a User`n`n" -ForegroundColor Yellow
 
         $myRoles = (Invoke-GraphRequest -Method GET -Uri "https://graph.microsoft.com/beta/me/transitiveMemberOf/microsoft.graph.directoryRole?select=displayName").Value.displayName
-    
+
         $requiredRoles = @('Global Administrator', 'SharePoint Administrator')
-    
+
         $rolesMet = $true
-    
+
         Foreach ($role in $requiredRoles) {
             If ($role -notin $myRoles) {
                 $rolesMet = $false
                 #Break
             }
         }
-    
+
         If (! $rolesMet) {
             $global:requirements = '<span style="color:Crimson;"><strong>NOT MET</strong></span> - Some inspectors may fail!'
             Write-Host "[-] NOT MET" -ForegroundColor Red -NoNewline
@@ -730,7 +746,7 @@ $org_name = ($global:tenantDomain -split '.onmicrosoft.com')[0]
 $tenantDisplayName = ($global:orgInfo).DisplayName
 
 # Get a list of every available detection module by parsing the PowerShell
-# scripts present in the .\inspectors folder. 
+# scripts present in the .\inspectors folder.
 #Exclude specified Inspectors
 switch ($Environment) {
     "USGovGCCHigh" { $inspectorPath = 'O365GovGCC' }
@@ -756,7 +772,7 @@ If ($global:ReaderRole) {
 
 If ($excluded_inspectors -and $excluded_inspectors.Count) {
     $excluded_inspectors = foreach ($inspector in $excluded_inspectors) { "$inspector.ps1" }
-    $inspectors = (Get-ChildItem .\$inspectorPath\*.ps1 -exclude $excluded_inspectors).Name | ForEach-Object { ($_ -split ".ps1")[0] }
+    $inspectors = (Get-ChildItem .\$inspectorPath\*.ps1 -Exclude $excluded_inspectors).Name | ForEach-Object { ($_ -split ".ps1")[0] }
 }
 else {
     $inspectors = (Get-ChildItem .\$inspectorPath\*.ps1).Name | ForEach-Object { ($_ -split ".ps1")[0] }
@@ -802,35 +818,35 @@ ForEach ($selected_inspector in $selected_inspectors) {
     # ...if the user selected a valid inspector...
     If ($inspectors.Contains($selected_inspector)) {
         Write-Output "Invoking Inspector: $selected_inspector"
-		
+
         # Get the static data (finding description, remediation etc.) associated with that inspector module.
         $finding = Get-Content .\$inspectorPath\$selected_inspector.json | Out-String | ConvertFrom-Json
-		
+
         # Invoke the actual inspector module and store the resulting list of insecure objects.
         $finding.AffectedObjects = Invoke-Expression ".\$inspectorPath\$selected_inspector.ps1"
-		
+
         # Add the finding to the list of all findings.
         $findings += $finding
     }
 }
 
-# Function that retrieves templating information from 
+# Function that retrieves templating information from
 Function HTML-Report {
-    # Function that retrieves templating information from 
+    # Function that retrieves templating information from
     function Parse-Template {
         $template = (Get-Content ".\365InspectDefaultTemplate.html") -join "`n"
         $template -match '\<!--BEGIN_FINDING_LONG_REPEATER-->([\s\S]*)\<!--END_FINDING_LONG_REPEATER-->'
         $findings_long_template = $matches[1]
-        
+
         $template -match '\<!--BEGIN_FINDING_SHORT_REPEATER-->([\s\S]*)\<!--END_FINDING_SHORT_REPEATER-->'
         $findings_short_template = $matches[1]
-        
+
         $template -match '\<!--BEGIN_AFFECTED_OBJECTS_REPEATER-->([\s\S]*)\<!--END_AFFECTED_OBJECTS_REPEATER-->'
         $affected_objects_template = $matches[1]
-        
+
         $template -match '\<!--BEGIN_REFERENCES_REPEATER-->([\s\S]*)\<!--END_REFERENCES_REPEATER-->'
         $references_template = $matches[1]
-        
+
         $template -match '\<!--BEGIN_EXECSUM_TEMPLATE-->([\s\S]*)\<!--END_EXECSUM_TEMPLATE-->'
         $execsum_template = $matches[1]
 
@@ -839,7 +855,7 @@ Function HTML-Report {
 
         $template -match '\<!--BEGIN_APPENDIX-->([\s\S]*)\<!--END_APPENDIX-->'
         $appendix_template = $matches[1]
-        
+
         return @{
             FindingShortTemplate    = $findings_short_template;
             FindingLongTemplate     = $findings_long_template;
@@ -851,18 +867,18 @@ Function HTML-Report {
             AppendixTemplate        = $appendix_template
         }
     }
-    
+
     $templates = Parse-Template
-    
+
     # Maintain a running list of each finding, represented as HTML
-    $short_findings_html = "" 
+    $short_findings_html = ""
     $long_findings_html = ""
     $selected_inspectors_html = ""
-    
+
     $findings_count = 0
-    
+
     #$sortedFindings1 = $findings | Sort-Object {$_.FindingName}
-    $sortedFindings = $findings | Sort-Object { Switch -Regex ($_.Impact) { 'Critical' { 1 }	'High' { 2 }	'Medium' { 3 }	'Low' { 4 }	'Informational' { 5 } }; $_.FindingName } 
+    $sortedFindings = $findings | Sort-Object { Switch -Regex ($_.Impact) { 'Critical' { 1 }	'High' { 2 }	'Medium' { 3 }	'Low' { 4 }	'Informational' { 5 } }; $_.FindingName }
 
     $criticalCount = 0
     $highCount = 0
@@ -883,17 +899,17 @@ Function HTML-Report {
         If ($null -NE $finding.AffectedObjects) {
             # Increment total count of findings
             $findings_count += 1
-            
+
             # Keep an HTML variable representing the current finding as HTML
             $short_finding_html = $templates.FindingShortTemplate
             $long_finding_html = $templates.FindingLongTemplate
-            
+
             # Insert finding name and number into template HTML
             $short_finding_html = $short_finding_html.Replace("{{FINDING_NAME}}", $finding.FindingName)
             $short_finding_html = $short_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
             $long_finding_html = $long_finding_html.Replace("{{FINDING_NAME}}", $finding.FindingName)
             $long_finding_html = $long_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
-            
+
             # Finding Impact
             If ($finding.Impact -eq 'Critical') {
                 $criticalCount += 1
@@ -911,7 +927,7 @@ Function HTML-Report {
                 $short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $finding.Impact)
                 $long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $finding.Impact)
             }
-            
+
             If ($finding.Impact -eq 'Medium') {
                 $mediumCount += 1
             }
@@ -934,16 +950,16 @@ Function HTML-Report {
 
             $short_finding_html = $short_finding_html.Replace("{{RISKRATING}}", $finding.RiskRating)
             $long_finding_html = $long_finding_html.Replace("{{RISKRATING}}", $finding.RiskRating)
-            
+
             # Finding description
             $long_finding_html = $long_finding_html.Replace("{{DESCRIPTION}}", $finding.Description)
-    
+
             # Finding default value
             $long_finding_html = $long_finding_html.Replace("{{DEFAULTVALUE}}", $finding.DefaultValue)
-    
+
             # Finding expected value
             $long_finding_html = $long_finding_html.Replace("{{EXPECTEDVALUE}}", $finding.ExpectedValue)
-            
+
             # Finding Remediation
             If ($finding.Remediation.length -GT 300) {
                 $short_finding_text = "Complete remediation advice is provided in the body of the report. Clicking the link to the left will take you there."
@@ -951,10 +967,10 @@ Function HTML-Report {
             Else {
                 $short_finding_text = $finding.Remediation
             }
-            
+
             $short_finding_html = $short_finding_html.Replace("{{REMEDIATION}}", $short_finding_text)
             $long_finding_html = $long_finding_html.Replace("{{REMEDIATION}}", $finding.Remediation)
-            
+
             # Affected Objects
             If ($finding.AffectedObjects.Count -GT 25) {
                 $condensed = "<a href='{name}'>{count} Affected Objects Identified<a/>."
@@ -970,9 +986,9 @@ Function HTML-Report {
                     $affected_object_html += $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $affected_object)
                 }
             }
-            
+
             $long_finding_html = $long_finding_html.Replace($templates.AffectedObjectsTemplate, $affected_object_html)
-            
+
             # Finding PowerShell example
             $long_finding_html = $long_finding_html.Replace("{{POWERSHELL}}", $finding.PowerShell)
 
@@ -983,21 +999,21 @@ Function HTML-Report {
                 $this_reference = $this_reference.Replace("{{REFERENCE_TEXT}}", $reference.Text)
                 $reference_html += $this_reference
             }
-            
+
             $long_finding_html = $long_finding_html.Replace($templates.ReferencesTemplate, $reference_html)
-            
+
             # Add the completed short and long findings to the running list of findings (in HTML)
             $short_findings_html += $short_finding_html
             $long_findings_html += $long_finding_html
         }
     }
-    
+
     # Insert command line execution information. This is coupled kinda badly, as is the Affected Objects html.
     $flags = "<b>Prepared for organization:</b><b> $tenantDisplayName - $org_name</b><br/><br/>"
-    $flags = $flags + "<b>Prepared by:</b><b> $UserPrincipalName </b><br/><br/>"  
+    $flags = $flags + "<b>Prepared by:</b><b> $UserPrincipalName </b><br/><br/>"
     $flags = $flags + "<b>Stats</b>:<br/> <b>" + $findings_count + "</b> opportunities for improvement identified from <b>" + $inspectors.Count + "</b> points of inspection.<br/><br/>"
     #$flags = $flags + "<b>Inspector Modules Executed</b>:<br/>" + [String]::Join("<br/>", $selected_inspectors)
-    
+
     # Add Risk Count for Charts
     $chart_template_html = $templates.ChartTemplate
     $chart_template_html = $chart_template_html.Replace("{{TOTAL_COUNT}}", $findings_count)
@@ -1027,7 +1043,7 @@ Function HTML-Report {
     $output = $output.Replace($templates.ChartTemplate, $chart_template_html)
     $output = $output.Replace($templates.AppendixTemplate, $appendix_template_html)
     $output = $output.Replace($templates.ExecsumTemplate, $templates.ExecsumTemplate.Replace("{{CMDLINEFLAGS}}", $flags))
-    
+
     $output | Out-File -FilePath $out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss").html
 }
 
@@ -1058,14 +1074,14 @@ Function CSV-Report {
                 InherentRisk         = $finding.Impact
                 'Residual Risk'      = " "
                 Remediation          = $(($finding.Remediation) -join " ")
-                References           = $(($refs) -join ';') 
+                References           = $(($refs) -join ';')
                 'Remediation Status' = " "
                 'Required Resources' = " "
                 'Start Date'         = " "
                 'Completion Date'    = " "
                 'Notes'              = " "
             }
-            
+
             $results += $result
         }
     }
@@ -1101,9 +1117,9 @@ Function XML-Report {
                 InherentRisk    = $finding.Impact
                 'Residual Risk' = " "
                 Remediation     = $finding.Remediation
-                References      = $($refs | Out-String) 
+                References      = $($refs | Out-String)
             }
-            
+
             $results += $result
         }
     }
@@ -1138,9 +1154,9 @@ Function JSON-Report {
                 InherentRisk    = $finding.Impact
                 'Residual Risk' = " "
                 Remediation     = $finding.Remediation
-                References      = $($refs | Out-String) 
+                References      = $($refs | Out-String)
             }
-            
+
             $results += $result
         }
     }
