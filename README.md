@@ -6,7 +6,7 @@ Further the state of Microsoft 365 security by authoring a PowerShell script tha
 
 # Soteria Inspect
 
-[Soteria Inspect](https://soteria.io/solutions/soteria-inspect/#) is born from the 365Inspect project and is Soteria's SaaS solution to aid in assessing the security of a Microsoft 365 tenant with over 200 points of inspection across the full suite of Microsoft 365 services. 
+[Soteria Inspect](https://soteria.io/solutions/soteria-inspect/#) is born from the 365Inspect project and is Soteria's SaaS solution to aid in assessing the security of a Microsoft 365 tenant with over 200 points of inspection across the full suite of Microsoft 365 services.
 
 Soteria Inspect for Microsoft 365 allows customers to track changes to each finding's affected objects over time as well as remediation efforts, and now includes multi-tenancy for MSP's and parent organizations to keep a finger on the pulse of their child tenants.
 
@@ -32,11 +32,11 @@ The 365*Inspect*.ps1 PowerShell script will validate the installed modules and m
 If you do not have these modules installed, you will be prompted to install them, and with your approval, the script will attempt installation. Otherwise, you should be able to install them with the following commands in an administrative PowerShell prompt, or by following the instructions at the references below:
 
     Install-Module -Name ExchangeOnlineManagement -AllowClobber -Force
-     
+
     Install-Module -Name PnP.PowerShell -AllowClobber -Force
-    
+
     Install-Module -Name Microsoft.Graph -AllowClobber -Force
-    
+
     Install-Module -Name MicrosoftTeams -AllowClobber -Force
 
 [Install Exchange Online PowerShell](https://docs.microsoft.com/en-us/powershell/exchange/exchange-online-powershell-v2?view=exchange-ps)
@@ -53,7 +53,7 @@ Once the above are installed, download the 365*Inspect* source code folder from 
 <summary>Breaking Changes</summary>
 
 # PnP.PowerShell Module
-__As of September 9, 2024, PnP.PowerShell requires tenant admins to register their own application for use with the SharePoint/PnP service.__ 
+__As of September 9, 2024, PnP.PowerShell requires tenant admins to register their own application for use with the SharePoint/PnP service.__
 See the following PnP.PowerShell documentation for required steps.
 [Register an Entra ID Application to use with PnP PowerShell](https://pnp.github.io/powershell/articles/registerapplication.html)
 [Determine Permissions](https://pnp.github.io/powershell/articles/determinepermissions.html)
@@ -90,17 +90,17 @@ To run 365*Inspect*, open a PowerShell console and navigate to the folder you do
 
 	cd 365Inspect
 
-You will interact with 365*Inspect* by executing the main script file, 365Inspect.ps1, from within the PowerShell command prompt. 
+You will interact with 365*Inspect* by executing the main script file, 365Inspect.ps1, from within the PowerShell command prompt.
 
-All 365*Inspect* requires to inspect your M365 tenant is access via an M365 account with proper permissions, so most of the command line parameters relate to the organization being assessed and the method of authentication. 
+All 365*Inspect* requires to inspect your M365 tenant is access via an M365 account with proper permissions, so most of the command line parameters relate to the organization being assessed and the method of authentication.
 
 Execution of 365*Inspect* looks like this:
 
-	.\365Inspect.ps1 -OutPath <value> -UserPrincipalName myuser@mytenant.onmicrosoft.com -Auth <MFA|DEVICE|ALREADY_AUTHED|APP>
+	.\365Inspect.ps1 -OutPath <value> -UserPrincipalName myuser@mytenant.onmicrosoft.com -Auth <MFA|DEVICE|ALREADY_AUTHED|APP> -pnpPowerShellClientId <Your Pnp PowerShell Application/Client ID>
 
 <details>
 <summary>Execution Examples</summary>
-    
+
 ## Script Execution
 
 For example, to log in by entering your credentials in a browser with MFA support:
@@ -116,7 +116,7 @@ Valid arguments for the `-Environment` are:
 * Default - Default Microsoft 365 tenant authorization endpoints. This is the default argument if the Environment parameter is not specified.
 * USGovGCCHigh - US Government GCC High tenants
 * USGovDoD - US Government DoD tenants
-* Germany - Microsoft 365 Azure Germany hosted tenants 
+* Germany - Microsoft 365 Azure Germany hosted tenants
 * China - Microsoft 365 China/Vianet hosted tenants
 
 Application Authentication can be achieved by executing the script with the following parameters:
@@ -132,7 +132,7 @@ Valid arguments for the `-Environment` are:
 * Default - Default Microsoft 365 tenant authorization endpoints. This is the default argument if the Environment parameter is not specified.
 * USGovGCCHigh - US Government GCC High tenants
 * USGovDoD - US Government DoD tenants
-* Germany - Microsoft 365 Azure Germany hosted tenants 
+* Germany - Microsoft 365 Azure Germany hosted tenants
 * China - Microsoft 365 China/Vianet hosted tenants
 
 __NOTE:__ There are prerequisites for execution of 365Inspect with application authentication. [Go to Application Authentication Requirements](#Application-Authentication-Requirements)
@@ -157,12 +157,12 @@ To break down the parameters further:
 
 * *OutPath* is the path to a folder where the report generated by 365*Inspect* will be placed.
     * Required? Yes
-* *Auth* is a selector that should be one of the literal values "MFA" or "ALREADY_AUTHED". 
-	* *Auth* controls how 365*Inspect* will authenticate to all of the Microsoft 365 services. 
+* *Auth* is a selector that should be one of the literal values "MFA" or "ALREADY_AUTHED".
+	* *Auth* controls how 365*Inspect* will authenticate to all of the Microsoft 365 services.
     <details>
     <summary>Options</summary>
 
-	* *Auth MFA* will produce a graphical popup in which you can type your credentials and even enter an MFA code for MFA-enabled accounts. 
+	* *Auth MFA* will produce a graphical popup in which you can type your credentials and even enter an MFA code for MFA-enabled accounts.
 	* *Auth ALREADY_AUTHED* instructs 365*Inspect* not to authenticate before scanning. This may be preferable if you are executing 365*Inspect* from a PowerShell prompt where you already have valid sessions for all of the described services, such as one where you have already executed 365*Inspect*.
     * *Auth APP* instructs 365*Inspect* to prompt for Microsoft Entra ID Application Service Principal information. Required parameter variables are:
        * AppId - The application ID of the registered application
@@ -188,7 +188,7 @@ When you execute 365*Inspect* with *-Auth MFA*, it may produce several graphical
 
 As 365*Inspect* executes, it will steadily print status updates indicating which inspection task is running.
 
-365*Inspect* may take some time to execute. This time scales with the size and complexity of the environment under test. For example, some inspection tasks involve scanning the account configuration of all users. This may occur near-instantly for an organization with 50 users, or could take entire minutes (!) for an organization with 10000. 
+365*Inspect* may take some time to execute. This time scales with the size and complexity of the environment under test. For example, some inspection tasks involve scanning the account configuration of all users. This may occur near-instantly for an organization with 50 users, or could take entire minutes (!) for an organization with 10000.
 
 # Output
 
@@ -201,13 +201,13 @@ As 365*Inspect* executes, it will steadily print status updates indicating which
 
 ### CSV Output
 
-Due to the nature of some of the returned items, the csv report is delimited on the carat (^) character. 
+Due to the nature of some of the returned items, the csv report is delimited on the carat (^) character.
 It is recommended to open the CSV report in a text editor rather than Excel, as Excel defaults to a comma (,) delimiter and will render the report incorrectly.
 Once opened in a text editor, the data may be pasted into Excel.
 
 # Coming Soon!
 
-* [You tell us!](https://github.com/soteria-security/365Inspect/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=) 
+* [You tell us!](https://github.com/soteria-security/365Inspect/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=)
 
 # Change Log
 
@@ -219,7 +219,7 @@ Once opened in a text editor, the data may be pasted into Excel.
 
 ## Older Changes
 
-* Support for Device Authentication 
+* Support for Device Authentication
 
 * Support for [National Cloud Deployments](https://learn.microsoft.com/en-us/graph/deployments)
 
@@ -242,7 +242,7 @@ Once opened in a text editor, the data may be pasted into Excel.
 * Global Administrator
 * SharePoint Administrator
 
-We realize that these are extremely permissive roles, unfortunately due to the use of Microsoft Graph, we are restricted from using lesser privileges by Microsoft. Application and Cloud Application Administrator roles (used to grant delegated and application permissions) are restricted from granting permissions for Microsoft Graph or Azure AD PowerShell modules. [Microsoft Docs - Application Administrator](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-administrator) 
+We realize that these are extremely permissive roles, unfortunately due to the use of Microsoft Graph, we are restricted from using lesser privileges by Microsoft. Application and Cloud Application Administrator roles (used to grant delegated and application permissions) are restricted from granting permissions for Microsoft Graph or Azure AD PowerShell modules. [Microsoft Docs - Application Administrator](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-administrator)
 
 If executing 365*Inspect* using the application auth parameter, additional roles must be granted to allow the application to perform all executed tasks. See [Application Authentication requirements](#application-authentication-requirements)
 
@@ -282,7 +282,7 @@ See the following references:
 ## Required Permissions
 <details>
 <summary>Expand</summary>
-	
+
 ## Required Permissions
 * User.Read.All
 * Calendars.Read
@@ -413,14 +413,14 @@ See the following references:
 * ReportSettings.Read.All
 * RecordsManagement.Read.All
 * RoleManagementAlert.Read.Directory
-  
+
 </details>
 
 # Developing Inspector Modules
 
 365*Inspect* is designed to be easy to expand, with the hope that it enables individuals and organizations to either utilize their own 365*Inspect* modules internally, or publish those modules for the M365 community.
 
-All of 365*Inspect*'s inspector modules are stored in the .\inspectors folder. 
+All of 365*Inspect*'s inspector modules are stored in the .\inspectors folder.
 
 It is simple to create an inspector module. Inspectors have two files:
 
@@ -440,14 +440,14 @@ function Inspect-BypassingSafeAttachments {
 	# Query some element of the M365 environment to inspect. Note that we did not have to authenticate to Exchange
 	# to fetch these transport rules within this module; assume main 365Inspect harness has logged us in already.
 	$safe_attachment_bypass_rules = (Get-TransportRule | Where { $_.SetHeaderName -eq "X-MS-Exchange-Organization-SkipSafeAttachmentProcessing" }).Identity
-	
+
 	# If some of the parsed M365 objects were found to have the security flaw this module is inspecting for,
 	# return a list of strings representing those objects. This is what will end up as the "Affected Objects"
 	# field in the report.
 	If ($safe_attachment_bypass_rules.Count -ne 0) {
 		return $safe_attachment_bypass_rules
 	}
-	
+
 	# If none of the parsed M365 objects were found to have the security flaw this module is inspecting for,
 	# returning $null indicates to 365Inspect that there were no findings for this module.
 	return $null
