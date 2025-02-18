@@ -9,20 +9,20 @@ function Inspect-ProperAdminCount {
         $license = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/subscribedSkus").Value.ServicePlans | Where-Object { $_.ServicePlanName -eq 'AAD_PREMIUM_P2' }
 
         If ($license) {
-            $gaRole = (Invoke-GraphRequest  -Method Get -Uri "https://$(@($global:graphURI))/beta/roleManagement/directory/roleDefinitions?filter=displayName eq 'Global Administrator'").Value
+            $gaRole = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/roleManagement/directory/roleDefinitions?filter=displayName eq 'Global Administrator'").Value
 
-            $gaRoleMembers = (Invoke-GraphRequest  -Method Get -Uri "https://$(@($global:graphURI))/beta/roleManagement/directory/roleAssignments?filter=roleDefinitionId eq '$(($gaRole).templateId)'").Value
+            $gaRoleMembers = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/roleManagement/directory/roleAssignments?filter=roleDefinitionId eq '$(($gaRole).templateId)'").Value
 
             $results = @()
 
             foreach ($member in $gaRoleMembers) {
                 $user = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryObjects/$($member.principalId)")
                 $info = [PSCustomObject]@{
-                    Name       = ($user.displayName)
-                    UPN        = ($user.userPrincipalName)
-                    Assigned   = $($member.assignmentstate) 
-                    MemberType = $($member.MemberType)
-                    Role       = ($gaRole).DisplayName
+                    Name       = $user.displayName
+                    UPN        = $user.userPrincipalName
+                    Assigned   = $member.assignmentstate
+                    MemberType = $member.MemberType
+                    Role       = $gaRole.DisplayName
                 }
 
                 $results += "User: $($info.Name) - $($info.UPN), Assignment State: $($info.Assigned), Assignment Type: $($info.MemberType)"
@@ -38,20 +38,20 @@ function Inspect-ProperAdminCount {
             $tenantLicense = ((Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/subscribedSkus").Value).ServicePlans
     
             If ($tenantLicense.ServicePlanName -match "AAD_PREMIUM*") {   
-                $gaRole = (Invoke-GraphRequest  -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryRoles?filter=displayName eq 'Global Administrator'").Value
-                $gaRoleMembers = (Invoke-GraphRequest  -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryRoles/$(($gaRole).Id)/members").Value
+                $gaRole = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryRoles?filter=displayName eq 'Global Administrator'").Value
+                $gaRoleMembers = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryRoles/$(($gaRole).Id)/members").Value
 
                 $results = @()
 
                 foreach ($member in $gaRoleMembers) {
-                    $user = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryObjects/$($member.principalId)")
+                    $user = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryObjects/$($member.id)")
                     $info = [PSCustomObject]@{
-                        Name     = ($member.displayName)
-                        UPN      = ($member.userPrincipalName)
-                        IsSynced = ($member.onPremisesSyncEnabled)
+                        Name     = $member.displayName
+                        UPN      = $member.userPrincipalName
+                        IsSynced = [bool]$member.onPremisesSyncEnabled
                     }
 
-                    $results += "User: $($info.Name) - $($info.UPN), IsOn-Premise - $($info.IsSynced)"
+                    $results += "User: $($info.Name) - $($info.UPN), Is On-Premise: $($info.IsSynced)"
                 }
 
                 $num_global_admins = ($results | Measure-Object).Count
