@@ -9,9 +9,9 @@ function Inspect-ProperAdminCount {
         $license = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/subscribedSkus").Value.ServicePlans | Where-Object { $_.ServicePlanName -eq 'AAD_PREMIUM_P2' }
 
         If ($license) {
-            $gaRole = (Invoke-GraphRequest  -Method Get -Uri "https://$(@($global:graphURI))/beta/roleManagement/directory/roleDefinitions?filter=displayName eq 'Global Administrator'").Value
+            $gaRole = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/roleManagement/directory/roleDefinitions?filter=displayName eq 'Global Administrator'").Value
 
-            $gaRoleMembers = (Invoke-GraphRequest  -Method Get -Uri "https://$(@($global:graphURI))/beta/roleManagement/directory/roleAssignments?filter=roleDefinitionId eq '$(($gaRole).templateId)'").Value
+            $gaRoleMembers = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/roleManagement/directory/roleAssignments?filter=roleDefinitionId eq '$(($gaRole).templateId)'").Value
 
             $results = @()
 
@@ -38,17 +38,17 @@ function Inspect-ProperAdminCount {
             $tenantLicense = ((Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/subscribedSkus").Value).ServicePlans
     
             If ($tenantLicense.ServicePlanName -match "AAD_PREMIUM*") {   
-                $gaRole = (Invoke-GraphRequest  -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryRoles?filter=displayName eq 'Global Administrator'").Value
-                $gaRoleMembers = (Invoke-GraphRequest  -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryRoles/$(($gaRole).Id)/members").Value
+                $gaRole = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryRoles?filter=displayName eq 'Global Administrator'").Value
+                $gaRoleMembers = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryRoles/$(($gaRole).Id)/members").Value
 
                 $results = @()
 
                 foreach ($member in $gaRoleMembers) {
-                    $user = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryObjects/$($member.principalId)")
+                    $user = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryObjects/$($member.id)")
                     $info = [PSCustomObject]@{
                         Name     = ($member.displayName)
                         UPN      = ($member.userPrincipalName)
-                        IsSynced = ($member.onPremisesSyncEnabled)
+                        IsSynced = ([bool]$member.onPremisesSyncEnabled)
                     }
 
                     $results += "User: $($info.Name) - $($info.UPN), IsOn-Premise - $($info.IsSynced)"
