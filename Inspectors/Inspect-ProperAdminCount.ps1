@@ -18,11 +18,11 @@ function Inspect-ProperAdminCount {
             foreach ($member in $gaRoleMembers) {
                 $user = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryObjects/$($member.principalId)")
                 $info = [PSCustomObject]@{
-                    Name       = ($user.displayName)
-                    UPN        = ($user.userPrincipalName)
-                    Assigned   = $($member.assignmentstate) 
-                    MemberType = $($member.MemberType)
-                    Role       = ($gaRole).DisplayName
+                    Name       = $user.displayName
+                    UPN        = $user.userPrincipalName
+                    Assigned   = $member.assignmentstate
+                    MemberType = $member.MemberType
+                    Role       = $gaRole.DisplayName
                 }
 
                 $results += "User: $($info.Name) - $($info.UPN), Assignment State: $($info.Assigned), Assignment Type: $($info.MemberType)"
@@ -46,12 +46,12 @@ function Inspect-ProperAdminCount {
                 foreach ($member in $gaRoleMembers) {
                     $user = (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryObjects/$($member.id)")
                     $info = [PSCustomObject]@{
-                        Name     = ($member.displayName)
-                        UPN      = ($member.userPrincipalName)
-                        IsSynced = ([bool]$member.onPremisesSyncEnabled)
+                        Name     = $member.displayName
+                        UPN      = $member.userPrincipalName
+                        IsSynced = [bool]$member.onPremisesSyncEnabled
                     }
 
-                    $results += "User: $($info.Name) - $($info.UPN), IsOn-Premise - $($info.IsSynced)"
+                    $results += "User: $($info.Name) - $($info.UPN), Is On-Premise: $($info.IsSynced)"
                 }
 
                 $num_global_admins = ($results | Measure-Object).Count
