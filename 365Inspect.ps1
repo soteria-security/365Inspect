@@ -17,7 +17,7 @@
   .PARAMETER reportType
   Optional parameter allowing a specific report output format. Currently supported formats are HTML, JSON, CSV, and XML. Default value is 'All' and generates all formats.
 
-  .PARAMETER pnpPowerShellClientId
+  .PARAMETER PnpPowerShellApplicationId
   Optional parameter allowing a specific Application/Client ID for PnP.Powershell. You must create the Entra ID application to use PnP PowerShell - https://pnp.github.io/powershell/articles/registerapplication.html
 
   .INPUTS
@@ -44,8 +44,8 @@ param (
         IgnoreCase = $true)]
     [string] $reportType = "All",
     [Parameter(Mandatory = $false,
-        HelpMessage = 'PnP PowerShell Client ID')]
-    [string] $pnpPowerShellClientId,
+        HelpMessage = 'PnP PowerShell Application/Client ID')]
+    [string] $PnpPowerShellApplicationId,
     [Parameter(Mandatory = $false,
         HelpMessage = 'Skip Module Check')]
     [switch]$SkipModuleCheck,
@@ -179,8 +179,8 @@ Function Connect-Services {
             Write-Output "Connecting to SharePoint Service"
             $org_name = ($global:tenantDomain -split '.onmicrosoft.com')[0]
 
-            if ($pnpPowerShellClientId) {
-                $pnpApp = $pnpPowerShellClientId
+            if ($PnpPowerShellApplicationId) {
+                $pnpApp = $PnpPowerShellApplicationId
             }
             else {
                 $pnpApp = Read-Host -Prompt "Please enter the Application/Client ID of the application created to replace PnP.Powershell"
@@ -289,8 +289,8 @@ Function Connect-Services {
             Write-Output "Connecting to SharePoint Service"
             $org_name = ($global:tenantDomain -split '.onmicrosoft.com')[0]
 
-            if ($pnpPowerShellClientId) {
-                $pnpApp = $pnpPowerShellClientId
+            if ($PnpPowerShellApplicationId) {
+                $pnpApp = $PnpPowerShellApplicationId
             }
             else {
                 $pnpApp = Read-Host -Prompt "Please enter the Application/Client ID of the application created to replace PnP.Powershell"
