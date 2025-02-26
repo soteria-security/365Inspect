@@ -27,7 +27,7 @@
   None. 365Inspect.ps1 does not generate any output.
 
   .EXAMPLE
-  PS> .\365Inspect.ps1 -OutPath $reports\Company -UserPrincipalName user@company.onmicrosoft.com -Auth MFA -pnpPowerShellClientId "12345678-1234-1234-1234-123456789012"
+  PS> .\365Inspect.ps1 -OutPath $reports\Company -UserPrincipalName user@company.onmicrosoft.com -Auth MFA -PnpPowerShellApplicationId "12345678-1234-1234-1234-123456789012"
 #>
 
 
