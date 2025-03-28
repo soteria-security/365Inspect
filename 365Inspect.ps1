@@ -124,7 +124,7 @@ Function Connect-Services {
         Try {
             Write-Output "Connecting to Security and Compliance Center"
 
-            If ($environment -eq 'Default') {
+            If ($environment -eq 'Global') {
                 Connect-IPPSSession -UserPrincipalName $UserPrincipalName
             }
             Else {
