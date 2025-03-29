@@ -96,7 +96,7 @@ All 365*Inspect* requires to inspect your M365 tenant is access via an M365 acco
 
 Execution of 365*Inspect* looks like this:
 
-	.\365Inspect.ps1 -OutPath <value> -UserPrincipalName myuser@mytenant.onmicrosoft.com -Auth <MFA|DEVICE|ALREADY_AUTHED|APP> -pnpPowerShellClientId <Your Pnp PowerShell Application/Client ID>
+	.\365Inspect.ps1 -OutPath <value> -UserPrincipalName myuser@mytenant.onmicrosoft.com -Auth <MFA|DEVICE|ALREADY_AUTHED|APP> -pnpPowerShellApplicationId <Your Pnp PowerShell Application/Client ID>
 
 <details>
 <summary>Execution Examples</summary>
