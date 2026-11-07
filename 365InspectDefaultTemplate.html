@@ -1,1073 +1,1989 @@
-<html>
-<!-- This was programmatically generated, and it's not pretty. -->
-<!-- Go to line 10500 for now. -->
-<!-- I am writing a script to remove redundant CSS classes, which should clean up much of this. -->
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
-    <style type="text/css">
-        @import url(https://themes.googleusercontent.com/fonts/css?kit=toadOcfmlt9b38dHJxOBGL40yRR11Bk043VmwNc2-VdJNKf5lpbTaoq56xx1HhKI-lm9KUox0UUkSgunUYOJKw);
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{REPORT_TITLE}}</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #1a1a2e; font-size: 14px; line-height: 1.5; margin: 0; }
+  .layout { display: flex; min-height: 100vh; }
+  a { color: inherit; }
 
-        ul.lst-kix_bakjdvg45s3f-8 {
-            list-style-type: none
-        }
+  /* ══════════════════════════════════════════════════════════════
+     Soteria brand chrome
+     ══════════════════════════════════════════════════════════════ */
 
-        @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400&display=swap');
+  /* Sidebar */
+  nav { width: 240px; min-height: 100vh; background: #0a2540; color: #cdd3f0; position: fixed; top: 0; left: 0; overflow-y: auto; padding: 1.5rem 0; }
+  nav h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: #7a93bd; padding: 1rem 1.5rem 0.5rem; }
+  nav h2:first-of-type { padding-top: 0; }
+  nav a { display: block; padding: 0.4rem 1.5rem; font-size: 0.85rem; color: #cdd3f0; text-decoration: none; transition: background 0.15s; cursor: pointer; }
+  nav a:hover { background: #123a66; }
+  nav .nav-logo { display: block; padding: 0 1.5rem 0.75rem; }
+  nav .nav-logo svg { width: 160px; height: auto; display: block; }
+  nav .nav-tagline { display: block; padding: 0 1.5rem 1.5rem; font-size: 0.68rem; color: #7a93bd; text-transform: uppercase; letter-spacing: 0.08em; line-height: 1.4; }
+  nav .cat-link { border-left: 3px solid transparent; }
+  nav .cat-link:hover { border-left-color: #4a7fc8; }
+  nav .cat-link .cat-count { float: right; font-size: 0.7rem; color: #7a93bd; font-weight: 600; }
 
-        ol {
-            margin: 0;
-            padding: 0
-        }
+  /* Main: whole-page document scroll; the fixed nav sidebar keeps its own scrollbar */
+  main { margin-left: 240px; max-width: 1400px; flex: 1; display: block; padding: 0; }
+  .sticky-head { padding: 1.75rem 2rem 0 2rem; background: #f0f2f5; }
+  .scroll-area { padding: 0 2rem 2rem 2rem; }
+  #score-panel.panel { margin: 0 0 1.5rem 0; }
+  .ms-dropdown { position: relative; display: inline-block; }
+  .ms-trigger { display: inline-flex; align-items: center; justify-content: space-between; gap: 0.5rem; min-width: 140px; cursor: pointer; text-align: left; font-family: inherit; }
+  .ms-trigger .ms-arrow { font-size: 0.7em; opacity: 0.7; transition: transform 0.15s; }
+  .ms-trigger.open .ms-arrow { transform: rotate(180deg); }
+  .ms-panel { position: absolute; top: calc(100% + 4px); left: 0; z-index: 60; background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; box-shadow: 0 8px 22px rgba(0,0,0,0.16); padding: 5px; min-width: 210px; max-height: 320px; overflow-y: auto; }
+  .ms-opt { display: flex; align-items: center; gap: 0.5rem; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; white-space: nowrap; }
+  .ms-opt:hover { background: #f1f5f9; }
+  .ms-opt input, .nav-opt input { margin: 0; cursor: pointer; flex: none; }
+  .ms-badge { padding: 1px 9px; border-radius: 9999px; font-size: 0.62rem; font-weight: 700; }
+  .ms-opt .status-pill { margin-left: 0; }
+  .ms-opt .ms-count { margin-left: auto; font-size: 0.7rem; color: #9ca3af; }
+  .nav-sec-toggle { cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: space-between; }
+  .nav-sec-toggle:hover { color: #e2e8f0; }
+  .nav-caret { font-size: 0.8em; transition: transform 0.15s ease; }
+  .nav-sec-toggle.collapsed .nav-caret { transform: rotate(-90deg); }
+  .nav-sec { padding-bottom: 0.4rem; }
+  .nav-opt { display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 1.5rem; cursor: pointer; font-size: 0.8rem; color: #cdd3f0; }
+  .nav-opt:hover { background: #0f2e52; }
+  .nav-opt-count { margin-left: auto; font-size: 0.7rem; color: #7a93bd; }
+  nav .cat-link.active { background: #0f2e52; border-left-color: #4a7fc8; color: #fff; }
 
-        table td,
-        table th {
-            padding: 0
-        }
+  /* Page header */
+  .page-header { background: #fff; border-radius: 8px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; border-left: 4px solid #1e5bb8; }
+  .page-header-left h1 { font-size: 1.5rem; font-weight: 700; color: #1a1a2e; }
+  .page-header-left .meta { font-size: 0.85rem; color: #6b7280; margin-top: 0.25rem; }
+  .export-bar { display: flex; gap: 0.5rem; align-items: center; flex-shrink: 0; }
+  .export-btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 1rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1.5px solid; transition: background 0.15s; background: #fff; }
+  .export-btn-pdf  { border-color: #dc2626; color: #dc2626; }
+  .export-btn-pdf:hover  { background: #fef2f2; }
+  .theme-toggle { border-color: #6b7280; color: #6b7280; }
+  .theme-toggle:hover { background: #f3f4f6; }
 
-        .c12 {
-            border-right-style: solid;
-            padding: 5pt 5pt 5pt 5pt;
-            border-bottom-color: #000000;
-            border-top-width: 0pt;
-            border-right-width: 0pt;
-            border-left-color: #000000;
-            vertical-align: top;
-            border-right-color: #000000;
-            border-left-width: 0pt;
-            border-top-style: solid;
-            border-left-style: solid;
-            border-bottom-width: 1pt;
-            width: 65.2pt;
-            border-top-color: #000000;
-            border-bottom-style: solid
-        }
+  /* Brand footer */
+  .brand-footer { text-align: center; padding: 2.5rem 0 1.5rem; border-top: 1px solid #e5e7eb; margin-top: 2rem; }
+  .brand-footer .footer-logo { display: inline-block; margin-bottom: 0.75rem; }
+  .brand-footer .footer-logo svg { width: 120px; height: auto; display: block; }
+  .brand-footer .footer-tagline { font-size: 0.8rem; color: #4b5563; font-style: italic; margin-bottom: 0.4rem; }
+  .brand-footer .footer-meta { font-size: 0.75rem; color: #9ca3af; }
+  .brand-footer .footer-meta a { color: #1e5bb8; text-decoration: none; font-weight: 600; }
+  .brand-footer .footer-meta a:hover { text-decoration: underline; }
 
-        .c33 {
-            border-right-style: solid;
-            padding: 5pt 5pt 5pt 5pt;
-            border-bottom-color: #000000;
-            border-top-width: 0pt;
-            border-right-width: 0pt;
-            border-left-color: #000000;
-            vertical-align: top;
-            border-right-color: #000000;
-            border-left-width: 0pt;
-            border-top-style: solid;
-            border-left-style: solid;
-            border-bottom-width: 1pt;
-            width: 200.2pt;
-            border-top-color: #000000;
-            border-bottom-style: solid
-        }
+  /* Print-only brand header */
+  .print-brand-header { display: none; }
 
-        .c3 {
-            border-right-style: solid;
-            padding: 5pt 5pt 5pt 5pt;
-            border-bottom-color: #000000;
-            border-top-width: 1pt;
-            border-right-width: 1pt;
-            border-left-color: #000000;
-            vertical-align: middle;
-            border-right-color: #000000;
-            border-left-width: 1pt;
-            border-top-style: solid;
-            border-left-style: solid;
-            border-bottom-width: 1pt;
-            width: 27pt;
-            border-top-color: #000000;
-            border-bottom-style: solid
-        }
+  /* ══════════════════════════════════════════════════════════════
+     Dashboard — summary, filters, findings list
+     ══════════════════════════════════════════════════════════════ */
 
-        .c15 {
-            border-right-style: solid;
-            padding: 5pt 5pt 5pt 5pt;
-            border-bottom-color: #000000;
-            border-top-width: 1pt;
-            border-right-width: 1pt;
-            border-left-color: #000000;
-            vertical-align: middle;
-            border-right-color: #000000;
-            border-left-width: 1pt;
-            border-top-style: solid;
-            border-left-style: solid;
-            border-bottom-width: 1pt;
-            width: 65.2pt;
-            border-top-color: #000000;
-            border-bottom-style: solid
-        }
+  .panel { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 1.5rem; padding: 1.25rem 1.5rem; }
 
-        .c11 {
-            border-right-style: solid;
-            padding: 5pt 5pt 5pt 5pt;
-            border-bottom-color: #000000;
-            border-top-width: 1pt;
-            border-right-width: 1pt;
-            border-left-color: #000000;
-            vertical-align: middle;
-            border-right-color: #000000;
-            border-left-width: 1pt;
-            border-top-style: solid;
-            border-left-style: solid;
-            border-bottom-width: 1pt;
-            width: 200.2pt;
-            border-top-color: #000000;
-            border-bottom-style: solid
-        }
+  /* Summary cards */
+  .summary-cards { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .summary-card { flex: 1; min-width: 92px; text-align: center; padding: 0.85rem 1rem; border-radius: 8px; border: 2px solid; cursor: default; }
+  .summary-card .count { font-size: 1.9rem; font-weight: 800; line-height: 1; }
+  .summary-card .label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-top: 0.3rem; }
+  .card-CRITICAL { border-color: #dc2626; color: #dc2626; }
+  .card-HIGH     { border-color: #ea580c; color: #ea580c; }
+  .card-MEDIUM   { border-color: #d97706; color: #d97706; }
+  .card-LOW      { border-color: #ca8a04; color: #ca8a04; }
+  .card-INFO     { border-color: #6b7280; color: #6b7280; }
+  .card-REVIEW_REQUIRED { border-color: #7c3aed; color: #7c3aed; }
+  .card-REMEDIATED { border-color: #15803d; color: #15803d; }
+  .card-total    { border-color: #1a1a2e; color: #1a1a2e; }
 
-        .c30 {
-            border-right-style: solid;
-            padding: 5pt 5pt 5pt 5pt;
-            border-bottom-color: #000000;
-            border-top-width: 0pt;
-            border-right-width: 0pt;
-            border-left-color: #000000;
-            vertical-align: top;
-            border-right-color: #000000;
-            border-left-width: 0pt;
-            border-top-style: solid;
-            border-left-style: solid;
-            border-bottom-width: 1pt;
-            width: 27pt;
-            border-top-color: #000000;
-            border-bottom-style: solid
-        }
+  /* Executive score panel */
+  .score-flex { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; margin-bottom: 1rem; }
+  .score-gauge { position: relative; width: 132px; height: 132px; flex-shrink: 0; }
+  .score-gauge svg { width: 100%; height: 100%; }
+  .gauge-track { fill: none; stroke: #e5e7eb; stroke-width: 10; }
+  .gauge-fill { fill: none; stroke-width: 10; stroke-linecap: round; }
+  .gauge-fill.band-strong   { stroke: #16a34a; }
+  .gauge-fill.band-moderate { stroke: #ca8a04; }
+  .gauge-fill.band-elevated { stroke: #ea580c; }
+  .gauge-fill.band-high     { stroke: #dc2626; }
+  .score-gauge-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .score-gauge-center .sg-num { font-size: 1.7rem; font-weight: 800; line-height: 1; color: #1a1a2e; }
+  .score-gauge-center .sg-den { font-size: 0.65rem; color: #6b7280; }
+  .score-gauge-center .sg-band { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; }
+  .sg-band.band-strong   { color: #16a34a; }
+  .sg-band.band-moderate { color: #ca8a04; }
+  .sg-band.band-elevated { color: #ea580c; }
+  .sg-band.band-high     { color: #dc2626; }
+  .score-facts { flex: 1; min-width: 240px; display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.82rem; color: #374151; }
+  .score-facts .sf-scale { font-size: 0.72rem; color: #6b7280; }
+  .score-facts .sf-points { font-weight: 600; color: #1a1a2e; }
+  .score-delta { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+  .score-delta .status-pill { margin-left: 0; }
+  .delta-pos  { color: #15803d; font-weight: 700; }
+  .delta-neg  { color: #b91c1c; font-weight: 700; }
+  .delta-zero { color: #64748b; font-weight: 700; }
+  .score-caution { font-size: 0.72rem; color: #b45309; font-style: italic; }
+  /* Per-service static score table */
+  .score-svc-details { margin-bottom: 1rem; }
+  .score-svc-details > summary { cursor: pointer; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #4b5563; user-select: none; padding: 0.2rem 0; }
+  .score-svc-details > summary:hover { color: #1a1a2e; }
+  html.dark .score-svc-details > summary { color: #a0aec0; }
+  html.dark .score-svc-details > summary:hover { color: #e2e8f0; }
+  .score-svc-details .score-svc-table { margin-top: 0.4rem; margin-bottom: 0; }
+  .score-svc-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.78rem; }
+  .score-svc-table th { text-align: left; padding: 0.35rem 0.9rem 0.35rem 0; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280; border-bottom: 1px solid #e5e7eb; }
+  .score-svc-table td { padding: 0.3rem 0.9rem 0.3rem 0; border-bottom: 1px solid #f1f5f9; color: #374151; }
+  .score-svc-table td.svc-name { font-weight: 600; color: #1a1a2e; white-space: nowrap; }
+  .score-svc-table td.svc-num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .svc-score-wrap { display: flex; align-items: center; gap: 0.6rem; }
+  .svc-score-wrap .svc-bar { width: 110px; flex-shrink: 0; }
+  .svc-score-wrap .svc-score { font-weight: 700; color: #1a1a2e; font-variant-numeric: tabular-nums; }
+  .svc-bar { height: 7px; background: #f1f5f9; border-radius: 999px; overflow: hidden; display: inline-block; }
+  .svc-bar-fill { display: block; height: 100%; border-radius: 999px; }
+  .svc-bar-fill.band-strong   { background: #16a34a; }
+  .svc-bar-fill.band-moderate { background: #ca8a04; }
+  .svc-bar-fill.band-elevated { background: #ea580c; }
+  .svc-bar-fill.band-high     { background: #dc2626; }
+  .band-text { font-weight: 600; }
+  .band-text.band-strong   { color: #16a34a; }
+  .band-text.band-moderate { color: #ca8a04; }
+  .band-text.band-elevated { color: #ea580c; }
+  .band-text.band-high     { color: #dc2626; }
+  /* Methodology flyout trigger + shared body styles (flyout and print block) */
+  .score-method-link { display: inline-block; margin-bottom: 1rem; padding: 5px 12px; background: none; border: 1px solid #c7d2fe; border-radius: 6px; color: #1d4ed8; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+  .score-method-link:hover { background: #eef2ff; }
+.score-promo { margin: 0 0 1rem; font-size: 0.78rem; line-height: 1.5; color: #6b7280; max-width: 60ch; }
+.score-promo a { color: #1d4ed8; font-weight: 600; text-decoration: none; }
+.score-promo a:hover { text-decoration: underline; }
+  #method-panel {
+    position: fixed; top: 0; right: 0; bottom: 0; width: min(480px, 94vw);
+    background: #fff; border-left: 1px solid #e5e7eb;
+    box-shadow: -6px 0 28px rgba(0,0,0,0.12);
+    transform: translateX(100%); transition: transform 0.25s ease;
+    z-index: 400; display: flex; flex-direction: column; overflow-y: auto;
+  }
+  #method-panel.open { transform: translateX(0); }
+  #method-panel .mp-body { padding: 16px 20px 24px; }
+  .sm-body { font-size: 0.78rem; color: #374151; line-height: 1.6; }
+  .sm-eq { font-family: monospace; font-size: 0.8rem; background: #f8fafc; padding: 0.4rem 0.6rem; border-radius: 6px; display: inline-block; margin-bottom: 0.4rem; }
+  .sm-body table { border-collapse: collapse; margin: 0.4rem 2rem 0.4rem 0; display: inline-table; vertical-align: top; }
+  .sm-body th, .sm-body td { text-align: left; padding: 0.15rem 0.9rem 0.15rem 0; font-size: 0.75rem; }
+  .sm-body th { color: #6b7280; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.05em; }
+  /* Print-only methodology copy; hidden on screen, shown by the @media print block */
+  .score-method-print { display: none; }
 
-        .c4 {
-            border-right-style: solid;
-            padding: 5pt 5pt 5pt 5pt;
-            border-bottom-color: #000000;
-            border-top-width: 1pt;
-            border-right-width: 1pt;
-            border-left-color: #000000;
-            vertical-align: middle;
-            border-right-color: #000000;
-            border-left-width: 1pt;
-            border-top-style: solid;
-            border-left-style: solid;
-            border-bottom-width: 1pt;
-            width: 247.5pt;
-            border-top-color: #000000;
-            border-bottom-style: solid
-        }
+  /* Severity badges */
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+  .badge-CRITICAL { background: #dc2626; color: #fff; }
+  .badge-HIGH     { background: #ea580c; color: #fff; }
+  .badge-MEDIUM   { background: #d97706; color: #fff; }
+  .badge-LOW      { background: #ca8a04; color: #fff; }
+  .badge-INFO     { background: #6b7280; color: #fff; }
+  .badge-REVIEW_REQUIRED { background: #7c3aed; color: #fff; }
 
-        .c18 {
-            border-right-style: solid;
-            padding: 5pt 5pt 5pt 5pt;
-            border-bottom-color: #000000;
-            border-top-width: 0pt;
-            border-right-width: 0pt;
-            border-left-color: #000000;
-            vertical-align: top;
-            border-right-color: #000000;
-            border-left-width: 0pt;
-            border-top-style: solid;
-            border-left-style: solid;
-            border-bottom-width: 1pt;
-            width: 247.5pt;
-            border-top-color: #000000;
-            border-bottom-style: solid
-        }
+  /* Filters */
+  .filters-row { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; }
+  .filter-label { font-size: 0.7rem; font-weight: 700; color: #4b5563; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .sev-checkbox { display: none; }
+  .sev-label { cursor: pointer; padding: 3px 10px; border-radius: 9999px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.5; transition: opacity 0.15s; user-select: none; }
+  .sev-checkbox:not(:checked) + .sev-label:hover { opacity: 0.8; }
+  .sev-checkbox:checked + .sev-label { opacity: 1; }
+  .fw-checkbox { display: none; }
+  .fw-label { cursor: pointer; padding: 3px 10px; border-radius: 9999px; font-size: 0.68rem; font-weight: 600; opacity: 0.45; transition: opacity 0.15s; user-select: none; }
+  .fw-checkbox:not(:checked) + .fw-label:hover { opacity: 0.75; }
+  .fw-checkbox:checked + .fw-label { opacity: 1; }
+  .filter-select { padding: 5px 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 0.82rem; background: #fff; color: #1a1a2e; }
+  .search-input { padding: 5px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 0.82rem; min-width: 200px; background: #fff; color: #1a1a2e; }
+  .search-input:focus, .filter-select:focus { outline: 2px solid #1e5bb8; outline-offset: 1px; }
+  .clear-btn { padding: 5px 14px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 0.75rem; cursor: pointer; background: #fff; color: #4b5563; }
+  .clear-btn:hover { background: #f3f4f6; }
+  .showing-count { margin-left: auto; font-size: 0.75rem; color: #6b7280; white-space: nowrap; }
+  .hidden { display: none !important; }
 
-        .c25 {
-            padding-top: 16pt;
-            padding-bottom: 4pt;
-            line-height: 1.15;
-            page-break-after: avoid;
-            orphans: 2;
-            widows: 2;
-            text-align: left;
-            height: 24pt
-        }
+  /* Findings list */
+  .findings-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .no-findings { text-align: center; color: #6b7280; padding: 3rem 1rem; font-size: 0.95rem; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
 
-        .c19 {
-            padding-top: 16pt;
-            padding-bottom: 4pt;
-            line-height: 1.15;
-            page-break-after: avoid;
-            orphans: 2;
-            widows: 2;
-            text-align: left
-        }
+  .finding-card { background: #fff; border-radius: 8px; border-left: 5px solid; box-shadow: 0 1px 3px rgba(0,0,0,0.08); overflow: hidden; }
+  .finding-card.sev-CRITICAL { border-left-color: #dc2626; }
+  .finding-card.sev-HIGH     { border-left-color: #ea580c; }
+  .finding-card.sev-MEDIUM   { border-left-color: #d97706; }
+  .finding-card.sev-LOW      { border-left-color: #ca8a04; }
+  .finding-card.sev-INFO     { border-left-color: #6b7280; }
+  .finding-card.sev-REVIEW_REQUIRED { border-left-color: #7c3aed; }
 
-        .c21 {
-            padding-top: 0pt;
-            padding-bottom: 0pt;
-            line-height: 1.15;
-            page-break-after: avoid;
-            orphans: 2;
-            widows: 2;
-            text-align: left
-        }
+  .finding-header { display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem 1rem; cursor: pointer; user-select: none; }
+  .finding-header:hover { background: #f8fafc; }
+  .finding-meta { flex: 1; min-width: 0; }
+  .finding-title { font-weight: 600; font-size: 0.9rem; color: #1a1a2e; }
+  .finding-subtitle { font-size: 0.75rem; color: #6b7280; margin-top: 0.15rem; }
+  .finding-toggle { font-size: 0.9rem; color: #9ca3af; transition: transform 0.2s; flex-shrink: 0; }
+  .finding-card.expanded .finding-toggle { transform: rotate(180deg); }
 
-        .c5 {
-            color: #000000;
-            text-decoration: none;
-            vertical-align: baseline;
-            font-size: 11pt;
-            font-family: "Source Sans Pro Light", "Source Sans Pro";
-            font-style: normal
-        }
+  .finding-detail { display: none; padding: 1rem; border-top: 1px solid #e5e7eb; background: #fcfcfd; }
+  .finding-card.expanded .finding-detail { display: block; }
 
-        .c31 {
-            color: #d9d9d9;
-            font-weight: 200;
-            text-decoration: none;
-            vertical-align: baseline;
-            font-size: 11pt;
-            font-family: "Source Sans Pro Light", "Source Sans Pro";
-            font-style: normal
-        }
+  .detail-section { margin-bottom: 1rem; }
+  .detail-section:last-child { margin-bottom: 0; }
+  .detail-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #6b7280; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+  .admin-link { color: #1e5bb8; text-decoration: none; font-weight: 600; }
+  .admin-link:hover { text-decoration: underline; }
+  .detail-text { font-size: 0.82rem; color: #374151; line-height: 1.65; white-space: pre-wrap; }
+  /* Lists inside the rendered Description, Remediation, and User Impact HTML.
+     Two rules above work against lists and both have to be countered here. The global reset
+     `* { margin: 0; padding: 0 }` zeroes list padding, which puts the marker at the left margin
+     with no indent. And .detail-text sets white-space: pre-wrap so that plain-text descriptions
+     keep their paragraph breaks; inside a list that also renders the newlines the finding loader
+     emits between <li> tags as real line breaks, on top of each item's own block break, which is
+     what produced the large gaps between items. Resetting white-space on the list container fixes
+     the spacing without changing how plain-text paragraphs render outside a list. */
+  .detail-text ul,
+  .detail-text ol { padding-left: 1.35rem; margin: 0.45rem 0 0.55rem; white-space: normal; }
+  .detail-text li { margin-bottom: 0.25rem; line-height: 1.55; padding-left: 0.15rem; }
+  .detail-text li:last-child { margin-bottom: 0; }
+  .detail-text li > p { margin: 0; }
+  .detail-text li > p + p { margin-top: 0.25rem; }
+  /* Nested lists sit tighter still, and never carry the outer list's trailing margin. */
+  .detail-text ul ul, .detail-text ul ol,
+  .detail-text ol ol, .detail-text ol ul { margin: 0.2rem 0 0.2rem; }
+  .detail-text ul { list-style-type: disc; }
+  .detail-text ol { list-style-type: decimal; }
+  /* Headings inside the rendered field HTML. ConvertFrom-FindingMarkdown maps a markdown
+     heading to h(level + 2), so ### arrives as h5 and #### as h6. Nothing styled these, so
+     they inherited the browser defaults of 0.83em and 0.67em and a step title rendered
+     SMALLER than its own body text. Sizes below sit at or just above the 0.82rem body size
+     so the hierarchy reads correctly, and white-space is reset for the same reason it is on
+     lists: the converter emits a newline after the closing tag and pre-wrap would render it
+     as an extra break. */
+  .detail-text h3,
+  .detail-text h4,
+  .detail-text h5,
+  .detail-text h6 { white-space: normal; font-weight: 700; line-height: 1.35; margin: 0.85rem 0 0.3rem; }
+  .detail-text h3 { font-size: 1.02rem; }
+  .detail-text h4 { font-size: 0.95rem; }
+  .detail-text h5 { font-size: 0.89rem; }
+  .detail-text h6 { font-size: 0.85rem; }
+  /* A heading opening the field should not push the whole block down. */
+  .detail-text > h3:first-child,
+  .detail-text > h4:first-child,
+  .detail-text > h5:first-child,
+  .detail-text > h6:first-child { margin-top: 0; }
+  /* Block-level HTML content (wrapped by renderHtmlOrText): normal whitespace, and block
+     margins restored because the global reset zeroes them. */
+  .detail-text .rich-html { white-space: normal; }
+  .detail-text .rich-html p, .detail-text .rich-html ul, .detail-text .rich-html ol { margin: 0 0 0.65rem; }
+  .detail-text .rich-html ul, .detail-text .rich-html ol { padding-left: 1.35rem; }
+  .detail-text .rich-html li { margin: 0.25rem 0; }
+  .detail-text .rich-html h3 { font-size: 0.88rem; margin: 0.9rem 0 0.45rem; }
+  .detail-text .rich-html h4 { font-size: 0.84rem; margin: 0.8rem 0 0.4rem; }
+  .detail-text .rich-html > :first-child { margin-top: 0; }
+  .detail-text .rich-html > :last-child { margin-bottom: 0; }
+  .detail-grid { display: grid; grid-template-columns: max-content 1fr; gap: 0.35rem 1rem; font-size: 0.82rem; }
+  .detail-grid .gk { font-weight: 600; color: #4b5563; }
+  .detail-grid .gv { color: #1a1a2e; word-break: break-word; }
 
-        .c14 {
-            color: #4290eb;
-            font-weight: 200;
-            text-decoration: none;
-            vertical-align: baseline;
-            font-size: 30pt;
-            font-family: "Source Sans Pro Light", "Source Sans Pro";
-            font-style: normal
-        }
+  /* Affected objects: rich rendering supporting Name+Prop nesting */
+  .affected-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+  .affected-item { padding: 0.5rem 0.75rem; background: #f8fafc; border-radius: 6px; border-left: 3px solid #cbd5e1; font-size: 0.8rem; }
+  .affected-item .ai-name { font-weight: 600; color: #1a1a2e; margin-bottom: 0.2rem; word-break: break-word; }
+  .affected-item .ai-props { display: grid; grid-template-columns: max-content 1fr; gap: 0.15rem 0.75rem; font-size: 0.78rem; margin-left: 0.5rem; }
+  .affected-item .ai-props .pk { color: #6b7280; font-weight: 500; }
+  .affected-item .ai-props .pv { color: #1a1a2e; word-break: break-word; font-family: monospace; font-size: 0.74rem; }
+  .affected-item .ai-prop-group { margin-top: 0.35rem; padding-left: 0.75rem; border-left: 2px solid #e5e7eb; }
+  .affected-item .ai-prop-group:first-of-type { margin-top: 0.2rem; }
+  .affected-item .ai-prop-group-label { font-weight: 600; color: #4b5563; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.2rem; }
+  .affected-overflow { font-size: 0.78rem; color: #6b7280; font-style: italic; margin-top: 0.35rem; }
+  /* Retest finding-status pill */
+  .status-pill { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-left: 0.4rem; }
+  .status-pill.status-new { background: #fee2e2; color: #b91c1c; }
+  .status-pill.status-modified { background: #ffedd5; color: #c2410c; }
+  .status-pill.status-remediated { background: #dcfce7; color: #15803d; }
+  .status-pill.status-unchanged { background: #f1f5f9; color: #64748b; }
+  .status-pill.license-gated { background: #cffafe; color: #0e7490; }
+  .status-pill.expected { background: #e0e7ff; color: #3730a3; }
+  .expected-note { margin: 0.4rem 0 0.6rem; padding: 0.5rem 0.75rem; border-left: 3px solid #6366f1; background: #eef2ff; color: #3730a3; font-size: 0.78rem; border-radius: 0 4px 4px 0; }
+  html.dark .status-pill.status-new { background: #4c1d1d; color: #f87171; }
+  html.dark .status-pill.status-modified { background: #4a2a12; color: #fb923c; }
+  html.dark .status-pill.status-remediated { background: #14331f; color: #4ade80; }
+  html.dark .status-pill.status-unchanged { background: #2a3142; color: #94a3b8; }
+  html.dark .status-pill.license-gated { background: #164e63; color: #67e8f9; }
+  html.dark .status-pill.expected { background: #2c2f57; color: #a5b4fc; }
+  html.dark .expected-note { background: #23264a; color: #a5b4fc; border-left-color: #6366f1; }
+  /* Retest diff states (light) */
+  .affected-item .ai-name.diff-added, .affected-item .ai-props .pk.diff-added, .affected-item .ai-props .pv.diff-added { color: #b91c1c; font-weight: 600; }
+  .affected-item .ai-name.diff-removed, .affected-item .ai-props .pk.diff-removed, .affected-item .ai-props .pv.diff-removed { color: #1d4ed8; font-weight: 600; text-decoration: line-through; }
+  .affected-item .ai-name.diff-changed, .affected-item .ai-props .pk.diff-changed, .affected-item .ai-props .pv.diff-changed { color: #c2410c; font-weight: 600; }
 
-        .c2 {
-            color: #4290eb;
-            font-weight: 400;
-            text-decoration: none;
-            vertical-align: baseline;
-            font-size: 24pt;
-            font-family: "Source Sans Pro";
-            font-style: normal
-        }
+  /* Severity / Service / RiskRating chip row */
+  .chip-row { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+  .service-chip { font-size: 0.68rem; padding: 2px 8px; border-radius: 4px; background: #e0e7ff; color: #3730a3; font-weight: 600; }
 
-        .c1 {
-            padding-top: 0pt;
-            padding-bottom: 0pt;
-            line-height: 1.15;
-            orphans: 2;
-            widows: 2;
-            text-align: justify;
-        }
+  /* Finding distribution: which services carry the findings. Inline SVG, same technique as the
+     score gauge, so the report stays self-contained with no external chart library. */
+  .panel-title { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #6b7280; margin: 0 0 0.9rem 0; }
+  .dist-flex { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+  .dist-donut { position: relative; width: 190px; height: 190px; flex-shrink: 0; }
+  .dist-donut svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .dist-donut circle { fill: none; stroke-width: 22; }
+  .dist-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .dist-center .dc-num { font-size: 1.6rem; font-weight: 800; line-height: 1; color: #1a1a2e; }
+  .dist-center .dc-lab { font-size: 0.6rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; }
+  .dist-legend { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 6px 18px; flex: 1; min-width: 260px; }
+  .dist-row { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; }
+  .dist-sw { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+  .dist-name { color: #1a1a2e; font-weight: 600; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dist-val { color: #4b5563; font-variant-numeric: tabular-nums; }
+  .dist-note { margin-top: 12px; font-size: 0.72rem; color: #4b5563; }
+  .impact-chip  { font-size: 0.68rem; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
 
-        .c7 {
-            color: #000000;
-            font-weight: 400;
-            text-decoration: none;
-            vertical-align: baseline;
-            font-size: 11pt;
-            font-family: "Source Sans Pro";
-            font-style: normal
-        }
+  /* Framework tag pills (compact ID list at the top) */
+  .framework-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .framework-tag { font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; font-family: monospace; font-weight: 600; }
+  .tag-cis    { background: #d1fae5; color: #065f46; }
+  .tag-cis365 { background: #cffafe; color: #155e75; }
+  .tag-nist   { background: #dbeafe; color: #1e40af; }
+  .tag-nist171 { background: #e0e7ff; color: #3730a3; }
+  .tag-stig   { background: #f1f5f9; color: #475569; }
+  .tag-mitre  { background: #fef3c7; color: #92400e; }
+  .tag-other  { background: #ede9fe; color: #5b21b6; }
 
-        .c23 {
-            color: #000000;
-            font-weight: 600;
-            text-decoration: none;
-            vertical-align: baseline;
-            font-size: 11pt;
-            font-family: "Source Sans Pro";
-            font-style: normal
-        }
+  /* Framework tag tooltip */
+  .framework-tag[data-tooltip] { position: relative; cursor: default; }
+  .framework-tag[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute; bottom: calc(100% + 7px); left: 50%;
+    transform: translateX(-50%);
+    background: #0a2540; color: #ffffff;
+    font-size: 11px; font-weight: 500;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    white-space: nowrap; padding: 5px 10px; border-radius: 5px;
+    pointer-events: none; opacity: 0; transition: opacity 0.15s;
+    z-index: 300;
+  }
+  .framework-tag[data-tooltip]::before {
+    content: '';
+    position: absolute; bottom: calc(100% + 3px); left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent; border-top-color: #0a2540;
+    pointer-events: none; opacity: 0; transition: opacity 0.15s;
+    z-index: 300;
+  }
+  .framework-tag[data-tooltip]:hover::after,
+  .framework-tag[data-tooltip]:hover::before { opacity: 1; }
 
-        .c34 {
-            color: #000000;
-            font-weight: 200;
-            text-decoration: none;
-            vertical-align: baseline;
-            font-size: 6pt;
-            font-family: "Source Sans Pro Light", "Source Sans Pro";
-            font-style: normal
-        }
+  /* Detailed framework list (with control descriptions) */
+  .frameworks-detail { display: flex; flex-direction: column; gap: 0.5rem; }
+  .framework-block { border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden; }
+  .framework-block summary { padding: 0.5rem 0.85rem; background: #f8fafc; cursor: pointer; font-weight: 600; font-size: 0.82rem; color: #1a1a2e; user-select: none; display: flex; gap: 0.5rem; align-items: center; }
+  .framework-block summary::after { content: ''; }
+  .framework-block summary:hover { background: #eef2f7; }
+  .framework-block summary .fw-version { font-size: 0.7rem; color: #6b7280; font-weight: 500; }
+  .framework-block summary .fw-count { margin-left: auto; font-size: 0.7rem; color: #6b7280; font-weight: 500; }
+  .framework-controls { padding: 0.6rem 0.85rem; display: flex; flex-direction: column; gap: 0.55rem; background: #ffffff; }
+  .framework-control { padding-left: 0.6rem; border-left: 3px solid #cbd5e1; }
+  .framework-control .fc-id { font-family: monospace; font-size: 0.74rem; color: #1e5bb8; font-weight: 700; }
+  .framework-control .fc-name { font-size: 0.82rem; font-weight: 600; color: #1a1a2e; margin: 0.1rem 0; }
+  .framework-control .fc-desc { font-size: 0.78rem; color: #4b5563; line-height: 1.55; white-space: pre-wrap; }
 
-        .c0 {
-            padding-top: 0pt;
-            padding-bottom: 0pt;
-            line-height: 1.0;
-            orphans: 2;
-            widows: 2;
-            text-align: left;
-        }
+  /* Effort badge — clickable pill that opens the slide-in panel */
+  .effort-badge {
+    display: inline-block; padding: 1px 8px; border-radius: 4px;
+    font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    border: none; cursor: pointer; vertical-align: middle;
+    text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 2px;
+    font-family: inherit;
+  }
+  .effort-LOW    { background: #d1fae5; color: #065f46; text-decoration-color: #065f46; }
+  .effort-MEDIUM { background: #fef3c7; color: #92400e; text-decoration-color: #92400e; }
+  .effort-HIGH   { background: #fee2e2; color: #991b1b; text-decoration-color: #991b1b; }
 
-        .c8 {
-            padding-top: 0pt;
-            padding-bottom: 0pt;
-            line-height: 1.0;
-            orphans: 2;
-            widows: 2;
-            text-align: center
-        }
+  /* PowerShell remediation code block + self-contained syntax highlighting */
+  .ps-code {
+    background: #f6f8fa; border: 1px solid #e5e7eb; border-radius: 6px;
+    padding: 10px 12px; margin: 0; overflow-x: auto;
+    font-family: ui-monospace, SFMono-Regular, 'Cascadia Code', Consolas, 'Courier New', monospace;
+    font-size: 0.78rem; line-height: 1.55; white-space: pre-wrap; word-break: break-word;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .ps-code code { font-family: inherit; background: none; padding: 0; }
+  .pc-cmd { color: #6f42c1; font-weight: 600; }   /* cmdlet (Verb-Noun) */
+  .pc-par { color: #1f6feb; }                      /* -Parameter */
+  .pc-var { color: #953800; }                      /* $variable */
+  .pc-str { color: #0a7d33; }                      /* 'string' / "string" */
+  .pc-com { color: #6e7781; font-style: italic; }  /* # comment */
+  .pc-op  { color: #cf222e; }                      /* -eq, -like, ... */
+  .pc-num { color: #0550ae; }                      /* number */
+  .pc-mod { color: #57606a; font-weight: 600; }    /* module label (e.g. PnP.PowerShell -) */
 
-        .c20 {
-            padding-top: 0pt;
-            padding-bottom: 0pt;
-            line-height: 1.15;
-            orphans: 2;
-            widows: 2;
-            text-align: justify
-        }
+  /* User Impact: one block line per audience, each with a per-audience impact-rating pill */
+  .ui-impact { display: block; }
+  .ui-impact + .ui-impact { margin-top: 0.5rem; }
+  .ui-pill {
+    display: inline-block; padding: 1px 9px; margin: 0 0.18rem; border-radius: 9999px;
+    font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    vertical-align: middle; white-space: nowrap;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .ui-pill--safe     { background: #d1fae5; color: #065f46; }
+  .ui-pill--low      { background: #dbeafe; color: #1e40af; }
+  .ui-pill--moderate { background: #fef3c7; color: #92400e; }
+  .ui-pill--high     { background: #fee2e2; color: #991b1b; }
 
-        .c6 {
-            padding-top: 0pt;
-            padding-bottom: 10pt;
-            line-height: 1.15;
-            orphans: 2;
-            widows: 2;
-            text-align: justify
-        }
+  /* Hover tooltip explaining each rating — left-aligned + upward so it stays inside the overflow:hidden finding card */
+  .ui-pill { position: relative; cursor: help; }
+  .ui-pill::after {
+    content: ""; position: absolute; left: 0; bottom: calc(100% + 8px); z-index: 50;
+    width: 260px; background: #0a2540; color: #ffffff;
+    font-size: 0.72rem; font-weight: 500; line-height: 1.45; letter-spacing: normal;
+    text-transform: none; text-align: left; white-space: normal;
+    padding: 8px 11px; border-radius: 6px; box-shadow: 0 6px 20px rgba(0,0,0,0.28);
+    opacity: 0; pointer-events: none; transition: opacity 0.15s;
+  }
+  .ui-pill:hover::after { opacity: 1; }
+  .ui-pill--safe::after     { content: "Safe \2014 No noticeable impact. This audience experiences essentially no change to their workflow, access, or daily routine; at most a trivial one-time action."; }
+  .ui-pill--low::after      { content: "Low \2014 Minor impact. A small, mostly one-time or infrequent friction: a single re-authentication, a minor interface change, or an occasional prompt."; }
+  .ui-pill--moderate::after { content: "Moderate \2014 Moderate impact. A noticeable, recurring change or one that needs preparation: new steps for users, or coordination, comms, and help-desk volume for admins."; }
+  .ui-pill--high::after     { content: "High \2014 High impact. Significant disruption: possible loss of access, a materially different way of working, or a phased rollout with real risk to legitimate use."; }
 
-        .c27 {
-            text-decoration-skip-ink: none;
-            font-size: 30pt;
-            -webkit-text-decoration-skip: none;
-            color: #1155cc;
-            text-decoration: underline
-        }
+  /* Slide-in remediation-effort panel */
+  #effort-panel {
+    position: fixed; top: 0; right: 0; bottom: 0; width: 360px;
+    background: #fff; border-left: 1px solid #e5e7eb;
+    box-shadow: -6px 0 28px rgba(0,0,0,0.12);
+    transform: translateX(100%); transition: transform 0.25s ease;
+    z-index: 400; display: flex; flex-direction: column; overflow-y: auto;
+  }
+  #effort-panel.open { transform: translateX(0); }
+  /* Slide-in affected-objects flyout (reuses .ep-* header styles) */
+  #affected-panel {
+    position: fixed; top: 0; right: 0; bottom: 0; width: min(760px, 94vw);
+    background: #fff; border-left: 1px solid #e5e7eb;
+    box-shadow: -6px 0 28px rgba(0,0,0,0.12);
+    transform: translateX(100%); transition: transform 0.25s ease;
+    z-index: 400; display: flex; flex-direction: column; overflow-y: auto;
+  }
+  #affected-panel.open { transform: translateX(0); }
+  #affected-panel .affected-body { padding: 16px 20px 24px; }
+  .affected-more {
+    display: inline-block; margin-top: 0.6rem; padding: 5px 12px;
+    background: none; border: 1px solid #c7d2fe; border-radius: 6px;
+    color: #1d4ed8; font-size: 0.8rem; font-weight: 600; cursor: pointer;
+  }
+  .affected-more:hover { background: #eef2ff; }
+  /* Overflow rows past the inline limit render in the DOM but are hidden on screen only, so they
+     appear automatically in a printed / PDF copy (where the flyout and the button are hidden). */
+  @media screen { .affected-item.affected-extra { display: none; } }
+  .ep-header {
+    padding: 20px 20px 16px; border-bottom: 1px solid #e5e7eb;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+    position: sticky; top: 0; background: #fff; z-index: 1;
+  }
+  .ep-title { font-size: 15px; font-weight: 700; color: #1a1a2e; line-height: 1.3; }
+  .ep-close {
+    background: none; border: none; cursor: pointer; padding: 2px 6px;
+    color: #6b7280; font-size: 20px; line-height: 1; flex-shrink: 0;
+    border-radius: 4px;
+  }
+  .ep-close:hover { background: #f8fafc; color: #1a1a2e; }
+  .ep-body { padding: 20px; flex: 1; }
+  .ep-badge {
+    display: inline-block; padding: 4px 14px; border-radius: 9999px;
+    font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 14px;
+  }
+  .ep-desc { font-size: 13px; color: #374151; line-height: 1.65; margin-bottom: 20px; }
+  .ep-criteria { display: flex; flex-direction: column; gap: 14px; }
+  .ep-criterion { border-left: 3px solid #e5e7eb; padding-left: 12px; }
+  .ep-criterion-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: #6b7280; margin-bottom: 3px;
+  }
+  .ep-criterion-value { font-size: 13px; color: #374151; line-height: 1.5; }
+  .ep-criterion-LOW  { border-left-color: #16a34a; }
+  .ep-criterion-MED  { border-left-color: #d97706; }
+  .ep-criterion-HIGH { border-left-color: #dc2626; }
 
-        .c26 {
-            border-spacing: 0;
-            border-collapse: collapse;
-            margin-right: auto
-        }
+  .references-list { margin: 0; padding-left: 1.25rem; font-size: 0.78rem; }
+  .references-list li { margin-bottom: 0.25rem; }
+  .references-list a { color: #1e5bb8; word-break: break-all; }
+  .references-list a:hover { text-decoration: underline; }
 
-        .c24 {
-            background-color: #ffffff;
-            max-width: 540pt;
-            padding: 36pt 36pt 36pt 36pt
-        }
+  /* ══════════════════════════════════════════════════════════════
+     Dark mode
+     ══════════════════════════════════════════════════════════════ */
+  html.dark body { background: #0f1117; color: #e2e8f0; }
+  html.dark nav { background: #061a30; color: #8892a4; }
+  html.dark nav h2 { color: #506988; }
+  html.dark nav a { color: #a8bdd8; }
+  html.dark nav a:hover { background: #0f2e52; }
+  html.dark nav .nav-tagline { color: #506988; }
+  html.dark nav .cat-link .cat-count { color: #506988; }
+  html.dark .page-header { background: #1a1d2e; border-left-color: #4a7fc8; box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+  html.dark .page-header-left h1 { color: #e2e8f0; }
+  html.dark .page-header-left .meta { color: #8892a4; }
+  html.dark .export-btn { background: #1a1d2e; }
+  html.dark .export-btn-pdf { border-color: #dc2626; color: #f87171; }
+  html.dark .export-btn-pdf:hover { background: #2d1515; }
+  html.dark .theme-toggle { background: #1a1d2e; border-color: #3d4566; color: #8892a4; }
+  html.dark .theme-toggle:hover { background: #252840; color: #e2e8f0; }
+  html.dark .brand-footer { border-top-color: #2d3552; }
+  html.dark .brand-footer .footer-tagline { color: #a0aec0; }
+  html.dark .brand-footer .footer-meta { color: #6b7280; }
+  html.dark .brand-footer .footer-meta a { color: #60a5fa; }
+  html.dark .brand-footer .footer-logo svg path { fill: #60a5fa !important; }
 
-        .c10 {
-            color: inherit;
-            text-decoration: inherit
-        }
+  html.dark .panel { background: #1a1d2e; box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+  html.dark .sticky-head { background: #0f1117; }
+  html.dark .ms-panel { background: #21253a; border-color: #3d4566; }
+  html.dark .ms-opt:hover { background: #2d3552; }
+  html.dark .nav-opt { color: #a8bdd8; }
+  html.dark .nav-opt:hover { background: #0f2e52; }
+  html.dark .card-total { border-color: #e2e8f0; color: #e2e8f0; }
+  html.dark .filter-label { color: #a0aec0; }
+  html.dark .filter-select, html.dark .search-input { background: #21253a; border-color: #3d4566; color: #e2e8f0; }
+  html.dark .clear-btn { background: #21253a; border-color: #3d4566; color: #a0aec0; }
+  html.dark .clear-btn:hover { background: #2d3552; color: #e2e8f0; }
+  html.dark .showing-count { color: #8892a4; }
+  html.dark .finding-card { background: #1a1d2e; box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+  html.dark .finding-header:hover { background: #21253a; }
+  html.dark .finding-title { color: #e2e8f0; }
+  html.dark .finding-subtitle { color: #8892a4; }
+  html.dark .finding-detail { background: #151826; border-top-color: #2d3552; }
+  html.dark .detail-label { color: #8892a4; }
+  html.dark .admin-link { color: #60a5fa; }
+  html.dark .detail-text { color: #c9d1d9; }
+  html.dark .ui-pill--safe     { background: #052e16; color: #86efac; }
+  html.dark .ui-pill--low      { background: #0c2a52; color: #93c5fd; }
+  html.dark .ui-pill--moderate { background: #422006; color: #fcd34d; }
+  html.dark .ui-pill--high     { background: #450a0a; color: #fca5a5; }
+  html.dark .ui-pill::after { background: #e6edf3; color: #0d1117; box-shadow: 0 6px 20px rgba(0,0,0,0.5); }
+  html.dark .ps-code { background: #0d1117; border-color: #2d3552; }
+  html.dark .pc-cmd { color: #d2a8ff; }
+  html.dark .pc-par { color: #79c0ff; }
+  html.dark .pc-var { color: #ffa657; }
+  html.dark .pc-str { color: #7ee787; }
+  html.dark .pc-com { color: #8b949e; }
+  html.dark .pc-op  { color: #ff7b72; }
+  html.dark .pc-num { color: #79c0ff; }
+  html.dark .pc-mod { color: #8b949e; font-weight: 600; }
+  html.dark .detail-grid .gk { color: #a0aec0; }
+  html.dark .detail-grid .gv { color: #e2e8f0; }
+  html.dark .affected-item { background: #21253a; border-left-color: #3d4566; }
+  html.dark .affected-item .ai-name { color: #e2e8f0; }
+  html.dark .affected-item .ai-props .pk { color: #8892a4; }
+  html.dark .affected-item .ai-props .pv { color: #c9d1d9; }
+  html.dark .affected-item .ai-prop-group { border-left-color: #2d3552; }
+  html.dark .affected-item .ai-prop-group-label { color: #a0aec0; }
+  html.dark .affected-overflow { color: #8892a4; }
+  /* Retest diff states (dark) */
+  html.dark .affected-item .ai-name.diff-added, html.dark .affected-item .ai-props .pk.diff-added, html.dark .affected-item .ai-props .pv.diff-added { color: #f87171; }
+  html.dark .affected-item .ai-name.diff-removed, html.dark .affected-item .ai-props .pk.diff-removed, html.dark .affected-item .ai-props .pv.diff-removed { color: #60a5fa; }
+  html.dark .affected-item .ai-name.diff-changed, html.dark .affected-item .ai-props .pk.diff-changed, html.dark .affected-item .ai-props .pv.diff-changed { color: #fb923c; }
+  html.dark .service-chip { background: #1e3a5f; color: #93c5fd; }
+  html.dark .panel-title { color: #a9b4c7; }
+  html.dark .dist-center .dc-num { color: #e2e8f0; }
+  html.dark .dist-center .dc-lab { color: #8892a4; }
+  html.dark .dist-name { color: #e2e8f0; }
+  html.dark .dist-val  { color: #a9b4c7; }
+  html.dark .dist-note { color: #a9b4c7; }
+  html.dark .no-findings { background: #1a1d2e; color: #8892a4; }
+  html.dark .tag-cis    { background: #064e3b; color: #6ee7b7; }
+  html.dark .tag-cis365 { background: #134e4a; color: #5eead4; }
+  html.dark .tag-nist   { background: #1e3a5f; color: #93c5fd; }
+  html.dark .tag-nist171 { background: #312e81; color: #c7d2fe; }
+  html.dark .tag-stig   { background: #334155; color: #cbd5e1; }
+  html.dark .tag-mitre  { background: #451a03; color: #fcd34d; }
+  html.dark .tag-other  { background: #3b1357; color: #c4b5fd; }
+  html.dark .framework-tag[data-tooltip]::after { background: #e6edf3; color: #0d1117; }
+  html.dark .framework-tag[data-tooltip]::before { border-top-color: #e6edf3; }
+  html.dark .framework-block { border-color: #2d3552; }
+  html.dark .framework-block summary { background: #21253a; color: #e2e8f0; }
+  html.dark .framework-block summary:hover { background: #2d3552; }
+  html.dark .framework-block summary .fw-version,
+  html.dark .framework-block summary .fw-count { color: #8892a4; }
+  html.dark .framework-controls { background: #1a1d2e; }
+  html.dark .framework-control { border-left-color: #3d4566; }
+  html.dark .framework-control .fc-id { color: #60a5fa; }
+  html.dark .framework-control .fc-name { color: #e2e8f0; }
+  html.dark .framework-control .fc-desc { color: #c9d1d9; }
+  html.dark .effort-LOW    { background: #064e3b; color: #6ee7b7; text-decoration-color: #6ee7b7; }
+  html.dark .effort-MEDIUM { background: #451a03; color: #fcd34d; text-decoration-color: #fcd34d; }
+  html.dark .effort-HIGH   { background: #7f1d1d; color: #fca5a5; text-decoration-color: #fca5a5; }
+  html.dark #effort-panel { background: #1a1d2e; border-left-color: #2d3552; box-shadow: -6px 0 28px rgba(0,0,0,0.45); }
+  html.dark #affected-panel { background: #1a1d2e; border-left-color: #2d3552; box-shadow: -6px 0 28px rgba(0,0,0,0.45); }
+  html.dark #affected-panel .ep-header { background: #1a1d2e; border-bottom-color: #2d3552; }
+  html.dark #affected-panel .ep-title { color: #e6edf3; }
+  html.dark .affected-more { border-color: #3b4a7a; color: #93c5fd; }
+  html.dark .affected-more:hover { background: #1e2740; }
+  html.dark .ep-header { background: #1a1d2e; border-bottom-color: #2d3552; }
+  html.dark .ep-title { color: #e2e8f0; }
+  html.dark .ep-close { color: #8892a4; }
+  html.dark .ep-close:hover { background: #21253a; color: #e2e8f0; }
+  html.dark .ep-desc { color: #c9d1d9; }
+  html.dark .ep-criterion { border-left-color: #2d3552; }
+  html.dark .ep-criterion-label { color: #8892a4; }
+  html.dark .ep-criterion-value { color: #c9d1d9; }
+  html.dark .ep-criterion-LOW  { border-left-color: #16a34a; }
+  html.dark .ep-criterion-MED  { border-left-color: #d97706; }
+  html.dark .ep-criterion-HIGH { border-left-color: #dc2626; }
+  html.dark .badge-REVIEW_REQUIRED { background: #a78bfa; color: #1a1d2e; }
+  html.dark .card-REVIEW_REQUIRED { border-color: #a78bfa; color: #a78bfa; }
+  html.dark .card-REMEDIATED { border-color: #4ade80; color: #4ade80; }
+  html.dark .finding-card.sev-REVIEW_REQUIRED { border-left-color: #a78bfa; }
+  html.dark .references-list a { color: #60a5fa; }
+  /* Executive score panel (dark) */
+  html.dark .gauge-track { stroke: #2d3552; }
+  html.dark .gauge-fill.band-strong   { stroke: #22c55e; }
+  html.dark .gauge-fill.band-moderate { stroke: #eab308; }
+  html.dark .gauge-fill.band-elevated { stroke: #f97316; }
+  html.dark .gauge-fill.band-high     { stroke: #ef4444; }
+  html.dark .score-gauge-center .sg-num { color: #e2e8f0; }
+  html.dark .score-gauge-center .sg-den { color: #8892a4; }
+  html.dark .sg-band.band-strong   { color: #4ade80; }
+  html.dark .sg-band.band-moderate { color: #fcd34d; }
+  html.dark .sg-band.band-elevated { color: #fb923c; }
+  html.dark .sg-band.band-high     { color: #f87171; }
+  html.dark .score-facts { color: #c9d1d9; }
+  html.dark .score-facts .sf-scale { color: #8892a4; }
+  html.dark .score-facts .sf-points { color: #e2e8f0; }
+  html.dark .delta-pos  { color: #4ade80; }
+  html.dark .delta-neg  { color: #f87171; }
+  html.dark .delta-zero { color: #94a3b8; }
+  html.dark .score-caution { color: #fcd34d; }
+  html.dark .score-svc-table th { color: #8892a4; border-bottom-color: #2d3552; }
+  html.dark .score-svc-table td { color: #c9d1d9; border-bottom-color: #21253a; }
+  html.dark .score-svc-table td.svc-name { color: #e2e8f0; }
+  html.dark .svc-score-wrap .svc-score { color: #e2e8f0; }
+  html.dark .svc-bar { background: #21253a; }
+  html.dark .svc-bar-fill.band-strong   { background: #22c55e; }
+  html.dark .svc-bar-fill.band-moderate { background: #eab308; }
+  html.dark .svc-bar-fill.band-elevated { background: #f97316; }
+  html.dark .svc-bar-fill.band-high     { background: #ef4444; }
+  html.dark .band-text.band-strong   { color: #4ade80; }
+  html.dark .band-text.band-moderate { color: #fcd34d; }
+  html.dark .band-text.band-elevated { color: #fb923c; }
+  html.dark .band-text.band-high     { color: #f87171; }
+  html.dark .score-method-link { border-color: #3b4a7a; color: #93c5fd; }
+  html.dark .score-method-link:hover { background: #1e2740; }
+html.dark .score-promo { color: #8892a4; }
+html.dark .score-promo a { color: #93c5fd; }
+  html.dark #method-panel { background: #1a1d2e; border-left-color: #2d3552; box-shadow: -6px 0 28px rgba(0,0,0,0.45); }
+  html.dark .sm-body { color: #c9d1d9; }
+  html.dark .sm-eq { background: #0d1117; }
+  html.dark .sm-body th { color: #8892a4; }
 
-        .c28 {
-            margin-left: -4.5pt;
-            margin-right: -13.5pt
-        }
+  /* ══════════════════════════════════════════════════════════════
+     Print / PDF
+     ══════════════════════════════════════════════════════════════ */
+  @media print {
+    nav, .export-bar, .filters-section, .finding-toggle, .affected-more, #effort-panel, #affected-panel, #method-panel, .score-method-link, .score-promo { display: none !important; }
+    .framework-tag[data-tooltip]::after,
+    .framework-tag[data-tooltip]::before { display: none !important; }
+    .ui-pill::after { display: none !important; }
+    .effort-badge { text-decoration: none !important; cursor: default !important; }
+    main { margin-left: 0; padding: 1rem; max-width: 100%; height: auto; display: block; overflow: visible; }
+    .sticky-head { position: static !important; box-shadow: none !important; padding: 0 !important; background: transparent !important; }
+    .scroll-area { overflow: visible !important; height: auto !important; padding: 0 !important; }
+    body { background: #fff; }
+    html.dark body { background: #fff !important; color: #1a1a2e !important; }
+    html.dark .panel { background: #fff !important; color: #1a1a2e !important; box-shadow: none !important; }
+    html.dark .page-header { background: #fff !important; }
+    html.dark .page-header-left h1 { color: #1a1a2e !important; }
+    html.dark .finding-card { background: #fff !important; box-shadow: none !important; }
+    html.dark .finding-title { color: #1a1a2e !important; }
+    html.dark .finding-detail { background: #fff !important; color: #1a1a2e !important; }
+    html.dark .detail-text, html.dark .detail-grid .gv { color: #1a1a2e !important; }
+    /* force light-mode pills when printing/PDF-exporting from dark mode */
+    html.dark .ui-pill--safe     { background: #d1fae5 !important; color: #065f46 !important; }
+    html.dark .ui-pill--low      { background: #dbeafe !important; color: #1e40af !important; }
+    html.dark .ui-pill--moderate { background: #fef3c7 !important; color: #92400e !important; }
+    html.dark .ui-pill--high     { background: #fee2e2 !important; color: #991b1b !important; }
+    html.dark .ps-code { background: #f6f8fa !important; border-color: #e5e7eb !important; }
+    html.dark .pc-cmd{color:#6f42c1 !important} html.dark .pc-par{color:#1f6feb !important} html.dark .pc-var{color:#953800 !important} html.dark .pc-str{color:#0a7d33 !important} html.dark .pc-com{color:#6e7781 !important} html.dark .pc-op{color:#cf222e !important} html.dark .pc-num{color:#0550ae !important} html.dark .pc-mod{color:#57606a !important}
+    html.dark .affected-item { background: #f8fafc !important; }
+    html.dark .affected-item .ai-name, html.dark .affected-item .ai-props .pv { color: #1a1a2e !important; }
+    html.dark .framework-block summary { background: #f8fafc !important; color: #1a1a2e !important; }
+    html.dark .framework-controls { background: #fff !important; }
+    html.dark .framework-control .fc-name { color: #1a1a2e !important; }
+    html.dark .framework-control .fc-desc { color: #4b5563 !important; }
+    .panel, .finding-card { border: 1px solid #e5e7eb; box-shadow: none; break-inside: avoid; }
+    .finding-card { break-inside: avoid; }
+    .finding-card .finding-detail { display: block !important; }
+    details { open: ''; }
+    .framework-block .framework-controls { display: block !important; }
+    .print-brand-header { display: block !important; text-align: center; padding: 0 0 1rem; margin-bottom: 1rem; border-bottom: 2px solid #1e5bb8; }
+    .print-brand-header svg { width: 180px; height: auto; display: inline-block; }
+    .print-brand-header .pbh-tagline { font-size: 0.85rem; color: #1e5bb8; font-style: italic; margin-top: 0.4rem; }
+    html.dark .print-brand-header svg path { fill: #0a2540 !important; }
+    html.dark .brand-footer .footer-logo svg path { fill: #0a2540 !important; }
+    html.dark .brand-footer .footer-tagline { color: #4b5563 !important; }
+    html.dark .brand-footer .footer-meta { color: #9ca3af !important; }
+    html.dark .brand-footer .footer-meta a { color: #1e5bb8 !important; }
+    /* Executive score panel (print): keep band colors, force light chrome */
+    #score-panel, .score-method-print, .score-svc-table { break-inside: avoid; }
+    .gauge-track, .gauge-fill, .svc-bar, .svc-bar-fill, .status-pill { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    .score-method-print { display: block !important; border: 1px solid #e5e7eb; border-radius: 6px; padding: 0.6rem 0.9rem; margin-bottom: 1rem; }
+    .score-method-print .smp-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #6b7280; margin-bottom: 0.35rem; }
+    html.dark .score-method-print { background: #fff !important; border-color: #e5e7eb !important; }
+    html.dark .score-method-print .smp-title { color: #6b7280 !important; }
+    html.dark .gauge-track { stroke: #e5e7eb !important; }
+    html.dark .gauge-fill.band-strong   { stroke: #16a34a !important; }
+    html.dark .gauge-fill.band-moderate { stroke: #ca8a04 !important; }
+    html.dark .gauge-fill.band-elevated { stroke: #ea580c !important; }
+    html.dark .gauge-fill.band-high     { stroke: #dc2626 !important; }
+    html.dark .score-gauge-center .sg-num { color: #1a1a2e !important; }
+    html.dark .score-gauge-center .sg-den { color: #6b7280 !important; }
+    html.dark .sg-band.band-strong   { color: #16a34a !important; }
+    html.dark .sg-band.band-moderate { color: #ca8a04 !important; }
+    html.dark .sg-band.band-elevated { color: #ea580c !important; }
+    html.dark .sg-band.band-high     { color: #dc2626 !important; }
+    html.dark .score-facts, html.dark .score-facts .sf-points { color: #1a1a2e !important; }
+    html.dark .score-facts .sf-scale { color: #6b7280 !important; }
+    html.dark .score-caution { color: #b45309 !important; }
+    html.dark .score-svc-table th { color: #6b7280 !important; border-bottom-color: #e5e7eb !important; }
+    html.dark .score-svc-table td { color: #374151 !important; border-bottom-color: #f1f5f9 !important; }
+    html.dark .score-svc-table td.svc-name { color: #1a1a2e !important; }
+    html.dark .svc-score-wrap .svc-score { color: #1a1a2e !important; }
+    html.dark .svc-bar { background: #f1f5f9 !important; }
+    html.dark .svc-bar-fill.band-strong   { background: #16a34a !important; }
+    html.dark .svc-bar-fill.band-moderate { background: #ca8a04 !important; }
+    html.dark .svc-bar-fill.band-elevated { background: #ea580c !important; }
+    html.dark .svc-bar-fill.band-high     { background: #dc2626 !important; }
+    html.dark .band-text.band-strong   { color: #16a34a !important; }
+    html.dark .band-text.band-moderate { color: #ca8a04 !important; }
+    html.dark .band-text.band-elevated { color: #ea580c !important; }
+    html.dark .band-text.band-high     { color: #dc2626 !important; }
+    html.dark .sm-body, html.dark .sm-body td { color: #374151 !important; }
+    html.dark .sm-body th { color: #6b7280 !important; }
+    html.dark .sm-eq { background: #f6f8fa !important; }
+    html.dark .status-pill.status-new { background: #fee2e2 !important; color: #b91c1c !important; }
+    html.dark .status-pill.status-modified { background: #ffedd5 !important; color: #c2410c !important; }
+    html.dark .status-pill.status-remediated { background: #dcfce7 !important; color: #15803d !important; }
+    html.dark .status-pill.status-unchanged { background: #f1f5f9 !important; color: #64748b !important; }
+    html.dark .status-pill.license-gated { background: #cffafe !important; color: #0e7490 !important; }
+    html.dark .status-pill.expected { background: #e0e7ff !important; color: #3730a3 !important; }
+    html.dark .expected-note { background: #eef2ff !important; color: #3730a3 !important; }
+  }
+  .adv-tabbar { display: flex; gap: 0.35rem; margin: 0 0 1.25rem; border-bottom: 2px solid #e5e7eb; flex-wrap: wrap; }
+  .adv-tab { background: none; border: none; border-bottom: 3px solid transparent; margin-bottom: -2px; padding: 0.6rem 1rem; font: inherit; font-size: 0.85rem; font-weight: 600; color: #6b7280; cursor: pointer; display: inline-flex; align-items: center; gap: 0.45rem; }
+  .adv-tab:hover { color: #1a1a2e; }
+  .adv-tab.active { color: #1e5bb8; border-bottom-color: #1e5bb8; }
+  .adv-tab-badge { display: inline-block; min-width: 1.4rem; padding: 1px 7px; border-radius: 9999px; font-size: 0.68rem; font-weight: 700; background: #e5e7eb; color: #374151; text-align: center; }
+  .adv-tab-badge.adv-danger { background: #dc2626; color: #fff; }
+  .adv-pane { display: none; }
+  body[data-adv-tab="fm"] #adv-pane-fm { display: block; }
+  body[data-adv-tab]:not([data-adv-tab="findings"]) #summary,
+  body[data-adv-tab]:not([data-adv-tab="findings"]) .filters-section,
+  body[data-adv-tab]:not([data-adv-tab="findings"]) #score-panel,
+  body[data-adv-tab]:not([data-adv-tab="findings"]) #findings { display: none; }
+  .adv-note { background: #eff6ff; border-left: 4px solid #1e5bb8; border-radius: 6px; padding: 0.8rem 1rem; font-size: 0.82rem; color: #1e3a5f; margin-bottom: 1.25rem; line-height: 1.6; }
+  .adv-status { display: inline-block; border-radius: 9999px; padding: 1px 8px; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+  .adv-status-exposed, .adv-status-failed { background: #fee2e2; color: #b91c1c; }
+  .adv-status-partial { background: #fef3c7; color: #92400e; }
+  .adv-status-mitigated, .adv-status-satisfied { background: #dcfce7; color: #15803d; }
+  .adv-status-unknown, .adv-status-inconclusive { background: #f1f5f9; color: #64748b; }
+  .adv-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .adv-chip { font-family: monospace; font-size: 0.68rem; padding: 2px 8px; border-radius: 4px; border: 1px solid; font-weight: 600; background: #fff; cursor: pointer; }
+  .adv-chip-fail { border-color: #fca5a5; color: #b91c1c; background: #fef2f2; }
+  .adv-chip-warning { border-color: #fcd34d; color: #92400e; background: #fffbeb; }
+  .adv-chip-pass { border-color: #86efac; color: #15803d; background: #f0fdf4; }
+  .adv-chip-unknown { border-color: #d1d5db; color: #6b7280; background: #f9fafb; }
+  .adv-chip[data-jump="0"] { cursor: default; }
+  .adv-chip[data-jump="1"]:hover { text-decoration: underline; filter: brightness(0.96); }
+  .adv-jump-highlight { animation: advPulse 2.2s ease-out; }
+  @keyframes advPulse { 0% { box-shadow: 0 0 0 4px #1e5bb8; } 70% { box-shadow: 0 0 0 4px #1e5bb8; } 100% { box-shadow: 0 1px 3px rgba(0,0,0,0.08); } }
+  .adv-toolbar { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1rem; font-size: 0.75rem; color: #6b7280; }
+  .adv-toolbar .adv-hint { margin-left: auto; }
+  .adv-empty { text-align: center; color: #6b7280; padding: 2.5rem 1rem; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); font-size: 0.9rem; }
+  .adv-toggle-btn { padding: 5px 14px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 0.75rem; cursor: pointer; background: #fff; color: #4b5563; font-weight: 600; }
+  .adv-toggle-btn:hover { background: #f3f4f6; }
+  .adv-toggle-btn.active { border-color: #dc2626; color: #dc2626; background: #fef2f2; }
 
-        .c17 {
-            padding: 0;
-            margin: 0
-        }
+  .fm-cards { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+  .fm-card { flex: 1; min-width: 120px; text-align: center; padding: 0.85rem 1rem; border-radius: 8px; border: 2px solid; cursor: pointer; user-select: none; background: #fff; }
+  .fm-card .count { font-size: 1.9rem; font-weight: 800; line-height: 1; }
+  .fm-card .label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-top: 0.3rem; }
+  .fm-card[data-fm-verdict="satisfied"] { border-color: #16a34a; color: #16a34a; }
+  .fm-card[data-fm-verdict="partial"] { border-color: #d97706; color: #d97706; }
+  .fm-card[data-fm-verdict="failed"] { border-color: #dc2626; color: #dc2626; }
+  .fm-card[data-fm-verdict="inconclusive"] { border-color: #6b7280; color: #6b7280; }
+  .fm-card.active[data-fm-verdict="satisfied"] { background: #dcfce7; }
+  .fm-card.active[data-fm-verdict="partial"] { background: #fef3c7; }
+  .fm-card.active[data-fm-verdict="failed"] { background: #fee2e2; }
+  .fm-card.active[data-fm-verdict="inconclusive"] { background: #f1f5f9; }
+  .fm-fw { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 0.8rem; overflow: hidden; }
+  .fm-fw-head { display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem 1rem; cursor: pointer; user-select: none; }
+  .fm-fw-head:hover { background: #f8fafc; }
+  .fm-caret { transition: transform 0.15s; font-size: 0.75rem; color: #6b7280; display: inline-block; }
+  .fm-fw.open .fm-caret { transform: rotate(90deg); }
+  .fm-fw-name { font-weight: 600; font-size: 0.9rem; color: #1a1a2e; }
+  .fm-fw-ver { font-size: 0.75rem; color: #6b7280; margin-left: 0.3rem; font-weight: 500; }
+  .fm-tally { margin-left: auto; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+  .fm-tally-chip { font-size: 0.65rem; font-weight: 700; border-radius: 9999px; padding: 1px 8px; white-space: nowrap; }
+  .fm-tally-satisfied { background: #dcfce7; color: #15803d; }
+  .fm-tally-partial { background: #fef3c7; color: #92400e; }
+  .fm-tally-failed { background: #fee2e2; color: #b91c1c; }
+  .fm-tally-inconclusive { background: #f1f5f9; color: #64748b; }
+  .fm-fw-body { display: none; border-top: 1px solid #f1f5f9; }
+  .fm-fw.open .fm-fw-body { display: block; }
+  .fm-note { font-size: 0.75rem; color: #6b7280; padding: 0.5rem 1rem; background: #f8fafc; border-bottom: 1px solid #f1f5f9; font-style: italic; }
+  .fm-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+  .fm-table th { text-align: left; padding: 0.45rem 1rem; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280; border-bottom: 1px solid #e5e7eb; }
+  .fm-table td { padding: 0.45rem 1rem; border-bottom: 1px solid #f1f5f9; color: #374151; vertical-align: top; }
+  .fm-table td.fm-cid { font-family: monospace; font-weight: 600; color: #1a1a2e; white-space: nowrap; }
+  .fm-table td.fm-title { min-width: 220px; }
+  .fm-unmapped { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); padding: 1rem 1.25rem; margin-top: 1rem; }
+  .fm-unmapped h3 { font-size: 0.85rem; font-weight: 700; color: #1a1a2e; margin-bottom: 0.4rem; }
+  .fm-unmapped p { font-size: 0.78rem; color: #6b7280; margin-bottom: 0.6rem; }
+  .fm-fw.fm-hidden, .fm-row.fm-hidden { display: none; }
 
-        .c29 {
-            font-size: 30pt
-        }
+  html.dark .adv-tabbar { border-bottom-color: #2d3552; }
+  html.dark .adv-tab { color: #8892a4; }
+  html.dark .adv-tab:hover { color: #e2e8f0; }
+  html.dark .adv-tab.active { color: #60a5fa; border-bottom-color: #60a5fa; }
+  html.dark .adv-tab-badge { background: #2d3552; color: #c9d1d9; }
+  html.dark .adv-tab-badge.adv-danger { background: #dc2626; color: #fff; }
+  html.dark .adv-note { background: #172554; color: #bfdbfe; border-left-color: #60a5fa; }
+  html.dark .adv-status-exposed, html.dark .adv-status-failed { background: #450a0a; color: #fca5a5; }
+  html.dark .adv-status-partial { background: #451a03; color: #fcd34d; }
+  html.dark .adv-status-mitigated, html.dark .adv-status-satisfied { background: #052e16; color: #86efac; }
+  html.dark .adv-status-unknown, html.dark .adv-status-inconclusive { background: #21253a; color: #9ca3af; }
+  html.dark .adv-chip-fail { border-color: #7f1d1d; color: #fca5a5; background: #2a0f0f; }
+  html.dark .adv-chip-warning { border-color: #78350f; color: #fcd34d; background: #2a1a05; }
+  html.dark .adv-chip-pass { border-color: #14532d; color: #86efac; background: #0a1f12; }
+  html.dark .adv-chip-unknown { border-color: #3d4566; color: #9ca3af; background: #21253a; }
+  html.dark .adv-toolbar { color: #8892a4; }
+  html.dark .adv-empty { background: #1a1d2e; color: #8892a4; }
+  html.dark .adv-toggle-btn { background: #21253a; border-color: #3d4566; color: #a0aec0; }
+  html.dark .adv-toggle-btn:hover { background: #2d3552; color: #e2e8f0; }
+  html.dark .adv-toggle-btn.active { border-color: #f87171; color: #f87171; background: #2a0f0f; }
+  html.dark .fm-fw, html.dark .fm-unmapped, html.dark .fm-card { background: #1a1d2e; box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+  html.dark .fm-fw-head:hover { background: #21253a; }
+  html.dark .fm-fw-name, html.dark .fm-unmapped h3, html.dark .fm-table td.fm-cid { color: #e2e8f0; }
+  html.dark .fm-table td { color: #c9d1d9; }
+  html.dark .fm-fw-ver, html.dark .fm-table th, html.dark .fm-unmapped p, html.dark .fm-note, html.dark .fm-caret { color: #8892a4; }
+  html.dark .fm-card.active[data-fm-verdict="failed"] { background: #450a0a; }
+  html.dark .fm-card.active[data-fm-verdict="partial"] { background: #451a03; }
+  html.dark .fm-card.active[data-fm-verdict="satisfied"] { background: #052e16; }
+  html.dark .fm-card.active[data-fm-verdict="inconclusive"] { background: #2d3552; }
+  html.dark .fm-fw-body { border-top-color: #2d3552; }
+  html.dark .fm-note { background: #21253a; border-bottom-color: #2d3552; }
+  html.dark .fm-table th { border-bottom-color: #2d3552; }
+  html.dark .fm-table td { border-bottom-color: #21253a; }
+  html.dark .fm-tally-satisfied { background: #052e16; color: #86efac; }
+  html.dark .fm-tally-partial { background: #451a03; color: #fcd34d; }
+  html.dark .fm-tally-failed { background: #450a0a; color: #fca5a5; }
+  html.dark .fm-tally-inconclusive { background: #21253a; color: #9ca3af; }
 
-        .c9 {
-            height: 0pt
-        }
+  @media print {
+    .adv-tabbar, .fm-cards, .adv-toolbar, .adv-empty, .fm-caret { display: none !important; }
+    .adv-pane { display: block !important; break-before: page; }
+    body[data-adv-tab] #summary, body[data-adv-tab] #score-panel, body[data-adv-tab] #findings { display: block !important; }
+    .fm-fw-body { display: block !important; }
+    .fm-fw.fm-hidden { display: block !important; }
+    .fm-row.fm-hidden { display: table-row !important; }
+    .fm-fw, .fm-unmapped { break-inside: avoid; box-shadow: none; border: 1px solid #e5e7eb; }
+    .adv-chip, .adv-status, .fm-tally-chip, .fm-card { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    html.dark .adv-note { background: #eff6ff !important; color: #1e3a5f !important; }
+    html.dark .fm-fw, html.dark .fm-unmapped { background: #fff !important; }
+    html.dark .fm-fw-name, html.dark .fm-unmapped h3, html.dark .fm-table td.fm-cid { color: #1a1a2e !important; }
+    html.dark .fm-table td { color: #374151 !important; }
+    html.dark .fm-fw-ver, html.dark .fm-table th, html.dark .fm-unmapped p, html.dark .fm-note { color: #6b7280 !important; }
+    html.dark .fm-note { background: #f8fafc !important; }
+    html.dark .adv-chip-fail { border-color: #fca5a5 !important; color: #b91c1c !important; background: #fef2f2 !important; }
+    html.dark .adv-chip-warning { border-color: #fcd34d !important; color: #92400e !important; background: #fffbeb !important; }
+    html.dark .adv-chip-pass { border-color: #86efac !important; color: #15803d !important; background: #f0fdf4 !important; }
+    html.dark .adv-chip-unknown { border-color: #d1d5db !important; color: #6b7280 !important; background: #f9fafb !important; }
+    html.dark .adv-status-exposed, html.dark .adv-status-failed, html.dark .fm-tally-failed { background: #fee2e2 !important; color: #b91c1c !important; }
+    html.dark .adv-status-partial, html.dark .fm-tally-partial { background: #fef3c7 !important; color: #92400e !important; }
+    html.dark .adv-status-mitigated, html.dark .adv-status-satisfied, html.dark .fm-tally-satisfied { background: #dcfce7 !important; color: #15803d !important; }
+    html.dark .adv-status-unknown, html.dark .adv-status-inconclusive, html.dark .fm-tally-inconclusive { background: #f1f5f9 !important; color: #64748b !important; }
+  }
 
-        .c13 {
-            height: 11pt
-        }
-
-
-        .c32 {
-            height: 24pt
-        }
-
-        .title {
-            padding-top: 0pt;
-            color: #4290eb;
-            font-weight: 200;
-            font-size: 40pt;
-            padding-bottom: 0pt;
-            font-family: "Source Sans Pro Light", "Source Sans Pro";
-            line-height: 1.15;
-            page-break-after: avoid;
-            orphans: 2;
-            widows: 2;
-            text-align: right
-        }
-
-        .subtitle {
-            padding-top: 0pt;
-            color: #4290eb;
-            font-weight: 200;
-            font-size: 12pt;
-            padding-bottom: 0pt;
-            font-family: "Source Sans Pro Light", "Source Sans Pro";
-            line-height: 1.0;
-            page-break-after: avoid;
-            font-style: italic;
-            orphans: 2;
-            widows: 2;
-            text-align: center
-        }
-
-        li {
-            color: #000000;
-            font-weight: 200;
-            font-size: 11pt;
-            font-family: "Source Sans Pro Light", "Source Sans Pro"
-        }
-
-        p {
-            margin: 0;
-            color: #000000;
-            font-weight: 200;
-            font-size: 11pt;
-            font-family: "Source Sans Pro Light", "Source Sans Pro"
-        }
-
-        h1 {
-            padding-top: 16pt;
-            color: #4290eb;
-            font-weight: 200;
-            font-size: 24pt;
-            padding-bottom: 4pt;
-            font-family: "Source Sans Pro";
-            line-height: 1.15;
-            page-break-after: avoid;
-            orphans: 2;
-            widows: 2;
-            text-align: left
-        }
-
-        h2 {
-            padding-top: 16pt;
-            color: #4290eb;
-            font-weight: 200;
-            font-size: 18pt;
-            padding-bottom: 4pt;
-            font-family: "Source Sans Pro";
-            line-height: 1.15;
-            page-break-after: avoid;
-            orphans: 2;
-            widows: 2;
-            text-align: left
-        }
-
-        h3 {
-            padding-top: 0pt;
-            color: #4290eb;
-            font-weight: 200;
-            font-size: 18pt;
-            padding-bottom: 0pt;
-            font-family: "Source Sans Pro";
-            line-height: 1.0;
-            page-break-after: avoid;
-            orphans: 2;
-            widows: 2;
-            text-align: left
-        }
-
-        h4 {
-            padding-top: 0pt;
-            color: #4290eb;
-            font-weight: 200;
-            font-size: 12pt;
-            padding-bottom: 0pt;
-            font-family: "Source Sans Pro";
-            line-height: 1.0;
-            page-break-after: avoid;
-            font-style: italic;
-            orphans: 2;
-            widows: 2;
-            text-align: center
-        }
-
-        h5 {
-            padding-top: 12pt;
-            color: #666666;
-            font-weight: 200;
-            font-size: 11pt;
-            padding-bottom: 4pt;
-            font-family: "Source Sans Pro";
-            line-height: 1.15;
-            page-break-after: avoid;
-            orphans: 2;
-            widows: 2;
-            text-align: justify
-        }
-
-        h6 {
-            padding-top: 12pt;
-            color: #666666;
-            font-weight: 200;
-            font-size: 11pt;
-            padding-bottom: 4pt;
-            font-family: "Source Sans Pro";
-            line-height: 1.15;
-            page-break-after: avoid;
-            font-style: italic;
-            orphans: 2;
-            widows: 2;
-            text-align: justify
-        }
-
-        .table-detail-light {
-            color: #000000;
-            text-decoration: none;
-            vertical-align: baseline;
-            font-size: 11pt;
-            font-family: "Source Sans Pro Light", "Source Sans Pro";
-            font-style: normal
-        }
-
-        .finding-detail-heading {
-            color: #000000;
-            font-weight: bold;
-            text-decoration: none;
-            vertical-align: baseline;
-            font-size: 11pt;
-            font-family: "Source Sans Pro Bold", "Source Sans Pro";
-            font-style: normal
-        }
-
-        .finding-detail-value {
-            padding-bottom: 50pt;
-            color: #000000;
-            text-decoration: none;
-            vertical-align: baseline;
-            font-size: 11pt;
-            font-family: "Source Sans Pro Light", "Source Sans Pro";
-            font-style: normal
-        }
-
-        .finding-paragraph {
-            padding-top: 0pt;
-            padding-bottom: 0pt;
-            line-height: 1.15;
-            orphans: 2;
-            widows: 2;
-            text-align: justify
-        }
-
-        .finding-paragraph-spacing {
-            padding-top: 0pt;
-            padding-bottom: 0pt;
-            line-height: 1.0;
-            orphans: 2;
-            widows: 2;
-            text-align: justify
-        }
-
-        .finding-detail-list {
-            margin-left: 15pt;
-            margin-top: 1pt;
-            margin-bottom: 1pt;
-            padding-top: 0pt;
-            padding-left: 0pt;
-            padding-bottom: 0pt;
-            line-height: 1;
-            orphans: 2;
-            widows: 2;
-            text-align: left
-        }
-
-        ul.lst-kix_9wblkacyqph0-0 {
-            list-style-type: none
-        }
-
-        .lst-kix_9wblkacyqph0-0>li:before {
-            content: "\0025cf   "
-        }
-
-        .lst-kix_9eynn2g4osw6-0>li:before {
-            content: "\0025cf   "
-        }
-
-        ul.lst-kix_9eynn2g4osw6-0 {
-            list-style-type: none
-        }
-
-        .chart-container {
-            width: 600px;
-            height: 300px;
-            margin: 0 auto;
-        }
-
-        /* Pie Chart */
-        .piechart-container {
-            width: 800px;
-            height: 400px;
-            position: relative;
-        }
-    </style>
+</style>
 </head>
+<body>
+<div class="layout">
+<nav>
+  <div class="nav-logo" aria-label="Soteria">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 406.2 100" role="img" aria-label="Soteria"><path d="M383,64.2c0,6.8-5.5,12.4-12.4,12.4s-12.4-5.5-12.4-12.4,5.5-12.4,12.4-12.4,12.4,5.5,12.4,12.4ZM21.2,28.5c-2.9,0-5.7.6-8.3,1.7-2.6,1.1-4.8,2.6-6.7,4.5s-3.4,4.1-4.5,6.7c-1.1,2.6-1.7,5.4-1.7,8.3s.6,5.7,1.7,8.3c1.1,2.6,2.6,4.8,4.5,6.8s4.1,3.5,6.7,4.6c2.6,1.1,5.4,1.7,8.3,1.7h28.5c2.1,0,3.9.7,5.2,2.1,1.4,1.4,2.1,3.1,2.1,5.1s-.7,3.9-2.1,5.2c-1.4,1.4-3.1,2.1-5.2,2.1H6.9v14.1h42.8c2.9,0,5.7-.6,8.3-1.7s4.8-2.6,6.8-4.6,3.5-4.2,4.6-6.8c1.1-2.6,1.7-5.4,1.7-8.3s-.6-5.7-1.7-8.3c-1.1-2.6-2.6-4.8-4.6-6.7-2-1.9-4.2-3.4-6.8-4.5-2.6-1.1-5.4-1.7-8.3-1.7h-28.5c-2,0-3.7-.7-5.1-2.1s-2.1-3.1-2.1-5.2.7-3.7,2.1-5.1,3.1-2.1,5.1-2.1h42.9v-14.1s-42.9,0-42.9,0ZM75.5,64.3c0,4.8.9,9.5,2.8,13.8s4.4,8.1,7.6,11.4,7,5.8,11.3,7.7c4.3,1.8,8.9,2.8,13.8,2.8s9.6-.9,13.9-2.8c4.3-1.8,8-4.4,11.3-7.7,3.3-3.3,5.8-7.1,7.7-11.4,1.8-4.3,2.8-8.9,2.8-13.8s-.9-9.6-2.8-13.9c-1.8-4.3-4.4-8-7.7-11.3-3.3-3.2-7.1-5.8-11.3-7.6s-8.9-2.8-13.9-2.8-9.5.9-13.8,2.8c-4.3,1.8-8.1,4.4-11.3,7.6-3.2,3.2-5.8,7-7.6,11.3-1.8,4.3-2.8,8.9-2.8,13.9ZM89.5,64.3c0-2.9.6-5.7,1.7-8.3,1.1-2.6,2.6-4.8,4.6-6.8s4.3-3.5,6.9-4.6c2.6-1.1,5.4-1.7,8.4-1.7s5.8.6,8.4,1.7c2.6,1.1,4.9,2.6,6.9,4.6s3.5,4.2,4.6,6.8,1.7,5.4,1.7,8.3-.6,5.8-1.7,8.4c-1.1,2.6-2.6,4.9-4.6,6.9s-4.3,3.5-6.9,4.6c-2.6,1.1-5.4,1.7-8.4,1.7s-5.8-.6-8.4-1.7c-2.6-1.1-4.9-2.6-6.9-4.6s-3.5-4.3-4.6-6.9-1.7-5.4-1.7-8.4ZM187.1,85.5c-2.9,0-5.8-.6-8.4-1.7-2.6-1.1-4.9-2.6-6.9-4.6s-3.5-4.3-4.6-6.9-1.7-5.4-1.7-8.4v-7.1h28.5v-14.1h-28.5V0h-14.1v64c0,4.8.9,9.5,2.8,13.8,1.8,4.3,4.4,8.1,7.7,11.4s7.1,5.8,11.4,7.7c4.3,1.8,8.9,2.8,13.8,2.8h7v-14.1h-7v-.1ZM250,79.5c-3.4,3.4-7.3,5.4-11.8,6.1s-8.7,0-12.8-2l39.5-39.4-4.9-4.9c-3.5-3.5-7.4-6.1-11.8-7.9s-8.8-2.6-13.4-2.6-9,.9-13.4,2.6-8.3,4.4-11.8,7.9-6.1,7.4-7.8,11.7-2.5,8.8-2.5,13.3.8,9,2.5,13.4,4.3,8.3,7.8,11.8c3.4,3.4,7.2,6,11.6,7.8,4.3,1.8,8.9,2.7,13.6,2.7s9.3-.9,13.6-2.7c4.3-1.8,8.2-4.4,11.6-7.8l4.9-4.9-10-10-4.9,4.9h0ZM219.5,49.1c3.4-3.4,7.3-5.4,11.8-6s8.7,0,12.8,2.1c-1.5,1.5-3.6,3.5-6.3,6.2-2.7,2.6-5.5,5.4-8.4,8.3l-8.2,8.2c-2.6,2.6-4.5,4.5-5.8,5.8-1.5-2.9-2.2-6.1-2.2-9.4,0-5.9,2.1-11,6.4-15.2h-.1ZM305.3,28.5c-4.8,0-9.5.9-13.8,2.8-4.3,1.8-8.1,4.4-11.4,7.6s-5.8,7-7.7,11.3c-1.8,4.3-2.8,8.9-2.8,13.9v35.7h14.3v-35.7c0-2.9.6-5.7,1.7-8.3s2.6-4.8,4.6-6.8,4.2-3.5,6.8-4.6c2.6-1.1,5.4-1.7,8.3-1.7h7.1v-14.1h-7.2l.1-.1ZM330.7,28.5h-13.9v71.1h13.9V28.5ZM370.7,28.5c-4.8,0-9.5.9-13.8,2.8-4.3,1.8-8.1,4.4-11.4,7.6-3.3,3.2-5.8,7-7.7,11.3-1.8,4.3-2.8,8.9-2.8,13.9s.9,9.5,2.8,13.8c1.8,4.3,4.4,8.1,7.7,11.4,3.3,3.3,7.1,5.8,11.4,7.7,4.3,1.8,8.9,2.8,13.8,2.8h35.5v-35.7c0-5-.9-9.6-2.8-13.9-1.8-4.3-4.4-8-7.6-11.3-3.2-3.2-7-5.8-11.3-7.6s-8.9-2.8-13.9-2.8h.1ZM370.7,85.5c-2.9,0-5.8-.6-8.4-1.7s-4.9-2.6-6.9-4.6-3.5-4.3-4.6-6.9-1.7-5.4-1.7-8.4.6-5.7,1.7-8.3c1.1-2.6,2.6-4.8,4.6-6.8s4.3-3.5,6.9-4.6,5.4-1.7,8.4-1.7,5.7.6,8.3,1.7c2.6,1.1,4.8,2.6,6.8,4.6s3.5,4.2,4.6,6.8,1.7,5.4,1.7,8.3v21.5h-21.4v.1Z" fill="#fff"/></svg>
+  </div>
+  <span class="nav-tagline">Microsoft 365<br>Security Assessment</span>
 
-<body class="c24">
-    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.24.1/themes/prism.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.24.1/prism.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.24.1/components/prism-powershell.min.js"></script>
-    <p class="c21 title" id="h.jcmsrxce36fv" style="text-align:center;">
-        <span class="c27">
-            <a class="c10" href="">365Inspect: Community Edition</a>
-        </span>
-        <span class="c14"></span>
-    </p>
-    <p class="c21 title" id="h.gan1mgr3c5k5" style="text-align:center;">
-        <span class="c14">Office 365 Security Inspection Report</span>
-    </p>
-    <p class="c1">
-        <span class="c5"></span>
-    </p>
-    <h1 class="c19" id="h.1pyz3jiilmxm">
-        <span class="c2">About This Report</span>
-    </h1>
-    <!--BEGIN_EXECSUM_TEMPLATE-->
-    <p class="c6">
-        This report was generated by 365Inspect: Community Edition, the open-source Microsoft 365 / Office 365
-        assessment tool by <a href="https://soteria.io">Soteria - Security Solutions & Advisory</a>.
-        <br /><br />
-        {{CMDLINEFLAGS}}.
-    </p>
-    <!--END_EXECSUM_TEMPLATE-->
-    <!--BEGIN_CHART_TEMPLATE-->
-    <h1 class="c19" id="h.1pyz3jiilmxm">
-        <span class="c2">Risk Severity</span>
-    </h1>
+  <h2>Views</h2>
+  <a href="#summary" class="cat-link">Summary</a>
+  <a href="#findings" class="cat-link">All findings</a>
+  <a class="cat-link" onclick="advShowTab('fm', true)">Framework mapping</a>
 
-    <!-- RISK RATING BAR CHART -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-    <div class="chart-container">
-        <canvas id="riskChart"></canvas>
+  <h2 class="nav-sec-toggle" onclick="toggleNavSection(this,'nav-sev')">Severity <span class="nav-caret">&#9662;</span></h2>
+  <div class="nav-sec" id="nav-sev"></div>
+
+  <h2 class="nav-sec-toggle" onclick="toggleNavSection(this,'nav-categories')">Services <span class="nav-caret">&#9662;</span></h2>
+  <div class="nav-sec" id="nav-categories"></div>
+
+  <h2 class="nav-sec-toggle" id="nav-fw-h" onclick="toggleNavSection(this,'nav-fw')">Frameworks <span class="nav-caret">&#9662;</span></h2>
+  <div class="nav-sec" id="nav-fw"></div>
+</nav>
+
+<main>
+  <div class="print-brand-header">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 406.2 100" role="img" aria-label="Soteria"><path d="M383,64.2c0,6.8-5.5,12.4-12.4,12.4s-12.4-5.5-12.4-12.4,5.5-12.4,12.4-12.4,12.4,5.5,12.4,12.4ZM21.2,28.5c-2.9,0-5.7.6-8.3,1.7-2.6,1.1-4.8,2.6-6.7,4.5s-3.4,4.1-4.5,6.7c-1.1,2.6-1.7,5.4-1.7,8.3s.6,5.7,1.7,8.3c1.1,2.6,2.6,4.8,4.5,6.8s4.1,3.5,6.7,4.6c2.6,1.1,5.4,1.7,8.3,1.7h28.5c2.1,0,3.9.7,5.2,2.1,1.4,1.4,2.1,3.1,2.1,5.1s-.7,3.9-2.1,5.2c-1.4,1.4-3.1,2.1-5.2,2.1H6.9v14.1h42.8c2.9,0,5.7-.6,8.3-1.7s4.8-2.6,6.8-4.6,3.5-4.2,4.6-6.8c1.1-2.6,1.7-5.4,1.7-8.3s-.6-5.7-1.7-8.3c-1.1-2.6-2.6-4.8-4.6-6.7-2-1.9-4.2-3.4-6.8-4.5-2.6-1.1-5.4-1.7-8.3-1.7h-28.5c-2,0-3.7-.7-5.1-2.1s-2.1-3.1-2.1-5.2.7-3.7,2.1-5.1,3.1-2.1,5.1-2.1h42.9v-14.1s-42.9,0-42.9,0ZM75.5,64.3c0,4.8.9,9.5,2.8,13.8s4.4,8.1,7.6,11.4,7,5.8,11.3,7.7c4.3,1.8,8.9,2.8,13.8,2.8s9.6-.9,13.9-2.8c4.3-1.8,8-4.4,11.3-7.7,3.3-3.3,5.8-7.1,7.7-11.4,1.8-4.3,2.8-8.9,2.8-13.8s-.9-9.6-2.8-13.9c-1.8-4.3-4.4-8-7.7-11.3-3.3-3.2-7.1-5.8-11.3-7.6s-8.9-2.8-13.9-2.8-9.5.9-13.8,2.8c-4.3,1.8-8.1,4.4-11.3,7.6-3.2,3.2-5.8,7-7.6,11.3-1.8,4.3-2.8,8.9-2.8,13.9ZM89.5,64.3c0-2.9.6-5.7,1.7-8.3,1.1-2.6,2.6-4.8,4.6-6.8s4.3-3.5,6.9-4.6c2.6-1.1,5.4-1.7,8.4-1.7s5.8.6,8.4,1.7c2.6,1.1,4.9,2.6,6.9,4.6s3.5,4.2,4.6,6.8,1.7,5.4,1.7,8.3-.6,5.8-1.7,8.4c-1.1,2.6-2.6,4.9-4.6,6.9s-4.3,3.5-6.9,4.6c-2.6,1.1-5.4,1.7-8.4,1.7s-5.8-.6-8.4-1.7c-2.6-1.1-4.9-2.6-6.9-4.6s-3.5-4.3-4.6-6.9-1.7-5.4-1.7-8.4ZM187.1,85.5c-2.9,0-5.8-.6-8.4-1.7-2.6-1.1-4.9-2.6-6.9-4.6s-3.5-4.3-4.6-6.9-1.7-5.4-1.7-8.4v-7.1h28.5v-14.1h-28.5V0h-14.1v64c0,4.8.9,9.5,2.8,13.8,1.8,4.3,4.4,8.1,7.7,11.4s7.1,5.8,11.4,7.7c4.3,1.8,8.9,2.8,13.8,2.8h7v-14.1h-7v-.1ZM250,79.5c-3.4,3.4-7.3,5.4-11.8,6.1s-8.7,0-12.8-2l39.5-39.4-4.9-4.9c-3.5-3.5-7.4-6.1-11.8-7.9s-8.8-2.6-13.4-2.6-9,.9-13.4,2.6-8.3,4.4-11.8,7.9-6.1,7.4-7.8,11.7-2.5,8.8-2.5,13.3.8,9,2.5,13.4,4.3,8.3,7.8,11.8c3.4,3.4,7.2,6,11.6,7.8,4.3,1.8,8.9,2.7,13.6,2.7s9.3-.9,13.6-2.7c4.3-1.8,8.2-4.4,11.6-7.8l4.9-4.9-10-10-4.9,4.9h0ZM219.5,49.1c3.4-3.4,7.3-5.4,11.8-6s8.7,0,12.8,2.1c-1.5,1.5-3.6,3.5-6.3,6.2-2.7,2.6-5.5,5.4-8.4,8.3l-8.2,8.2c-2.6,2.6-4.5,4.5-5.8,5.8-1.5-2.9-2.2-6.1-2.2-9.4,0-5.9,2.1-11,6.4-15.2h-.1ZM305.3,28.5c-4.8,0-9.5.9-13.8,2.8-4.3,1.8-8.1,4.4-11.4,7.6s-5.8,7-7.7,11.3c-1.8,4.3-2.8,8.9-2.8,13.9v35.7h14.3v-35.7c0-2.9.6-5.7,1.7-8.3s2.6-4.8,4.6-6.8,4.2-3.5,6.8-4.6c2.6-1.1,5.4-1.7,8.3-1.7h7.1v-14.1h-7.2l.1-.1ZM330.7,28.5h-13.9v71.1h13.9V28.5ZM370.7,28.5c-4.8,0-9.5.9-13.8,2.8-4.3,1.8-8.1,4.4-11.4,7.6-3.3,3.2-5.8,7-7.7,11.3-1.8,4.3-2.8,8.9-2.8,13.9s.9,9.5,2.8,13.8c1.8,4.3,4.4,8.1,7.7,11.4,3.3,3.3,7.1,5.8,11.4,7.7,4.3,1.8,8.9,2.8,13.8,2.8h35.5v-35.7c0-5-.9-9.6-2.8-13.9-1.8-4.3-4.4-8-7.6-11.3-3.2-3.2-7-5.8-11.3-7.6s-8.9-2.8-13.9-2.8h.1ZM370.7,85.5c-2.9,0-5.8-.6-8.4-1.7s-4.9-2.6-6.9-4.6-3.5-4.3-4.6-6.9-1.7-5.4-1.7-8.4.6-5.7,1.7-8.3c1.1-2.6,2.6-4.8,4.6-6.8s4.3-3.5,6.9-4.6,5.4-1.7,8.4-1.7,5.7.6,8.3,1.7c2.6,1.1,4.8,2.6,6.8,4.6s3.5,4.2,4.6,6.8,1.7,5.4,1.7,8.3v21.5h-21.4v.1Z" fill="#0a2540"/></svg>
+    <div class="pbh-tagline">Cybersecurity Expertise to Protect Your Digital Journey</div>
+  </div>
+
+  <div class="sticky-head">
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>{{REPORT_TITLE}}</h1>
+      <div class="meta" id="page-meta"></div>
     </div>
-    <script>
-        var ctx = document.getElementById('riskChart').getContext('2d');
-
-        // Calculate percentages based on total count
-        var totalFindingsString = '{{TOTAL_COUNT}}';
-        var totalFindings = parseInt(totalFindingsString);
-
-        var myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Critical', 'High', 'Medium', 'Low', 'Informational'],
-                datasets: [{
-                    label: 'Risk Severity',
-                    backgroundColor: ['#FC0303', '#FC6D03', '#FCDE03', '#2CFC03', '#C8C8C8'],
-                    data: ['{{CRITICAL_COUNT}}', '{{HIGH_COUNT}}', '{{MEDIUM_COUNT}}', '{{LOW_COUNT}}', '{{INFORMATIONAL_COUNT}}']
-                }]
-            },
-            plugins: [ChartDataLabels],
-            options: {
-                legend: {
-                    display: false,
-                },
-                title: {
-                    display: true,
-                    text: 'Risk Ratings'
-                },
-                responsive: true,
-                maintainAspectRatio: false,
-                indexAxis: 'y',
-                scales: {
-                    x: {
-                        type: 'linear',
-                        min: 0,
-                        ticks: {
-                            stepSize: 10,
-                            precision: 0
-                        },
-                        grid: {
-                            display: false
-                        }
-                    },
-                    y: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                },
-                plugins: {
-                    datalabels: {
-                        anchor: 'end',
-                        align: 'end',
-                        font: {
-                            size: 11,
-                            weight: 'bold'
-                        },
-                        formatter: function (value, context) {
-                            var count = context.dataset.data[context.dataIndex];
-                            var percentage = Math.round(((count / totalFindings) * 100).toFixed(1)) + '%';
-                            return context.chart.data.labels[context.dataIndex] + ": " + count + "\n" + "(" + percentage + ")";
-                        }
-                    }
-                },
-                tooltips: {
-                    callbacks: {
-                        label: function (tooltipItem, data) {
-                            var count = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-                            var percentage = Math.round(((count / totalFindings) * 100).toFixed(1)) + '%';
-                            return data.labels[tooltipItem.index] + ": " + count + " (" + percentage + ")";
-                        }
-                    }
-                }
-            }
-        });
-    </script>
-
-    <h1 class="c19" id="h.1pyz3jiilmxm">
-        <span class="c2">Risk Distribution</span>
-    </h1>
-    <!-- PIE CHART -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-    <div class="piechart-container">
-        <canvas id="distChart"></canvas>
+    <div class="export-bar">
+      <button class="export-btn theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle dark mode">&#9790; Dark</button>
+      <button class="export-btn export-btn-pdf" onclick="window.print()">&#128438; Export PDF</button>
     </div>
-    <script>
-        var ctx = document.getElementById('distChart').getContext('2d');
+  </div>
 
-        // Added to test
-        var totalFindingsString = '{{TOTAL_COUNT}}';
-        var totalFindings2 = parseInt(totalFindingsString);
-        var data = ['{{EXCHANGE}}', '{{SHAREPOINT}}', '{{TEAMS}}', '{{INTUNE}}', '{{AAD}}', '{{SECCOMP}}', '{{TENANT}}']
-        var labels = ['Exchange', 'SharePoint', 'Teams', 'Intune', 'Azure AD', 'Security Center', 'Tenant Settings'];
-        var backgroundColor = ['#3498DB', '#27AE60', '#8E44AD', '#E67E22', '#2CFC03', '#F4D03F', '#C8C8C8'];
+  <div class="adv-tabbar" id="adv-tabbar" role="tablist">
+    <button type="button" class="adv-tab active" role="tab" data-adv-target="findings" onclick="advShowTab('findings')">Findings <span class="adv-tab-badge" id="adv-badge-findings">0</span></button>
+    <button type="button" class="adv-tab" role="tab" data-adv-target="fm" onclick="advShowTab('fm')">Framework Mapping <span class="adv-tab-badge" id="adv-badge-fm">0</span></button>
+  </div>
+  <div id="summary" class="panel">
+    <div class="summary-cards" id="summary-cards"></div>
+  </div>
 
-        var chartData = [];
-        for (var i = 0; i < data.length; i++) {
-            chartData.push({
-                value: parseInt(data[i]),
-                label: labels[i],
-                color: backgroundColor[i]
-            });
-        }
+  <div id="score-panel"></div>
 
-        chartData.sort(function (a, b) {
-            return b.value - a.value;
-        });
+  <div id="dist-panel" class="panel" hidden>
+    <h2 class="panel-title">Finding Distribution</h2>
+    <div class="dist-flex">
+      <div class="dist-donut"><svg id="dist-svg" viewBox="0 0 120 120" role="img" aria-labelledby="dist-desc"></svg>
+        <div class="dist-center"><div class="dc-num" id="dist-total">0</div><div class="dc-lab">Findings</div></div>
+      </div>
+      <div class="dist-legend" id="dist-legend"></div>
+    </div>
+    <p class="dist-note" id="dist-note"></p>
+  </div>
 
-        var sortedData = chartData.map(function (item) {
-            return item.value;
-        });
-        var sortedLabels = chartData.map(function (item) {
-            return item.label;
-        });
-        var sortedBackgroundColor = chartData.map(function (item) {
-            return item.color;
-        });
+  <div class="panel filters-section">
+    <div class="filters-row">
+      <span class="filter-label">Severity</span>
+      <div class="ms-dropdown" id="ms-severity">
+        <button type="button" class="filter-select ms-trigger" onclick="toggleMs(this)"><span class="ms-label">All severities</span><span class="ms-arrow">&#9662;</span></button>
+        <div class="ms-panel" id="severity-filters" hidden></div>
+      </div>
 
-        var myChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: sortedLabels,
-                datasets: [{
-                    backgroundColor: sortedBackgroundColor,
-                    data: sortedData
-                }]
-            },
-            plugins: [ChartDataLabels],
-            options: {
-                rotation: -90,
-                layout: {
-                    padding: 30,
-                },
-                responsive: true,
-                maintainAspectRatio: true,
-                aspectRatio: 2,
-                layout: {
-                    padding: {
-                        top: 30,
-                        right: 30,
-                        bottom: 30,
-                        left: 30
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'left',
-                        align: 'center',
-                        padding: 20,
-                    },
-                    datalabels: {
-                        anchor: 'end',
-                        align: 'end',
-                        color: '#000000',
-                        font: {
-                            weight: 'bold'
-                        },
-                        formatter: function (value, context) {
-                            var percentage = Math.floor(((value / totalFindings2) * 100) + 0.5);
-                            return context.chart.data.labels[context.dataIndex] + ": " + value + " (" + percentage + ")";
-                        },
-                        display: function (context) {
-                            return context.dataset.data[context.dataIndex] > 0;
-                        },
-                        clamp: false,
-                        clip: false,
-                        offset: 5,
-                    }
-                },
-                tooltips: {
-                    callbacks: {
-                        label: function (tooltipItem, data) {
-                            var dataset = data.datasets[tooltipItem.datasetIndex];
-                            var total = dataset.data.reduce(function (previousValue, currentValue, currentIndex, array) {
-                                return previousValue + currentValue;
-                            });
-                            var currentValue = dataset.data[tooltipItem.index];
-                            var percentage = Math.floor(((currentValue / totalFindings2) * 100) + 0.5);
-                            return dataset.labels[tooltipItem.index] + ": " + currentValue + " (" + percentage + "%" + ")";
-                        }
-                    }
-                }
-            }
-        });
-    </script>
+      <span class="filter-label" id="status-filter-label">Status</span>
+      <div class="ms-dropdown" id="ms-status">
+        <button type="button" class="filter-select ms-trigger" onclick="toggleMs(this)"><span class="ms-label">All statuses</span><span class="ms-arrow">&#9662;</span></button>
+        <div class="ms-panel" id="status-filters" hidden></div>
+      </div>
 
-    <!--END_CHART_TEMPLATE-->
-    <h1 class="c19" id="h.1pyz3jiilmxm">
-        <span class="c2">Findings Summary</span>
-    </h1>
-    <p class="c1">
-        <span class="c5"></span>
-    </p>
-    <a id="t.0f9306ad3c9c0c7d4b272d2fd511b4a9a10fb1f3"></a>
-    <a id="t.0"></a>
-    <table class="c26" style="">
-        <tbody>
-            <tr class="c9">
-                <td class="c3" colspan="1" rowspan="1">
-                    <p class="c8">
-                        <span class="c23">ID</span>
-                    </p>
-                </td>
-                <td class="c11" colspan="1" rowspan="1">
-                    <p class="c8">
-                        <span class="c23">Finding Name</span>
-                    </p>
-                </td>
-                <td class="c11" colspan="1" rowspan="1">
-                    <p class="c8">
-                        <span class="c23">Inherent Risk</span>
-                    </p>
-                </td>
-                <!-- <td class="c11" colspan="1" rowspan="1">
-            <p class="c8">
-                <span class="c23">Residual Risk</span>
-            </p>
-        </td> -->
-                <!--
-        <td class="c12" colspan="1" rowspan="1">
-            <p class="c8">
-                <span class="c23">Status</span>
-            </p>
-        </td> -->
-            </tr>
-            <!--BEGIN_FINDING_SHORT_REPEATER-->
-            <tr class="c9">
-                <td class="c3" colspan="1" rowspan="1" style="class-align:center;">
-                    <span class="c8 c13">
-                        <span class="table-detail-light">{{FINDING_NUMBER}}</span>
-                    </span>
-                </td>
-                <td class="c11" colspan="1" rowspan="1" style="">
-                    <a class="c0" href="#finding_{{FINDING_NUMBER}}">
-                        <span class="table-detail-light">{{FINDING_NAME}}</span>
-                    </a>
-                </td>
-                <td class="c11" colspan="1" rowspan="1" style="">
-                    <span class="table-detail-light">{{IMPACT}}</span>
-                    </a>
-                </td>
-                <!-- <td class="c11" colspan="1" rowspan="1" style="">
-            <span class="table-detail-light">{{RISKRATING}}</span>
-        </td>
-        </td> -->
-                <!--
-        <td class="c15" colspan="1" rowspan="1">
-            <p class="c0">
-                <span class="table-detail-light">{{FINDING_STATUS}}</span>
-            </p>
-        </td>-->
-            </tr>
-            <!--END_FINDING_SHORT_REPEATER-->
-        </tbody>
-    </table>
-    <h1 class="c19 c32" id="h.jbbt4dwy4snk">
-        <span class="c2"></span>
-    </h1>
-    <h1 class="c19" id="h.u5r5mzm6at7q">
-        <span class="c2">O365 Audit Findings</span>
-    </h1>
-    <p class="c6">
-        <span>The following issues were discovered during the automated O365 Assessment. These findings are ordered by
-            Inherent Risk.</span>
-    </p>
-    <hr>
-    <p class="c1 c28">
-        <span class="c31"></span>
-    </p>
-    <p class="c1">
-        <span class="c34"></span>
-    </p>
+      <span class="filter-label" id="gated-filter-label">Licensing</span>
+      <select class="filter-select" id="gated-filter">
+        <option value="">All findings</option>
+        <option value="gated">License gated</option>
+        <option value="ungated">Not license gated</option>
+      </select>
 
-    <!--BEGIN_FINDING_LONG_REPEATER-->
-    <h2 class="c19" id="finding_{{FINDING_NUMBER}}" style="text-align:left">
-        <span class="c2" style="font-size:20">{{FINDING_NUMBER}}: {{FINDING_NAME}}</span>
-        </h1>
-        <p class="c20">
-            <span class="finding-detail-heading">Returned Value:</span>
-        </p>
+      <span class="filter-label">Service</span>
+      <select class="filter-select" id="category-filter">
+        <option value="">All services</option>
+      </select>
 
-        <!-- Make results collapsible if there are more than 5 results -->
-        <!--     <script>
-            // get a reference to the list element
-            const list = document.getElementById('affectedObjects');
+      <span class="filter-label" id="framework-filter-label">Framework</span>
+      <div class="ms-dropdown" id="ms-framework">
+        <button type="button" class="filter-select ms-trigger" onclick="toggleMs(this)"><span class="ms-label">All frameworks</span><span class="ms-arrow">&#9662;</span></button>
+        <div class="ms-panel" id="framework-filters" hidden></div>
+      </div>
 
-            // check if there are more than 5 items in the list
-            if (list.children.length > 5) {
-                // create a toggle button
-                const button = document.createElement('button');
-                button.textContent = 'Show More';
+      <input class="search-input" type="text" id="search-input" placeholder="Search findings&hellip;">
+      <button class="clear-btn" onclick="clearFilters()">Clear</button>
+      <span class="showing-count" id="showing-count"></span>
+    </div>
+  </div>
 
-                // hide all but the first 5 items
-                for (let i = 5; i < list.children.length; i++) {
-                    list.children[i].classList.add('hidden');
-                }
+  </div><!-- /sticky-head -->
 
-                // add the toggle button to the page
-                list.after(button);
+  <div class="scroll-area">
+  <div id="findings" class="findings-list">
+    <div id="findings-list"></div>
+  </div>
 
-                // add a click event listener to the toggle button
-                button.addEventListener('click', () => {
-                    // loop over all the items in the list
-                    for (let i = 5; i < list.children.length; i++) {
-                        const item = list.children[i];
-                        // toggle the hidden class of each item
-                        item.classList.toggle('hidden');
-                    }
-                    // update the text of the toggle button
-                    button.textContent = button.textContent === 'Show More' ? 'Show Less' : 'Show More';
-                });
-            }
-        </script>
 
-        <style>
-            .hidden {
-                display: none;
-            }
-        </style>
- -->
-        <ul class="c17 lst-kix_9wblkacyqph0-0 start">
-            <!--BEGIN_AFFECTED_OBJECTS_REPEATER-->
-            <li class="finding-detail-list">
-                <span>{{AFFECTED_OBJECT}}</span>
-            </li>
-            <!--END_AFFECTED_OBJECTS_REPEATER-->
-        </ul>
+  <section class="adv-pane" id="adv-pane-fm" role="tabpanel">
+    <div class="adv-note"><strong>What this shows.</strong> Each framework control below is linked to the 365Inspect checks that produce evidence for it. A control is <strong>Satisfied</strong> only when every mapped check passed; one failing check makes it <strong>Not satisfied</strong>; a control whose mapped checks all ended skipped or in warning is <strong>Inconclusive</strong> rather than counted either way. Coverage here is evidentiary, not certification: these checks assess tenant configuration, and no framework is fully satisfied by tenant configuration alone. Controls covering policy, personnel, physical security, and contracting are out of this tool's reach and are simply absent from the tables.</div>
+    <div class="fm-cards" id="fm-cards"></div>
+    <div class="adv-toolbar"><span id="fm-showing"></span><button type="button" class="clear-btn" id="fm-clear" onclick="fmClear()" hidden>Clear filter</button><button type="button" class="clear-btn" onclick="fmExpandAll(true)">Expand all</button><button type="button" class="clear-btn" onclick="fmExpandAll(false)">Collapse all</button><span class="adv-hint">Select a framework to expand it. Select a check ID to jump to that finding.</span></div>
+    <div id="fm-list"></div>
+    <div id="fm-unmapped"></div>
+  </section>
+  <aside id="effort-panel" role="dialog" aria-modal="false" aria-labelledby="ep-title">
+    <div class="ep-header">
+      <div class="ep-title" id="ep-title">Remediation Effort</div>
+      <button class="ep-close" onclick="closeEffortPanel()" aria-label="Close">&times;</button>
+    </div>
+    <div class="ep-body">
+      <div class="ep-badge" id="ep-badge"></div>
+      <p class="ep-desc" id="ep-desc"></p>
+      <div class="ep-criteria" id="ep-criteria"></div>
+    </div>
+  </aside>
 
-        <span class="finding-paragraph-spacing">&nbsp;</span>
-        <p class="finding-paragraph">
-            <span class="finding-detail-heading">Finding: </span>
-        </p>
-        <p class="finding-paragraph">
-            <span class="finding-detail-value">{{DESCRIPTION}}</span>
-        </p>
-        <span class="finding-paragraph-spacing">&nbsp;</span>
-        <p class="finding-paragraph">
-            <span class="finding-detail-heading">Default Value:</span>
-        </p>
-        <p class="finding-paragraph">
-            <span class="finding-detail-value">{{DEFAULTVALUE}}</span>
-        </p>
-        <span class="finding-paragraph-spacing">&nbsp;</span>
-        <p class="finding-paragraph">
-            <span class="finding-detail-heading">Expected Value:</span>
-        </p>
-        <p class="finding-paragraph">
-            <span class="finding-detail-value">{{EXPECTEDVALUE}}</span>
-        </p>
-        <span class="finding-paragraph-spacing">&nbsp;</span>
-        <p class="finding-paragraph">
-            <span class="finding-detail-heading">Inherent Risk:</span>
-        </p>
-        <p class="finding-paragraph">
-            <span class="finding-detail-value">{{IMPACT}}</span>
-        </p>
-        <span class="finding-paragraph-spacing">&nbsp;</span>
-        <p class="finding-paragraph">
-            <span class="finding-detail-heading">Remediation:</span>
-        </p>
-        <p class="finding-paragraph">
-            <span class="finding-detail-value">{{REMEDIATION}}</span>
-        </p>
-        <span class="finding-paragraph-spacing">&nbsp;</span>
-        <p class="finding-paragraph">
-            <span class="finding-detail-heading">PowerShell Example:</span>
-        </p>
-        <p class="finding-paragraph">
-            <span class="finding-detail-value">{{POWERSHELL}}</span>
-        </p>
-        <span class="finding-paragraph-spacing">&nbsp;</span>
-        <p class="finding-paragraph">
-            <span class="finding-detail-heading">References:</span>
-        </p>
-        <ul class="c17 lst-kix_9eynn2g4osw6-0 start">
-            <!--BEGIN_REFERENCES_REPEATER-->
-            <li class="finding-detail-list">
-                <!--<span class="c5">{{REFERENCE_stuff}}</span>-->
-                <a href="{{REFERENCE_URL}}">{{REFERENCE_TEXT}}</a>
-            </li>
-            <!--END_REFERENCES_REPEATER-->
-        </ul>
-        <h1 class="c25" id="h.tbespirmsxnv">
-            <span class="c2"></span>
-        </h1>
-        <!--END_FINDING_LONG_REPEATER-->
-        <!--BEGIN_APPENDIX-->
-        <h1 class="c19" id="h.1pyz3jiilmxm">
-            <span class="c2">Appendix A: Executed Inspectors</span>
-        </h1>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <table class="c26" id="inspectors">
-            <style>
-                table,
-                th,
-                td {
-                    border: 1px solid black;
-                    padding-left: 10px;
-                    padding-right: 10px;
-                    text-align: center;
-                    vertical-align: middle;
-                }
-            </style>
-            <thead>
-                <tr class="c9">
-                    <th colspan="4" style="background-color: #d9d9d9a6;"><b>Inspectors Executed:</b></th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-        <script>
-            var allValues = "{{SELECTED_INSPECTORS}}";
-            var listOfValues = allValues.split(",");
+  <aside id="affected-panel" role="dialog" aria-modal="false" aria-labelledby="ap-title">
+    <div class="ep-header">
+      <div class="ep-title" id="ap-title">Affected Objects</div>
+      <button class="ep-close" onclick="closeAffectedPanel()" aria-label="Close">&times;</button>
+    </div>
+    <div class="affected-body" id="affected-body"></div>
+  </aside>
 
-            var table = document.getElementById("inspectors");
-            var tbody = table.getElementsByTagName("tbody")[0];
+  <aside id="method-panel" role="dialog" aria-modal="false" aria-labelledby="mp-title">
+    <div class="ep-header">
+      <div class="ep-title" id="mp-title">How This Score Is Calculated</div>
+      <button class="ep-close" onclick="closeMethodPanel()" aria-label="Close">&times;</button>
+    </div>
+    <div class="mp-body" id="mp-body"></div>
+  </aside>
 
-            for (var i = 0; i < listOfValues.length; i += 4) {
-                var row = document.createElement("tr");
-                var cell1 = document.createElement("td");
-                var cell2 = document.createElement("td");
-                var cell3 = document.createElement("td");
-                var cell4 = document.createElement("td");
+  <div class="brand-footer">
+    <div class="footer-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 406.2 100" role="img" aria-label="Soteria"><path d="M383,64.2c0,6.8-5.5,12.4-12.4,12.4s-12.4-5.5-12.4-12.4,5.5-12.4,12.4-12.4,12.4,5.5,12.4,12.4ZM21.2,28.5c-2.9,0-5.7.6-8.3,1.7-2.6,1.1-4.8,2.6-6.7,4.5s-3.4,4.1-4.5,6.7c-1.1,2.6-1.7,5.4-1.7,8.3s.6,5.7,1.7,8.3c1.1,2.6,2.6,4.8,4.5,6.8s4.1,3.5,6.7,4.6c2.6,1.1,5.4,1.7,8.3,1.7h28.5c2.1,0,3.9.7,5.2,2.1,1.4,1.4,2.1,3.1,2.1,5.1s-.7,3.9-2.1,5.2c-1.4,1.4-3.1,2.1-5.2,2.1H6.9v14.1h42.8c2.9,0,5.7-.6,8.3-1.7s4.8-2.6,6.8-4.6,3.5-4.2,4.6-6.8c1.1-2.6,1.7-5.4,1.7-8.3s-.6-5.7-1.7-8.3c-1.1-2.6-2.6-4.8-4.6-6.7-2-1.9-4.2-3.4-6.8-4.5-2.6-1.1-5.4-1.7-8.3-1.7h-28.5c-2,0-3.7-.7-5.1-2.1s-2.1-3.1-2.1-5.2.7-3.7,2.1-5.1,3.1-2.1,5.1-2.1h42.9v-14.1s-42.9,0-42.9,0ZM75.5,64.3c0,4.8.9,9.5,2.8,13.8s4.4,8.1,7.6,11.4,7,5.8,11.3,7.7c4.3,1.8,8.9,2.8,13.8,2.8s9.6-.9,13.9-2.8c4.3-1.8,8-4.4,11.3-7.7,3.3-3.3,5.8-7.1,7.7-11.4,1.8-4.3,2.8-8.9,2.8-13.8s-.9-9.6-2.8-13.9c-1.8-4.3-4.4-8-7.7-11.3-3.3-3.2-7.1-5.8-11.3-7.6s-8.9-2.8-13.9-2.8-9.5.9-13.8,2.8c-4.3,1.8-8.1,4.4-11.3,7.6-3.2,3.2-5.8,7-7.6,11.3-1.8,4.3-2.8,8.9-2.8,13.9ZM89.5,64.3c0-2.9.6-5.7,1.7-8.3,1.1-2.6,2.6-4.8,4.6-6.8s4.3-3.5,6.9-4.6c2.6-1.1,5.4-1.7,8.4-1.7s5.8.6,8.4,1.7c2.6,1.1,4.9,2.6,6.9,4.6s3.5,4.2,4.6,6.8,1.7,5.4,1.7,8.3-.6,5.8-1.7,8.4c-1.1,2.6-2.6,4.9-4.6,6.9s-4.3,3.5-6.9,4.6c-2.6,1.1-5.4,1.7-8.4,1.7s-5.8-.6-8.4-1.7c-2.6-1.1-4.9-2.6-6.9-4.6s-3.5-4.3-4.6-6.9-1.7-5.4-1.7-8.4ZM187.1,85.5c-2.9,0-5.8-.6-8.4-1.7-2.6-1.1-4.9-2.6-6.9-4.6s-3.5-4.3-4.6-6.9-1.7-5.4-1.7-8.4v-7.1h28.5v-14.1h-28.5V0h-14.1v64c0,4.8.9,9.5,2.8,13.8,1.8,4.3,4.4,8.1,7.7,11.4s7.1,5.8,11.4,7.7c4.3,1.8,8.9,2.8,13.8,2.8h7v-14.1h-7v-.1ZM250,79.5c-3.4,3.4-7.3,5.4-11.8,6.1s-8.7,0-12.8-2l39.5-39.4-4.9-4.9c-3.5-3.5-7.4-6.1-11.8-7.9s-8.8-2.6-13.4-2.6-9,.9-13.4,2.6-8.3,4.4-11.8,7.9-6.1,7.4-7.8,11.7-2.5,8.8-2.5,13.3.8,9,2.5,13.4,4.3,8.3,7.8,11.8c3.4,3.4,7.2,6,11.6,7.8,4.3,1.8,8.9,2.7,13.6,2.7s9.3-.9,13.6-2.7c4.3-1.8,8.2-4.4,11.6-7.8l4.9-4.9-10-10-4.9,4.9h0ZM219.5,49.1c3.4-3.4,7.3-5.4,11.8-6s8.7,0,12.8,2.1c-1.5,1.5-3.6,3.5-6.3,6.2-2.7,2.6-5.5,5.4-8.4,8.3l-8.2,8.2c-2.6,2.6-4.5,4.5-5.8,5.8-1.5-2.9-2.2-6.1-2.2-9.4,0-5.9,2.1-11,6.4-15.2h-.1ZM305.3,28.5c-4.8,0-9.5.9-13.8,2.8-4.3,1.8-8.1,4.4-11.4,7.6s-5.8,7-7.7,11.3c-1.8,4.3-2.8,8.9-2.8,13.9v35.7h14.3v-35.7c0-2.9.6-5.7,1.7-8.3s2.6-4.8,4.6-6.8,4.2-3.5,6.8-4.6c2.6-1.1,5.4-1.7,8.3-1.7h7.1v-14.1h-7.2l.1-.1ZM330.7,28.5h-13.9v71.1h13.9V28.5ZM370.7,28.5c-4.8,0-9.5.9-13.8,2.8-4.3,1.8-8.1,4.4-11.4,7.6-3.3,3.2-5.8,7-7.7,11.3-1.8,4.3-2.8,8.9-2.8,13.9s.9,9.5,2.8,13.8c1.8,4.3,4.4,8.1,7.7,11.4,3.3,3.3,7.1,5.8,11.4,7.7,4.3,1.8,8.9,2.8,13.8,2.8h35.5v-35.7c0-5-.9-9.6-2.8-13.9-1.8-4.3-4.4-8-7.6-11.3-3.2-3.2-7-5.8-11.3-7.6s-8.9-2.8-13.9-2.8h.1ZM370.7,85.5c-2.9,0-5.8-.6-8.4-1.7s-4.9-2.6-6.9-4.6-3.5-4.3-4.6-6.9-1.7-5.4-1.7-8.4.6-5.7,1.7-8.3c1.1-2.6,2.6-4.8,4.6-6.8s4.3-3.5,6.9-4.6,5.4-1.7,8.4-1.7,5.7.6,8.3,1.7c2.6,1.1,4.8,2.6,6.8,4.6s3.5,4.2,4.6,6.8,1.7,5.4,1.7,8.3v21.5h-21.4v.1Z" fill="#0a2540"/></svg>
+    </div>
+    <div class="footer-tagline">Cybersecurity Expertise to Protect Your Digital Journey</div>
+    <div class="footer-meta"><a href="https://soteria.io" target="_blank" rel="noopener">soteria.io</a> &nbsp;|&nbsp; Generated <span id="footer-timestamp"></span> &nbsp;|&nbsp; Continuous assessment: <a href="https://soteria.io/inspect365" target="_blank" rel="noopener">Inspect 365</a></div>
+  </div>
+  </div><!-- /scroll-area -->
+</main>
+</div>
 
-                cell1.innerHTML = listOfValues[i] !== undefined ? listOfValues[i] : '';
-                cell2.innerHTML = listOfValues[i + 1] !== undefined ? listOfValues[i + 1] : '';
-                cell3.innerHTML = listOfValues[i + 2] !== undefined ? listOfValues[i + 2] : '';
-                cell4.innerHTML = listOfValues[i + 3] !== undefined ? listOfValues[i + 3] : '';
+<script id="report-data" type="application/json">{{REPORT_DATA_JSON}}</script>
+<script>
+const REPORT_DATA = JSON.parse(document.getElementById('report-data').textContent);
+// Stable index into the source findings array so the affected-objects flyout can look up a
+// finding regardless of the current filter/sort order.
+(REPORT_DATA.findings || []).forEach((f, i) => { f._idx = i; });
+const AFFECTED_INLINE_LIMIT = 15;
 
-                row.appendChild(cell1);
-                row.appendChild(cell2);
-                row.appendChild(cell3);
-                row.appendChild(cell4);
+const SEVERITIES_ALWAYS = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'INFO'];
+const SEV_ORDER = { CRITICAL: 0, HIGH: 1, MEDIUM: 2, LOW: 3, INFO: 4, REVIEW_REQUIRED: 5 };
+const FRAMEWORK_TAG_CLASS = {
+  'CIS 365 Foundations': 'tag-cis365',
+  'CIS CSC':             'tag-cis',
+  'CIS Controls':        'tag-cis',
+  'NIST 800-53':         'tag-nist',
+  'NIST SP 800-53':      'tag-nist',
+  'NIST 800-171':        'tag-nist171',
+  'DISA STIG':           'tag-stig',
+  'MITRE ATT&CK':        'tag-mitre',
+};
 
-                tbody.appendChild(row);
-            }
-        </script>
-        <!--END_APPENDIX-->
-        <script>
-            window.addEventListener("DOMContentLoaded", function () {
-                Prism.highlightAll();
-            });
-        </script>
+function sevLabel(sev)        { return sev === 'REVIEW_REQUIRED' ? 'REVIEW REQUIRED' : sev; }
+function sevColumnLabel(sev)  { return sev === 'REVIEW_REQUIRED' ? 'Review' : sev === 'INFO' ? 'Info' : sev.charAt(0) + sev.slice(1).toLowerCase(); }
+function hasReviewRequired()  { return (REPORT_DATA.findings || []).some(f => f.severity === 'REVIEW_REQUIRED'); }
+function activeSeverities()   { return hasReviewRequired() ? [...SEVERITIES_ALWAYS, 'REVIEW_REQUIRED'] : SEVERITIES_ALWAYS; }
+function frameworkTagClass(name) { return FRAMEWORK_TAG_CLASS[name] || 'tag-other'; }
+
+function toggleTheme() {
+  const isDark = document.documentElement.classList.toggle('dark');
+  localStorage.setItem('soteria-theme', isDark ? 'dark' : 'light');
+  const btn = document.getElementById('theme-toggle-btn');
+  if (btn) btn.innerHTML = isDark ? '&#9728; Light' : '&#9790; Dark';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const saved = localStorage.getItem('soteria-theme');
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (saved === 'dark' || (!saved && prefersDark)) {
+    document.documentElement.classList.add('dark');
+    const btn = document.getElementById('theme-toggle-btn');
+    if (btn) btn.innerHTML = '&#9728; Light';
+  }
+
+  buildPageMeta();
+  buildScorePanel();
+  buildSummaryCards();
+  buildServiceDistribution();
+  buildSeverityFilters();
+  buildStatusFilters();
+  buildGatedFilterVisibility();
+  buildCategoryFilter();
+  buildFrameworkFilter();
+  buildNavCategories();
+  syncServiceActive();
+
+  document.getElementById('search-input').addEventListener('input', renderAll);
+  document.getElementById('category-filter').addEventListener('change', () => { syncServiceActive(); renderAll(); });
+  document.addEventListener('click', e => { if (!e.target.closest('.ms-dropdown')) { document.querySelectorAll('.ms-panel').forEach(p => p.hidden = true); document.querySelectorAll('.ms-trigger').forEach(t => t.classList.remove('open')); } });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeEffortPanel(); closeAffectedPanel(); closeMethodPanel(); } });
+
+  document.getElementById('footer-timestamp').textContent = REPORT_DATA.generated_at || '';
+
+  renderAll();
+});
+
+function esc(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function buildPageMeta() {
+  const meta = document.getElementById('page-meta');
+  const pairs = REPORT_DATA.meta_pairs || [];
+  meta.innerHTML = pairs.map(([label, value]) =>
+    `${esc(label)}: <strong>${esc(value)}</strong>`
+  ).join(' &nbsp;|&nbsp; ');
+}
+
+// Finding distribution: which services carry the findings, as service exposure. Counts every
+// service a finding is attributed to, so a finding mapped to two services is counted in both;
+// the percentages are therefore a share of attributions, not of findings, and the note under the
+// chart says so whenever the two differ. Segments always sum to 100%.
+const DIST_COLORS = ["#2563eb","#059669","#d97706","#7c3aed","#dc2626","#0891b2",
+                     "#db2777","#15803d","#ea580c","#4f46e5","#0f766e","#b45309"];
+const DIST_OTHER = "#6b7280";
+
+function buildServiceDistribution() {
+  const panel = document.getElementById("dist-panel");
+  if (!panel) return;
+  const findings = REPORT_DATA.findings || [];
+  const counts = new Map();
+  let attributions = 0, unattributed = 0;
+  for (const f of findings) {
+    const svcs = (f.services || []).filter(Boolean);
+    if (!svcs.length) { unattributed++; continue; }
+    for (const s of svcs) { counts.set(s, (counts.get(s) || 0) + 1); attributions++; }
+  }
+  if (!counts.size) { panel.hidden = true; return; }
+  panel.hidden = false;
+
+  let items = [...counts.entries()].map(([label, value]) => ({ label, value }))
+                                   .sort((a, b) => b.value - a.value || a.label.localeCompare(b.label));
+  // Keep the donut readable: anything past the palette is folded into one Other slice.
+  if (items.length > DIST_COLORS.length) {
+    const keep = items.slice(0, DIST_COLORS.length - 1);
+    const rest = items.slice(DIST_COLORS.length - 1);
+    keep.push({ label: "Other (" + rest.length + " services)", value: rest.reduce((a, b) => a + b.value, 0), other: true });
+    items = keep;
+  }
+  items.forEach((it, i) => { it.color = it.other ? DIST_OTHER : DIST_COLORS[i % DIST_COLORS.length]; });
+
+  const svg = document.getElementById("dist-svg");
+  let offset = 0;
+  const arcs = items.map(it => {
+    const pct = (it.value / attributions) * 100;
+    const seg = `<circle cx="60" cy="60" r="44" pathLength="100" stroke="${it.color}" stroke-dasharray="${pct} ${100 - pct}" stroke-dashoffset="${-offset}"><title>${esc(it.label)}: ${it.value}</title></circle>`;
+    offset += pct;
+    return seg;
+  }).join("");
+  svg.innerHTML = `<desc id="dist-desc">Findings by service. ${items.map(i => esc(i.label) + " " + i.value).join(", ")}.</desc>` + arcs;
+
+  document.getElementById("dist-total").textContent = findings.length;
+  document.getElementById("dist-legend").innerHTML = items.map(it => {
+    const pct = Math.round((it.value / attributions) * 1000) / 10;
+    return `<div class="dist-row"><span class="dist-sw" style="background:${it.color}"></span><span class="dist-name" title="${esc(it.label)}">${esc(it.label)}</span><span class="dist-val">${it.value} &middot; ${pct}%</span></div>`;
+  }).join("");
+
+  const notes = [];
+  if (attributions !== findings.length) {
+    notes.push(`${findings.length} findings produce ${attributions} service attributions, because a finding that affects more than one service is counted under each. Percentages are a share of attributions and sum to 100%.`);
+  }
+  if (unattributed) notes.push(`${unattributed} finding${unattributed === 1 ? " carries" : "s carry"} no service and ${unattributed === 1 ? "is" : "are"} not shown.`);
+  const note = document.getElementById("dist-note");
+  note.textContent = notes.join(" ");
+  note.hidden = !notes.length;
+}
+
+function buildSummaryCards() {
+  const container = document.getElementById('summary-cards');
+  const bySev = (REPORT_DATA.summary && REPORT_DATA.summary.by_severity) || {};
+  let html = '';
+  for (const sev of activeSeverities()) {
+    html += `<div class="summary-card card-${sev}">
+      <div class="count">${bySev[sev] || 0}</div>
+      <div class="label">${sevLabel(sev)}</div>
+    </div>`;
+  }
+  const remediated = (REPORT_DATA.findings || []).filter(f => f.status === 'Remediated').length;
+  if (remediated) {
+    html += `<div class="summary-card card-REMEDIATED">
+      <div class="count">${remediated}</div>
+      <div class="label">Remediated</div>
+    </div>`;
+  }
+  const total = (REPORT_DATA.summary && REPORT_DATA.summary.total) || 0;
+  html += `<div class="summary-card card-total">
+    <div class="count">${total}</div>
+    <div class="label">Total</div>
+  </div>`;
+  container.innerHTML = html;
+}
+
+// Executive score panel. Renders only when the payload carries summary.score, so reports
+// generated before the scoring feature (and external payloads without it) render unchanged.
+const SCORE_BAND_CLASS = { 'Strong': 'band-strong', 'Moderate': 'band-moderate', 'Elevated risk': 'band-elevated', 'High risk': 'band-high' };
+
+function fmtPts(n) { return Number(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 1 }); }
+
+function buildScorePanel() {
+  const panel = document.getElementById('score-panel');
+  const score = REPORT_DATA.summary && REPORT_DATA.summary.score;
+  if (!panel || !score || score.overall == null) return;
+  // Sits directly under the severity cards and above the finding distribution. It only becomes
+  // a visible panel when a score is actually rendered, so a payload without one renders nothing.
+  panel.classList.add('panel');
+
+  const bandCls = SCORE_BAND_CLASS[score.band] || 'band-moderate';
+  const erroredNames = score.errored_inspectors || [];
+  const attempted = score.scored_inspectors + erroredNames.length;
+
+  let facts = `<div class="sf-scale">Scale 0&ndash;100; higher is better. 100 means no weighted findings were confirmed; 0 means every weighted check failed.</div>`;
+  facts += `<div class="sf-points">${fmtPts(score.possible)} points possible &middot; ${fmtPts(score.deducted)} deducted</div>`;
+  let disclosure = `${score.scored_inspectors} of ${attempted} inspectors scored`;
+  if (erroredNames.length) disclosure += ` &middot; ${erroredNames.length} errored/skipped (excluded)`;
+  if (score.pending_review) disclosure += ` &middot; ${score.pending_review} item${score.pending_review === 1 ? '' : 's'} pending review`;
+  if (score.license_gated) disclosure += ` &middot; ${score.license_gated} license gated (not scored)`;
+  facts += `<div>${disclosure}</div>`;
+
+  const prev = score.previous;
+  if (prev && prev.overall != null) {
+    const d = Number(prev.delta) || 0;
+    const dCls = d > 0 ? 'delta-pos' : d < 0 ? 'delta-neg' : 'delta-zero';
+    const dTxt = (d > 0 ? '+' : '') + fmtPts(d);
+    const since = String(prev.timestamp || '').slice(0, 10);
+    let pills = '';
+    if (prev.resolved) pills += `<span class="status-pill status-remediated">${prev.resolved} resolved</span>`;
+    if (prev.new) pills += `<span class="status-pill status-new">${prev.new} new</span>`;
+    if (prev.changed) pills += `<span class="status-pill status-modified">${prev.changed} changed</span>`;
+    facts += `<div class="score-delta"><span class="${dCls}">${dTxt}</span> since ${esc(since)} ${pills}</div>`;
+    if (prev.scored_inspectors != null && prev.scored_inspectors !== score.scored_inspectors) {
+      facts += `<div class="score-caution">Scored set changed (${prev.scored_inspectors} &rarr; ${score.scored_inspectors} checks); the delta is not directly comparable.</div>`;
+    }
+  }
+
+  const svcRows = (score.per_service || []).map(s => {
+    const c = SCORE_BAND_CLASS[s.band] || 'band-moderate';
+    const w = Math.max(0, Math.min(100, Number(s.score)));
+    return `<tr>
+      <td class="svc-name">${esc(s.service)}</td>
+      <td><div class="svc-score-wrap"><span class="svc-bar"><span class="svc-bar-fill ${c}" style="width:${w}%"></span></span><span class="svc-score">${fmtPts(s.score)}</span></div></td>
+      <td><span class="band-text ${c}">${esc(s.band)}</span></td>
+      <td class="svc-num">${fmtPts(s.deducted)} / ${fmtPts(s.possible)}</td>
+      <td class="svc-num">${s.inspectors}</td>
+      <td class="svc-num">${s.findings}</td>
+    </tr>`;
+  }).join('');
+  const svcTable = svcRows ? `<details class="score-svc-details">
+    <summary>Per-service scores (${(score.per_service || []).length} services)</summary>
+    <table class="score-svc-table">
+    <thead><tr><th>Service</th><th>Score</th><th>Band</th><th>Points deducted / possible</th><th>Inspectors</th><th>Findings</th></tr></thead>
+    <tbody>${svcRows}</tbody>
+  </table></details>` : '';
+
+  // Cap disclosure: assessed severities above the inspector's potential are flattened by the
+  // per-inspector cap; say so with the exact numbers instead of hiding it. Absent fields (older
+  // payloads) render no line.
+  const capLine = (score.escalated_findings > 0 || score.withheld_points > 0)
+    ? `<p><b>Cap disclosure:</b> ${score.escalated_findings} finding${score.escalated_findings === 1 ? ' was' : 's were'} assessed above the inspector's potential severity; per-inspector caps withheld ${fmtPts(score.withheld_points)} points of deductions (escalations and repeated findings beyond an inspector's possible points).</p>` : '';
+
+  const weightRows = Object.entries(score.weights || {}).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${fmtPts(v)}</td></tr>`).join('');
+  const bandRows = (score.bands || []).map(b => `<tr><td>${esc(b.label)}</td><td>${b.min}+</td></tr>`).join('');
+  const erroredList = erroredNames.length
+    ? `<p><b>Excluded (errored or skipped):</b> ${erroredNames.map(esc).join(', ')}</p>` : '';
+
+  const methodHtml = `<div class="sm-body">
+    <div class="sm-eq">Score = 100 &times; (1 &minus; deducted &divide; possible) = 100 &times; (1 &minus; ${fmtPts(score.deducted)} &divide; ${fmtPts(score.possible)}) = ${fmtPts(score.overall)}</div>
+    <p>Higher is better: 100 means no weighted findings were confirmed, 0 means every weighted check failed. Each successfully executed inspector contributes points equal to the weight of its potential severity (Impact, shown on each finding as Potential). Each finding deducts the weight of its assessed severity (RiskRating), capped at its inspector's contribution. Findings are displayed, counted, and ordered by that same assessed severity, so the severity pills and summary cards match what the score deducts. Review Required and Informational findings deduct nothing; Review Required items are reported separately as pending review. Findings for capabilities the tenant is not licensed to configure are marked License Gated, set to Informational severity, and never deduct; missing licensing is a procurement decision, not a misconfiguration. Inspectors that errored or were skipped are excluded from the calculation entirely.</p>
+    ${capLine}
+    <table><tr><th>Severity weight</th><th>Points</th></tr>${weightRows}</table>
+    <table><tr><th>Band</th><th>Score</th></tr>${bandRows}</table>
+    ${erroredList}
+  </div>`;
+
+  panel.innerHTML = `
+    <div class="score-flex">
+      <div class="score-gauge">
+        <svg viewBox="0 0 120 120" role="img" aria-label="Weighted configuration score ${fmtPts(score.overall)} out of 100; higher is better">
+          <circle class="gauge-track" cx="60" cy="60" r="52" pathLength="100"></circle>
+          <circle class="gauge-fill ${bandCls}" cx="60" cy="60" r="52" pathLength="100" stroke-dasharray="${Math.max(0, Math.min(100, score.overall))} 100" transform="rotate(-90 60 60)"></circle>
+        </svg>
+        <div class="score-gauge-center">
+          <div class="sg-num">${fmtPts(score.overall)}</div>
+          <div class="sg-den">/100</div>
+          <div class="sg-band ${bandCls}">${esc(score.band)}</div>
+        </div>
+      </div>
+      <div class="score-facts">${facts}</div>
+    </div>
+    ${svcTable}
+    <button type="button" class="score-method-link" onclick="openMethodPanel()">How is this score calculated?</button>
+    <div class="score-promo">This score is a point-in-time snapshot. <strong>Soteria Inspect 365</strong> tracks it across scheduled reassessments so you can see whether remediation is holding. <a href="https://soteria.io/inspect365" target="_blank" rel="noopener">soteria.io/inspect365</a></div>
+    <div class="score-method-print">
+      <div class="smp-title">How this score is calculated</div>
+      ${methodHtml}
+    </div>`;
+
+  const mp = document.getElementById('mp-body');
+  if (mp) mp.innerHTML = methodHtml;
+}
+
+function openMethodPanel() {
+  const panel = document.getElementById('method-panel');
+  if (panel) panel.classList.add('open');
+}
+
+function closeMethodPanel() {
+  const panel = document.getElementById('method-panel');
+  if (panel) panel.classList.remove('open');
+}
+
+// Expand the per-service table before printing so it appears in PDF export.
+window.addEventListener('beforeprint', () => {
+  document.querySelectorAll('.score-svc-details').forEach(d => { d.open = true; });
+});
+
+function buildSeverityFilters() {
+  const sevs = activeSeverities();
+  const count = s => (REPORT_DATA.findings || []).filter(f => f.severity === s).length;
+  const build = side => sevs.map(sev =>
+    `<label class="${side ? 'nav-opt' : 'ms-opt'}"><input type="checkbox" class="sev-checkbox" value="${sev}" onchange="onFilterToggle('sev', this)"><span class="ms-badge badge-${sev}">${sevLabel(sev)}</span>${side ? `<span class="nav-opt-count">${count(sev)}</span>` : ''}</label>`).join('');
+  const p = document.getElementById('severity-filters'); if (p) p.innerHTML = build(false);
+  const s = document.getElementById('nav-sev'); if (s) s.innerHTML = build(true);
+  updateMsLabel('severity');
+}
+
+function buildCategoryFilter() {
+  const sel = document.getElementById('category-filter');
+  const cats = [...new Set((REPORT_DATA.findings || []).flatMap(f => (f.services || [])))].filter(Boolean).sort();
+  for (const cat of cats) {
+    const opt = document.createElement('option');
+    opt.value = cat; opt.textContent = cat;
+    sel.appendChild(opt);
+  }
+}
+
+function buildFrameworkFilter() {
+  const names = [...new Set((REPORT_DATA.findings || []).flatMap(f => (f.frameworks || []).map(fw => fw.name)))].filter(Boolean).sort();
+  if (names.length === 0) {
+    ['ms-framework', 'framework-filter-label', 'nav-fw-h', 'nav-fw'].forEach(id => { const e = document.getElementById(id); if (e) e.style.display = 'none'; });
+    return;
+  }
+  const count = n => (REPORT_DATA.findings || []).filter(f => (f.frameworks || []).some(w => w.name === n)).length;
+  const build = side => names.map(name => {
+    const v = esc(name);
+    return `<label class="${side ? 'nav-opt' : 'ms-opt'}"><input type="checkbox" class="fw-checkbox" value="${v}" onchange="onFilterToggle('fw', this)"><span class="ms-badge ${frameworkTagClass(name)}">${v}</span>${side ? `<span class="nav-opt-count">${count(name)}</span>` : ''}</label>`;
+  }).join('');
+  const p = document.getElementById('framework-filters'); if (p) p.innerHTML = build(false);
+  const s = document.getElementById('nav-fw'); if (s) s.innerHTML = build(true);
+  updateMsLabel('framework');
+}
+
+function onFilterToggle(kind, cb) {
+  const cls = kind === 'sev' ? 'sev-checkbox' : kind === 'status' ? 'status-checkbox' : 'fw-checkbox';
+  document.querySelectorAll('.' + cls).forEach(el => { if (el.value === cb.value) el.checked = cb.checked; });
+  updateMsLabel(kind === 'sev' ? 'severity' : kind === 'status' ? 'status' : 'framework');
+  renderAll();
+}
+function updateMsLabel(type) {
+  const cls = type === 'severity' ? 'sev-checkbox' : type === 'status' ? 'status-checkbox' : 'fw-checkbox';
+  const vals = new Set([...document.querySelectorAll('.' + cls + ':checked')].map(c => c.value));
+  const lbl = document.querySelector('#ms-' + type + ' .ms-label');
+  if (!lbl) return;
+  const allTxt = type === 'severity' ? 'All severities' : type === 'status' ? 'All statuses' : 'All frameworks';
+  lbl.textContent = vals.size === 0 ? allTxt
+    : vals.size === 1 ? (type === 'severity' ? sevLabel([...vals][0]) : [...vals][0])
+    : (vals.size + ' selected');
+}
+
+// Retest status filter. Statuses other than New only exist on a second or subsequent run
+// (the diff engine assigns Modified/Remediated/Unchanged against the previous snapshot), so
+// the filter hides itself on first-run and pre-retest payloads.
+function buildStatusFilters() {
+  const findings = REPORT_DATA.findings || [];
+  const isRetest = findings.some(f => ['Modified', 'Remediated', 'Unchanged'].includes(f.status));
+  if (!isRetest) {
+    ['ms-status', 'status-filter-label'].forEach(id => { const e = document.getElementById(id); if (e) e.style.display = 'none'; });
+    return;
+  }
+  const statuses = ['New', 'Modified', 'Remediated', 'Unchanged'].filter(s => findings.some(f => f.status === s));
+  const count = s => findings.filter(f => f.status === s).length;
+  const p = document.getElementById('status-filters');
+  if (p) p.innerHTML = statuses.map(s =>
+    `<label class="ms-opt"><input type="checkbox" class="status-checkbox" value="${s}" onchange="onFilterToggle('status', this)"><span class="status-pill status-${s.toLowerCase()}">${s}</span><span class="ms-count">${count(s)}</span></label>`).join('');
+  updateMsLabel('status');
+}
+function toggleMs(btn) {
+  const panel = btn.parentElement.querySelector('.ms-panel');
+  const wasOpen = !panel.hidden;
+  document.querySelectorAll('.ms-panel').forEach(p => p.hidden = true);
+  document.querySelectorAll('.ms-trigger').forEach(t => t.classList.remove('open'));
+  if (!wasOpen) { panel.hidden = false; btn.classList.add('open'); }
+}
+function toggleNavSection(h, id) {
+  const sec = document.getElementById(id);
+  if (!sec) return;
+  const collapsed = h.classList.toggle('collapsed');
+  sec.style.display = collapsed ? 'none' : '';
+}
+function syncServiceActive() {
+  const cur = document.getElementById('category-filter').value;
+  document.querySelectorAll('#nav-categories .cat-link').forEach(a => a.classList.toggle('active', (a.dataset.cat || '') === cur && cur !== ''));
+}
+
+function buildNavCategories() {
+  const container = document.getElementById('nav-categories');
+  const findings = REPORT_DATA.findings || [];
+  const counts = {};
+  for (const f of findings) {
+    for (const svc of (f.services || [])) {
+      counts[svc] = (counts[svc] || 0) + 1;
+    }
+  }
+  const sorted = Object.keys(counts).sort();
+  let html = '';
+  for (const cat of sorted) {
+    html += `<a class="cat-link" data-cat="${esc(cat)}" onclick="filterByCategory('${esc(cat).replace(/'/g, "\\'")}')">${esc(cat)}<span class="cat-count">${counts[cat]}</span></a>`;
+  }
+  container.innerHTML = html;
+}
+
+function filterByCategory(cat) {
+  const sel = document.getElementById('category-filter');
+  sel.value = (sel.value === cat) ? '' : cat;
+  syncServiceActive();
+  renderAll();
+}
+
+// The licensing filter only appears when the payload actually carries gated findings.
+function buildGatedFilterVisibility() {
+  const any = (REPORT_DATA.findings || []).some(f => f.license_gated);
+  if (!any) { ['gated-filter', 'gated-filter-label'].forEach(id => { const e = document.getElementById(id); if (e) e.style.display = 'none'; }); }
+  else { const sel = document.getElementById('gated-filter'); if (sel) sel.addEventListener('change', renderAll); }
+}
+
+function getFilters() {
+  return {
+    severities: new Set([...document.querySelectorAll('.sev-checkbox:checked')].map(el => el.value)),
+    statuses: new Set([...document.querySelectorAll('.status-checkbox:checked')].map(el => el.value)),
+    gated: (document.getElementById('gated-filter') || { value: '' }).value,
+    frameworks: new Set([...document.querySelectorAll('.fw-checkbox:checked')].map(el => el.value)),
+    category: document.getElementById('category-filter').value,
+    text: document.getElementById('search-input').value.trim().toLowerCase(),
+  };
+}
+
+function matchesFilters(f, filters) {
+  // Severity is include-by-selection: no chips selected => show all severities;
+  // one or more selected => show only those (multi-select OR).
+  if (filters.severities.size > 0 && !filters.severities.has(f.severity)) return false;
+  // Retest status: include-by-selection, same semantics as severity (multi-select OR).
+  if (filters.statuses.size > 0 && !filters.statuses.has(f.status)) return false;
+  if (filters.gated === 'gated' && !f.license_gated) return false;
+  if (filters.gated === 'ungated' && f.license_gated) return false;
+  // Framework: include-by-selection; show findings mapped to ANY selected framework (multi-select OR).
+  if (filters.frameworks.size > 0 && !(f.frameworks || []).some(fw => filters.frameworks.has(fw.name))) return false;
+  if (filters.category && !(f.services || []).includes(filters.category)) return false;
+  if (filters.text) {
+    const haystack = [
+      f.title, f.description, f.remediation, f.inspector_id, f.inspector_name,
+      ...(f.affected_entities || []).map(e => (e.name || '') + ' ' + (e.detail || '')),
+    ].join(' ').toLowerCase();
+    if (!haystack.includes(filters.text)) return false;
+  }
+  return true;
+}
+
+function renderAll() {
+  const filters = getFilters();
+  const all = REPORT_DATA.findings || [];
+  const matching = all
+    .filter(f => matchesFilters(f, filters))
+    .sort((a, b) => (SEV_ORDER[a.severity] ?? 99) - (SEV_ORDER[b.severity] ?? 99) || (a.title || '').localeCompare(b.title || ''));
+
+  const container = document.getElementById('findings-list');
+  document.getElementById('showing-count').textContent =
+    `Showing ${matching.length} of ${all.length}`;
+
+  if (matching.length === 0) {
+    container.innerHTML = '<div class="no-findings">No findings match the current filters.</div>';
+    return;
+  }
+
+  container.innerHTML = matching.map(renderFinding).join('');
+  container.querySelectorAll('.finding-header').forEach(header => {
+    header.addEventListener('click', () => {
+      header.closest('.finding-card').classList.toggle('expanded');
+    });
+  });
+}
+
+function diffClass(state) {
+  switch (state) {
+    case 'New': case 'Added': return 'diff-added';
+    case 'Removed': return 'diff-removed';
+    case 'Modified': case 'Changed': return 'diff-changed';
+    default: return '';
+  }
+}
+function diffMark(state) {
+  switch (state) {
+    case 'New': case 'Added': return '[+] ';
+    case 'Removed': return '[-] ';
+    case 'Modified': case 'Changed': return '[~] ';
+    default: return '';
+  }
+}
+function renderProp(pair) {
+  const k = pair[0], v = pair[1], st = pair[2] || '', prev = pair[3] || '';
+  const cls = diffClass(st), mark = diffMark(st);
+  const valHtml = (st === 'Changed')
+    ? `${esc(prev)} &rarr; ${esc(v)}`
+    : esc(v);
+  return `<div class="pk ${cls}">${mark}${esc(k)}</div><div class="pv ${cls}">${valHtml}</div>`;
+}
+function expectedPill(e) {
+  return e && e.expected ? '<span class="status-pill expected">Expected</span>' : '';
+}
+// Render a single affected entity (value / object / group) as an <li>, including retest diff
+// decoration. Shared by the inline list and the "show all" flyout so both render identically.
+function renderAffectedItem(e, extraClass) {
+  const nameCls = diffClass(e.state), nameMark = diffMark(e.state);
+  const liClass = 'affected-item' + (extraClass ? ' ' + extraClass : '');
+  if (e.kind === 'value') {
+    return `<li class="${liClass}"><div class="ai-name ${nameCls}">${nameMark}${esc(e.value)}</div></li>`;
+  }
+  if (e.kind === 'object') {
+    const propsHtml = (e.props || []).map(renderProp).join('');
+    return `<li class="${liClass}">
+      <div class="ai-name ${nameCls}">${nameMark}${esc(e.name || '(unnamed)')}${expectedPill(e)}</div>
+      <div class="ai-props">${propsHtml}</div>
+    </li>`;
+  }
+  if (e.kind === 'group') {
+    const groupsHtml = (e.groups || []).map((g, idx) => {
+      const propsHtml = (g.props || []).map(renderProp).join('');
+      return `<div class="ai-prop-group">
+        <div class="ai-prop-group-label">${esc(g.label || ('Item ' + (idx + 1)))}</div>
+        <div class="ai-props">${propsHtml}</div>
+      </div>`;
+    }).join('');
+    return `<li class="${liClass}">
+      <div class="ai-name ${nameCls}">${nameMark}${esc(e.name || '(unnamed)')}${expectedPill(e)}</div>
+      ${groupsHtml}
+    </li>`;
+  }
+  return `<li class="${liClass}"><div class="ai-name">${esc(JSON.stringify(e))}</div></li>`;
+}
+
+// Inline view: the first AFFECTED_INLINE_LIMIT entities show on screen. The rest are still
+// rendered (marked 'affected-extra') but hidden on screen and revealed only when printing, so a
+// printed / PDF copy is complete. On screen the full set is reached via the flyout. The full list
+// always lives in REPORT_DATA, so nothing is lost.
+function renderEntities(entities, findingIdx) {
+  if (!entities || entities.length === 0) {
+    return '<div class="detail-text" style="color:#9ca3af">None</div>';
+  }
+  const total = entities.length;
+  const items = entities.map((e, i) =>
+    renderAffectedItem(e, i < AFFECTED_INLINE_LIMIT ? '' : 'affected-extra')).join('');
+  const moreHtml = total > AFFECTED_INLINE_LIMIT
+    ? `<button type="button" class="affected-more" onclick="openAffectedPanel(${findingIdx})">Show all ${total} affected objects &rarr;</button>`
+    : '';
+  return `<ul class="affected-list">${items}</ul>${moreHtml}`;
+}
+
+function renderFrameworkTags(frameworks) {
+  if (!frameworks || frameworks.length === 0) return '';
+  const tags = [];
+  for (const fw of frameworks) {
+    const cls = frameworkTagClass(fw.name);
+    const tooltip = fw.version ? `${fw.name} ${fw.version}` : fw.name;
+    for (const ctrl of (fw.controls || [])) {
+      const ctrlId = ctrl.control || ctrl.id || '';
+      if (!ctrlId) continue;
+      tags.push(`<span class="framework-tag ${cls}" data-tooltip="${esc(tooltip)}">${esc(fw.name)}: ${esc(ctrlId)}</span>`);
+    }
+  }
+  if (tags.length === 0) return '';
+  return `<div class="detail-section">
+    <div class="detail-label">Framework Mappings</div>
+    <div class="framework-tags">${tags.join('')}</div>
+  </div>`;
+}
+
+function renderFrameworkDetail(frameworks) {
+  if (!frameworks || frameworks.length === 0) return '';
+  const blocks = frameworks.map(fw => {
+    const controls = (fw.controls || []).map(c => `
+      <div class="framework-control">
+        ${c.control ? `<div class="fc-id">${esc(c.control)}</div>` : ''}
+        ${c.controlName ? `<div class="fc-name">${esc(c.controlName)}</div>` : ''}
+        ${c.controlDescription ? `<div class="fc-desc">${esc(c.controlDescription)}</div>` : ''}
+      </div>`).join('');
+    return `<details class="framework-block">
+      <summary>${esc(fw.name)}<span class="fw-version">${fw.version ? esc(fw.version) : ''}</span><span class="fw-count">${(fw.controls || []).length} control${(fw.controls || []).length === 1 ? '' : 's'}</span></summary>
+      <div class="framework-controls">${controls}</div>
+    </details>`;
+  }).join('');
+  return `<div class="detail-section">
+    <div class="detail-label">Framework Details</div>
+    <div class="frameworks-detail">${blocks}</div>
+  </div>`;
+}
+
+function renderReferences(refs) {
+  if (!refs || refs.length === 0) return '';
+  const items = refs.map(r => {
+    const url = r.url || r.Url || '';
+    const text = r.text || r.Text || url;
+    return `<li><a href="${esc(url)}" target="_blank" rel="noopener">${esc(text)}</a></li>`;
+  }).join('');
+  return `<div class="detail-section">
+    <div class="detail-label">References</div>
+    <ul class="references-list">${items}</ul>
+  </div>`;
+}
+
+function statusPill(status) {
+  if (!status) return '';
+  const m = { New: 'status-new', Modified: 'status-modified', Remediated: 'status-remediated', Unchanged: 'status-unchanged' };
+  const cls = m[status];
+  if (!cls) return '';
+  return `<span class="status-pill ${cls}">${esc(status)}</span>`;
+}
+function renderFinding(f) {
+  const sev = f.severity || 'INFO';
+  const services = (f.services || []).map(s => `<span class="service-chip">${esc(s)}</span>`).join('');
+  const effort = (f.remediation_effort || 'MEDIUM').toUpperCase();
+
+  return `<div class="finding-card sev-${sev}">
+    <div class="finding-header">
+      <span class="badge badge-${sev}">${sevLabel(sev)}</span>${statusPill(f.status)}${f.license_gated ? '<span class="status-pill license-gated">License Gated</span>' : ''}
+      <div class="finding-meta">
+        <div class="finding-title">${esc(f.title)}</div>
+        <div class="finding-subtitle chip-row">
+          ${f.inspector_id ? `<span>${esc(f.inspector_id)}</span>` : ''}
+          ${f.inspector_name ? `<span>&bull; ${esc(f.inspector_name)}</span>` : ''}
+          ${services ? `<span>&bull;</span>${services}` : ''}
+          ${f.impact ? `<span>&bull; <strong>Potential:</strong> ${esc(f.impact)}</span>` : ''}
+        </div>
+      </div>
+      <span class="finding-toggle">&#9660;</span>
+    </div>
+    <div class="finding-detail">
+      ${f.expected_only ? `<div class="expected-note">Recorded as informational: the only affected object is the assessment application itself, which necessarily holds the access this check looks for. No tenant exposure is implied.</div>` : ''}
+      ${f.description ? `<div class="detail-section">
+        <div class="detail-label">Description</div>
+        <div class="detail-text">${renderHtmlOrText(f.description)}</div>
+      </div>` : ''}
+
+      <div class="detail-section">
+        <div class="detail-label">Configuration</div>
+        <div class="detail-grid">
+          ${f.default_value ? `<div class="gk">Default Value</div><div class="gv">${esc(f.default_value)}</div>` : ''}
+          ${f.expected_value ? `<div class="gk">Expected Value</div><div class="gv">${esc(f.expected_value)}</div>` : ''}
+          ${f.impact ? `<div class="gk">Potential Severity</div><div class="gv">${esc(f.impact)}</div>` : ''}
+          ${f.risk_rating ? `<div class="gk">Assessed Severity</div><div class="gv">${esc(f.risk_rating)}</div>` : ''}
+          ${f.license_gated && f.license_requirement ? `<div class="gk">License Requirement</div><div class="gv">${esc(f.license_requirement)} (tenant is not licensed; severity set to Informational)</div>` : ''}
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-label">Affected Objects (${(f.affected_entities || []).length})</div>
+        ${renderEntities(f.affected_entities, f._idx)}
+      </div>
+
+      ${f.remediation ? `<div class="detail-section">
+        <div class="detail-label">
+          Remediation
+          <button class="effort-badge effort-${effort}"
+                  onclick="showEffortPanel('${esc(effort)}')"
+                  title="Click to see why this is ${esc(effort.toLowerCase())} effort">${esc(effort)} effort &#8505;</button>
+        </div>
+        <div class="detail-text">${renderHtmlOrText(f.remediation)}</div>
+      </div>` : ''}
+
+      ${(f.powershell_remediation && String(f.powershell_remediation).trim() && String(f.powershell_remediation).trim().toLowerCase() !== 'not applicable') ? `<div class="detail-section">
+        <div class="detail-label">PowerShell Remediation</div>
+        <pre class="ps-code"><code>${highlightPowerShell(f.powershell_remediation)}</code></pre>
+      </div>` : ''}
+
+      ${f.user_impact ? `<div class="detail-section">
+        <div class="detail-label">User Impact</div>
+        <div class="detail-text">${renderHtmlOrText(f.user_impact)}</div>
+      </div>` : ''}
+
+      ${(f.admin_uri && f.admin_uri.length) ? `<div class="detail-section">
+        <div class="detail-label">Admin Center</div>
+        <div class="detail-text">${f.admin_uri.map(a => `<a class="admin-link" href="${esc(a.url)}" target="_blank" rel="noopener noreferrer">${esc(a.name)}</a>`).join(' &nbsp;&middot;&nbsp; ')}</div>
+      </div>` : ''}
+
+      ${renderFrameworkTags(f.frameworks)}
+      ${renderFrameworkDetail(f.frameworks)}
+      ${renderReferences(f.references)}
+    </div>
+  </div>`;
+}
+
+function renderHtmlOrText(s) {
+  if (s == null) return '';
+  const str = String(s);
+  // Block-level HTML manages its own flow. Wrap it so CSS can switch off the pre-wrap
+  // inherited from .detail-text; otherwise the literal newlines between tags in the source
+  // JSON render as blank lines on top of the block margins.
+  if (/<\/?(p|ul|ol|li|h[1-6]|div|table|blockquote)(\s|>|\/)/i.test(str)) {
+    return `<div class="rich-html">${str}</div>`;
+  }
+  if (/<\/?(strong|em|b|i|br|a|code|pre|span)(\s|>|\/)/i.test(str)) {
+    return str;
+  }
+  // Plain text: escape it, then restore author-intended HTML entities (for example &rarr;,
+  // &ndash;, &hellip;, or numeric &#8594;) that escaping would otherwise double-escape into
+  // literal text. Angle brackets remain escaped, so this never enables unintended tag rendering.
+  return esc(str).replace(/&amp;(#\d+;|#x[0-9a-fA-F]+;|[a-zA-Z][a-zA-Z0-9]+;)/g, '&$1');
+}
+
+// Self-contained PowerShell syntax highlighter (no external assets). Escapes HTML, then wraps tokens.
+function highlightPowerShell(src) {
+  const s = String(src == null ? '' : src);
+  const escc = c => c.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const re = /(Microsoft\.Online\.SharePoint\.PowerShell|PnP\.PowerShell|ExchangeOnlineManagement|Microsoft\.Graph\.Beta|Microsoft\.Graph|MicrosoftTeams|AzureADPreview|AzureAD|MSOnline|Microsoft\.PowerApps\.Administration\.PowerShell)|(<#[\s\S]*?#>)|(#[^\n]*)|("(?:[^"`]|`[\s\S])*")|('(?:[^']|'')*')|(\$(?:\{[^}]*\}|[A-Za-z_]\w*(?::[A-Za-z_]\w*)?))|(\b[A-Za-z]+-[A-Za-z][A-Za-z0-9]*\b)|(-[A-Za-z][A-Za-z0-9]*\b)|(\b\d+(?:\.\d+)?\b)/g;
+  const OPS = { '-eq':1,'-ne':1,'-gt':1,'-ge':1,'-lt':1,'-le':1,'-like':1,'-notlike':1,'-match':1,'-notmatch':1,'-contains':1,'-notcontains':1,'-in':1,'-notin':1,'-and':1,'-or':1,'-not':1,'-is':1,'-isnot':1,'-as':1,'-join':1,'-split':1,'-replace':1,'-band':1,'-bor':1,'-f':1 };
+  let out = '', last = 0, m;
+  while ((m = re.exec(s)) !== null) {
+    out += escc(s.slice(last, m.index));
+    const tok = m[0];
+    let cls;
+    if (m[1]) cls = 'pc-mod';
+    else if (m[2] || m[3]) cls = 'pc-com';
+    else if (m[4] || m[5]) cls = 'pc-str';
+    else if (m[6]) cls = 'pc-var';
+    else if (m[7]) cls = 'pc-cmd';
+    else if (m[8]) cls = OPS[tok.toLowerCase()] ? 'pc-op' : 'pc-par';
+    else cls = 'pc-num';
+    out += '<span class="' + cls + '">' + escc(tok) + '</span>';
+    last = m.index + tok.length;
+  }
+  out += escc(s.slice(last));
+  return out;
+}
+
+function clearFilters() {
+  document.querySelectorAll('.sev-checkbox').forEach(el => { el.checked = false; });
+  document.querySelectorAll('.status-checkbox').forEach(el => { el.checked = false; });
+  document.querySelectorAll('.fw-checkbox').forEach(el => { el.checked = false; });
+  document.getElementById('category-filter').value = '';
+  document.getElementById('search-input').value = '';
+  const gf = document.getElementById('gated-filter'); if (gf) gf.value = '';
+  updateMsLabel('severity'); updateMsLabel('status'); updateMsLabel('framework'); syncServiceActive();
+  renderAll();
+}
+
+const _EFFORT_INFO = {
+  LOW: {
+    description: "This finding can be resolved with a single configuration change or policy update. The change carries minimal operational risk and can typically be completed without scheduling downtime or notifying downstream teams.",
+    criteria: [
+      { label: 'Estimated time', value: 'Under 1 hour' },
+      { label: 'Complexity',     value: 'Single setting, flag, or policy adjustment — no structural changes to roles or objects' },
+      { label: 'Coordination',   value: 'Can be completed by one administrator independently' },
+      { label: 'Risk',           value: 'Minimal — the change is straightforward and easily reversible if issues arise' },
+    ],
+  },
+  MEDIUM: {
+    description: "This finding requires coordinated changes across multiple roles, objects, or policies. Testing in a non-production environment is recommended before applying to production.",
+    criteria: [
+      { label: 'Estimated time', value: 'Several hours to 1 business day' },
+      { label: 'Complexity',     value: 'Changes span multiple objects, roles, or policies; may require privilege mapping or impact analysis' },
+      { label: 'Coordination',   value: 'Typically requires alignment between the security team and one or more object or policy owners' },
+      { label: 'Risk',           value: 'Moderate — validate in a staging environment before deploying to production' },
+    ],
+  },
+  HIGH: {
+    description: "This finding involves architectural changes or significant privilege restructuring. A phased rollout with rollback planning is strongly recommended.",
+    criteria: [
+      { label: 'Estimated time', value: 'Multiple days to several weeks' },
+      { label: 'Complexity',     value: 'Structural or architectural changes; may require role redesign, policy overhaul, or cross-domain refactoring' },
+      { label: 'Coordination',   value: 'Requires alignment across security and relevant technical owners; likely needs change control approval' },
+      { label: 'Risk',           value: 'Higher — phased rollout with rollback planning and stakeholder communication strongly recommended' },
+    ],
+  },
+};
+
+function showEffortPanel(effort) {
+  const key = String(effort || 'MEDIUM').toUpperCase();
+  const info = _EFFORT_INFO[key] || _EFFORT_INFO.MEDIUM;
+  const panel = document.getElementById('effort-panel');
+  if (!panel) return;
+  document.getElementById('ep-title').textContent =
+    key.charAt(0) + key.slice(1).toLowerCase() + ' Effort Remediation';
+  const badge = document.getElementById('ep-badge');
+  badge.textContent = key + ' EFFORT';
+  badge.className = 'ep-badge effort-' + key;
+  document.getElementById('ep-desc').textContent = info.description;
+  const accentClass = key === 'LOW'  ? 'ep-criterion-LOW'
+                    : key === 'HIGH' ? 'ep-criterion-HIGH'
+                    : 'ep-criterion-MED';
+  document.getElementById('ep-criteria').innerHTML = info.criteria.map(c =>
+    `<div class="ep-criterion ${accentClass}">
+       <div class="ep-criterion-label">${esc(c.label)}</div>
+       <div class="ep-criterion-value">${esc(c.value)}</div>
+     </div>`
+  ).join('');
+  panel.classList.add('open');
+}
+
+function closeEffortPanel() {
+  const panel = document.getElementById('effort-panel');
+  if (panel) panel.classList.remove('open');
+}
+
+function openAffectedPanel(idx) {
+  const f = (REPORT_DATA.findings || [])[idx];
+  const panel = document.getElementById('affected-panel');
+  if (!f || !panel) return;
+  const entities = f.affected_entities || [];
+  document.getElementById('ap-title').textContent =
+    'Affected Objects — ' + (f.title || '') + ' (' + entities.length + ')';
+  document.getElementById('affected-body').innerHTML = entities.length
+    ? `<ul class="affected-list">${entities.map(e => renderAffectedItem(e)).join('')}</ul>`
+    : '<div class="detail-text" style="color:#9ca3af">None</div>';
+  panel.classList.add('open');
+}
+
+function closeAffectedPanel() {
+  const panel = document.getElementById('affected-panel');
+  if (panel) panel.classList.remove('open');
+}
+</script>
+<script>
+const ADV_AP = REPORT_DATA.attack_paths || null;
+const ADV_FM = REPORT_DATA.framework_mapping || null;
+const ADV_REASON_LABEL = {
+  finding: 'Failed', review: 'Review Required (not confirmed)', gated: 'License gated (not confirmed)',
+  info: 'Informational (not confirmed)', expected: 'Passed (only the assessment application was affected)',
+  clean: 'Passed (no finding raised)', error: 'Errored (not evaluated)',
+  skipped: 'Skipped (not evaluated)', absent: 'Not run (not evaluated)',
+};
+const ADV_VERDICT_LABEL = { satisfied: 'Satisfied', partial: 'Partially evidenced', failed: 'Not satisfied', inconclusive: 'Inconclusive' };
+const advFmActive = new Set();
+
+if (typeof renderFinding === 'function') {
+  const advBaseRenderFinding = renderFinding;
+  renderFinding = function (f) {
+    return advBaseRenderFinding(f).replace('<div class="finding-card ', `<div data-inspector="${esc(f.inspector_name)}" class="finding-card `);
+  };
+}
+
+function advShowTab(name, scrollTop) {
+  if (!document.getElementById('adv-tabbar')) return;
+  if (name !== 'findings' && !document.getElementById('adv-pane-' + name)) return;
+  document.body.dataset.advTab = name;
+  document.querySelectorAll('.adv-tab').forEach(b => b.classList.toggle('active', b.dataset.advTarget === name));
+  if (scrollTop) window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function advJumpToFinding(inspector) {
+  const findings = REPORT_DATA.findings || [];
+  if (!findings.some(f => f.inspector_name === inspector)) return;
+  advShowTab('findings');
+  const sel = `.finding-card[data-inspector="${(window.CSS && CSS.escape) ? CSS.escape(inspector) : inspector}"]`;
+  let card = document.querySelector(sel);
+  if (!card && typeof clearFilters === 'function') { clearFilters(); card = document.querySelector(sel); }
+  if (!card) return;
+  card.classList.add('expanded');
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  card.classList.remove('adv-jump-highlight');
+  void card.offsetWidth;
+  card.classList.add('adv-jump-highlight');
+  setTimeout(() => card.classList.remove('adv-jump-highlight'), 2300);
+}
+
+function advChip(c) {
+  const findings = REPORT_DATA.findings || [];
+  const canJump = findings.some(f => f.inspector_name === c.id);
+  const label = ADV_REASON_LABEL[c.reason] || c.status;
+  const title = `${c.id}: ${label}${c.title ? '. ' + c.title : ''}`;
+  return `<span class="adv-chip adv-chip-${esc(c.status)}" data-jump="${canJump ? 1 : 0}" title="${esc(title)}"${canJump ? ` onclick="advJumpToFinding('${esc(c.id).replace(/'/g, "\\'")}')"` : ''}>${esc(c.id)}</span>`;
+}
+function advChips(checks) { return `<div class="adv-chips">${(checks || []).map(advChip).join('')}</div>`; }
+
+function advBuildBadges() {
+  const failed = (REPORT_DATA.findings || []).filter(f => ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'].includes(f.severity) && !f.license_gated).length;
+  const set = (id, n, danger) => { const e = document.getElementById(id); if (!e) return; e.textContent = n; e.classList.toggle('adv-danger', !!danger && n > 0); };
+  set('adv-badge-findings', failed, true);
+  set('adv-badge-ap', ADV_AP ? ADV_AP.counts.exploitable : 0, true);
+  set('adv-badge-apa', ADV_AP ? ADV_AP.counts.total : 0, false);
+  set('adv-badge-fm', ADV_FM ? ADV_FM.counts.frameworks : 0, false);
+}
+
+function fmBuildCards() {
+  const c = document.getElementById('fm-cards');
+  if (!c || !ADV_FM) return;
+  const defs = [['satisfied', 'Satisfied'], ['partial', 'Partially evidenced'], ['failed', 'Not satisfied'], ['inconclusive', 'Inconclusive']];
+  c.innerHTML = defs.map(([k, label]) => `<div class="fm-card" data-fm-verdict="${k}" onclick="fmToggle('${k}')"><div class="count">${ADV_FM.counts[k] || 0}</div><div class="label">${label}</div></div>`).join('');
+}
+function fmToggle(v) {
+  if (advFmActive.has(v)) advFmActive.delete(v); else advFmActive.add(v);
+  fmApply();
+}
+function fmClear() { advFmActive.clear(); fmApply(); }
+function fmExpandAll(open) { document.querySelectorAll('.fm-fw').forEach(el => el.classList.toggle('open', !!open)); }
+function fmApply() {
+  const filtering = advFmActive.size > 0;
+  document.querySelectorAll('.fm-card').forEach(el => el.classList.toggle('active', advFmActive.has(el.dataset.fmVerdict)));
+  let shown = 0, total = 0;
+  document.querySelectorAll('.fm-fw').forEach(fw => {
+    let any = false;
+    fw.querySelectorAll('.fm-row').forEach(r => {
+      total++;
+      const match = !filtering || advFmActive.has(r.dataset.verdict);
+      r.classList.toggle('fm-hidden', !match);
+      if (match) { any = true; shown++; }
+    });
+    fw.classList.toggle('fm-hidden', filtering && !any);
+    if (filtering) fw.classList.toggle('open', any); else fw.classList.remove('open');
+  });
+  const showing = document.getElementById('fm-showing'); if (showing) showing.textContent = `Showing ${shown} of ${total} controls`;
+  const clear = document.getElementById('fm-clear'); if (clear) clear.hidden = !filtering;
+  const empty = document.getElementById('fm-empty'); if (empty) empty.hidden = shown !== 0;
+}
+function fmTally(counts) {
+  return ['satisfied', 'partial', 'failed', 'inconclusive'].filter(k => counts[k] > 0).map(k => `<span class="fm-tally-chip fm-tally-${k}">${counts[k]} ${ADV_VERDICT_LABEL[k]}</span>`).join('');
+}
+function fmRender() {
+  const list = document.getElementById('fm-list');
+  if (!list || !ADV_FM) return;
+  list.innerHTML = ADV_FM.frameworks.map(fw => `<div class="fm-fw">
+    <div class="fm-fw-head" onclick="this.parentElement.classList.toggle('open')"><span class="fm-caret">&#9654;</span><span class="fm-fw-name">${esc(fw.name)}<span class="fm-fw-ver">${esc(fw.version)}</span></span><span class="fm-tally">${fmTally(fw.counts)}</span></div>
+    <div class="fm-fw-body">
+      ${fw.note ? `<div class="fm-note">${esc(fw.note)}</div>` : ''}
+      <table class="fm-table"><thead><tr><th>Control</th><th>Title</th><th>Verdict</th><th>Evidence from</th></tr></thead><tbody>
+      ${(fw.controls || []).map(c => `<tr class="fm-row" data-verdict="${esc(c.verdict)}"><td class="fm-cid">${esc(c.id)}</td><td class="fm-title">${esc(c.title)}</td><td><span class="adv-status adv-status-${esc(c.verdict)}">${esc(ADV_VERDICT_LABEL[c.verdict] || c.verdict)}</span></td><td>${advChips(c.checks)}</td></tr>`).join('')}
+      </tbody></table>
+    </div>
+  </div>`).join('') + '<div class="adv-empty" id="fm-empty" hidden>No controls match the selected verdicts.</div>';
+  const un = document.getElementById('fm-unmapped');
+  if (un) {
+    const items = ADV_FM.unmapped || [];
+    un.innerHTML = items.length ? `<div class="fm-unmapped"><h3>Checks with no framework mapping (${items.length})</h3><p>An unmapped check is a gap in the mapping, not evidence that no control applies.</p>${advChips(items)}</div>` : '';
+  }
+  fmApply();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (!document.getElementById('adv-tabbar')) return;
+  document.body.dataset.advTab = 'findings';
+  advBuildBadges();
+  fmBuildCards(); fmRender();
+  document.querySelectorAll('nav a[href^="#"]').forEach(a => a.addEventListener('click', () => advShowTab('findings')));
+});
+window.addEventListener('beforeprint', () => {
+  document.querySelectorAll('.adv-pane details:not([open])').forEach(d => { d.open = true; d.dataset.advPrintOpened = '1'; });
+});
+window.addEventListener('afterprint', () => {
+  document.querySelectorAll('.adv-pane details[data-adv-print-opened]').forEach(d => { d.open = false; delete d.dataset.advPrintOpened; });
+});
+</script>
 </body>
-
 </html>

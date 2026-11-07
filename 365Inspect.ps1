@@ -815,6 +815,8 @@ Catch {
 # Maintain a list of all findings, beginning with an empty list.
 $findings = @()
 
+$inspectorRuns = [System.Collections.Generic.List[object]]::new()
+
 # For every inspector the user wanted to run...
 ForEach ($selected_inspector in $selected_inspectors) {
     # ...if the user selected a valid inspector...
@@ -824,8 +826,54 @@ ForEach ($selected_inspector in $selected_inspectors) {
         # Get the static data (finding description, remediation etc.) associated with that inspector module.
         $finding = Get-Content .\$inspectorPath\$selected_inspector.json | Out-String | ConvertFrom-Json
 
-        # Invoke the actual inspector module and store the resulting list of insecure objects.
-        $finding.AffectedObjects = Invoke-Expression ".\$inspectorPath\$selected_inspector.ps1"
+        $runImpact = "$($finding.Impact)"
+        $runService = "$($finding.Service)"
+
+        $seeded = [System.Collections.Generic.List[Object]]::new()
+        if ($null -ne $finding.AffectedObjects) {
+            foreach ($seedItem in @($finding.AffectedObjects)) {
+                if ($null -eq $seedItem) { continue }
+                if (($seedItem -is [string]) -and [string]::IsNullOrWhiteSpace($seedItem)) { continue }
+                $seeded.Add($seedItem) | Out-Null
+            }
+        }
+        $finding.AffectedObjects = $seeded
+
+        try {
+            $returned = Invoke-Expression ".\$inspectorPath\$selected_inspector.ps1"
+
+            if ($null -ne $returned -and
+                $null -ne $returned.PSObject -and
+                ($returned.PSObject.Properties.Name -contains 'FindingName') -and
+                ($returned.PSObject.Properties.Name -contains 'AffectedObjects')) {
+                $finding = $returned
+            }
+            elseif ($null -ne $returned) {
+                $finding.AffectedObjects = $returned
+            }
+
+            if (-not ($finding.PSObject.Properties.Name -contains 'InspectorScript') -or
+                [string]::IsNullOrWhiteSpace("$($finding.InspectorScript)")) {
+                Add-Member -InputObject $finding -NotePropertyName 'InspectorScript' -NotePropertyValue $selected_inspector -Force
+            }
+
+            $hasObjects = ($null -ne $finding.AffectedObjects) -and (@($finding.AffectedObjects).Count -gt 0)
+            $inspectorRuns.Add([pscustomobject]@{
+                    Inspector = $selected_inspector
+                    Impact    = $runImpact
+                    Service   = $runService
+                    Result    = $(if ($hasObjects) { 'Finding' } else { 'Clean' })
+                }) | Out-Null
+        }
+        catch {
+            Write-Warning "Inspector $selected_inspector failed: $($_.Exception.Message)"
+            $inspectorRuns.Add([pscustomobject]@{
+                    Inspector = $selected_inspector
+                    Impact    = $runImpact
+                    Service   = $runService
+                    Result    = 'Error'
+                }) | Out-Null
+        }
 
         # Add the finding to the list of all findings.
         $findings += $finding
@@ -833,220 +881,251 @@ ForEach ($selected_inspector in $selected_inspectors) {
 }
 
 # Function that retrieves templating information from
+$toolRoot = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
+
+. "$toolRoot\Resolve-AssessmentScore.ps1"
+$scoredFindings = @($findings | Where-Object { $null -ne $_.AffectedObjects -and @($_.AffectedObjects).Count -gt 0 })
+$assessmentScore = Get-AssessmentScore -InspectorRuns $inspectorRuns.ToArray() -Findings $scoredFindings -PreviousEntry $null
+$assessmentScore | ConvertTo-Json -Depth 10 | Out-File "$out_path\Score_$(Get-Date -Format 'yyyy-MM-dd_hh-mm-ss').json"
+Write-Output "Assessment score: $($assessmentScore.overall)/100 ($($assessmentScore.band)) - $($assessmentScore.scored_inspectors) inspectors scored"
+
+function ConvertTo-SoteriaSeverity([string]$value) {
+    switch -Regex ($value) {
+        '^Critical$' { 'CRITICAL'; break }
+        '^High$' { 'HIGH'; break }
+        '^Medium$' { 'MEDIUM'; break }
+        '^Low$' { 'LOW'; break }
+        '^Informational$' { 'INFO'; break }
+        '^Review Required$' { 'REVIEW_REQUIRED'; break }
+        default { 'INFO' }
+    }
+}
+
+function ConvertTo-SoteriaServiceList($value) {
+    if ([string]::IsNullOrWhiteSpace($value)) { return ,@() }
+    $items = @($value -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+    return ,$items
+}
+
+function ConvertTo-SoteriaValueString($v) {
+    if ($null -eq $v) { return 'null' }
+    if ($v -is [bool]) { return $v.ToString().ToLower() }
+    if (($v -is [System.Array]) -or (($v -is [System.Collections.IList]) -and ($v -isnot [string]))) { return (@($v) -join ', ') }
+    return "$v"
+}
+
+function ConvertTo-SoteriaPropPairs([System.Object]$obj) {
+    if ($null -eq $obj) { return @() }
+    $pairs = [System.Collections.Generic.List[Object]]::new()
+    foreach ($p in $obj.PSObject.Properties) {
+        $pairs.Add(@($p.Name, (ConvertTo-SoteriaValueString $p.Value))) | Out-Null
+    }
+    return , $pairs.ToArray()
+}
+
+function ConvertTo-SoteriaAffectedEntity($item) {
+    if ($null -eq $item) { return $null }
+    if ($item -is [bool] -or $item -is [int] -or $item -is [long] -or $item -is [double]) {
+        return [ordered]@{ kind = 'value'; value = $item.ToString() }
+    }
+    if ($item -is [string]) {
+        return [ordered]@{ kind = 'value'; value = $item }
+    }
+    $propNames = @($item.PSObject.Properties.Name)
+    if ($propNames -contains 'Name' -and $propNames -contains 'Prop') {
+        $name = "$($item.Name)"
+        $prop = $item.Prop
+        if ($null -eq $prop) {
+            return [ordered]@{ kind = 'object'; name = $name; props = @() }
+        }
+        if ($prop -is [System.Array] -or $prop -is [System.Collections.IList]) {
+            $groups = [System.Collections.Generic.List[Object]]::new()
+            $i = 0
+            foreach ($g in $prop) {
+                $i++
+                $label = if ($g.PSObject.Properties.Name -contains 'CredentialName') { "$($g.CredentialName)" }
+                         elseif ($g.PSObject.Properties.Name -contains 'Name') { "$($g.Name)" }
+                         else { "Item $i" }
+                $groups.Add([ordered]@{ label = $label; props = (ConvertTo-SoteriaPropPairs $g) }) | Out-Null
+            }
+            return [ordered]@{ kind = 'group'; name = $name; groups = $groups.ToArray() }
+        }
+        return [ordered]@{ kind = 'object'; name = $name; props = (ConvertTo-SoteriaPropPairs $prop) }
+    }
+    if ($propNames -contains 'Name') {
+        return [ordered]@{ kind = 'object'; name = "$($item.Name)"; props = (ConvertTo-SoteriaPropPairs $item) }
+    }
+    return [ordered]@{ kind = 'object'; name = '(unstructured)'; props = (ConvertTo-SoteriaPropPairs $item) }
+}
+
+function ConvertTo-SoteriaFrameworks($frameworks) {
+    if ($null -eq $frameworks) { return @() }
+    $items = if ($frameworks -is [System.Array] -or $frameworks -is [System.Collections.IList]) { $frameworks } else { @($frameworks) }
+    $result = [System.Collections.Generic.List[Object]]::new()
+    foreach ($fw in $items) {
+        if ($null -eq $fw) { continue }
+        $controls = [System.Collections.Generic.List[Object]]::new()
+        foreach ($c in @($fw.Controls)) {
+            if ($null -eq $c) { continue }
+            $controls.Add([ordered]@{
+                control            = "$($c.Control)"
+                controlName        = "$($c.ControlName)"
+                controlDescription = "$($c.ControlDescription)"
+                category           = "$($c.Category)"
+            }) | Out-Null
+        }
+        $result.Add([ordered]@{
+            name     = "$($fw.Name)"
+            version  = "$($fw.Version)"
+            controls = $controls.ToArray()
+        }) | Out-Null
+    }
+    return ,$result.ToArray()
+}
+
+function ConvertTo-SoteriaReferences($references) {
+    if ($null -eq $references) { return @() }
+    $items = if ($references -is [System.Array] -or $references -is [System.Collections.IList]) { $references } else { @($references) }
+    $result = [System.Collections.Generic.List[Object]]::new()
+    foreach ($r in $items) {
+        if ($null -eq $r) { continue }
+        if ([string]::IsNullOrWhiteSpace("$($r.Url)") -and [string]::IsNullOrWhiteSpace("$($r.Text)")) { continue }
+        $result.Add([ordered]@{
+            url  = "$($r.Url)"
+            text = if ($r.Text) { "$($r.Text)" } else { "$($r.Url)" }
+        }) | Out-Null
+    }
+    return ,$result.ToArray()
+}
+
+function ConvertTo-SoteriaAdminUri($adminUri) {
+    if ($null -eq $adminUri) { return ,@() }
+    $items = if ($adminUri -is [System.Array] -or $adminUri -is [System.Collections.IList]) { $adminUri } else { @($adminUri) }
+    $result = [System.Collections.Generic.List[Object]]::new()
+    foreach ($a in $items) {
+        if ($null -eq $a) { continue }
+        $result.Add([ordered]@{ name = "$($a.name)"; url = "$($a.url)" }) | Out-Null
+    }
+    return ,$result.ToArray()
+}
+
+function Get-SoteriaInspectorMetadata($metaObj) {
+    if ($null -eq $metaObj) { return @{} }
+    if ($metaObj -is [string]) {
+        if ([string]::IsNullOrWhiteSpace($metaObj)) { return @{} }
+        try { $metaObj = $metaObj | ConvertFrom-Json -ErrorAction Stop } catch { return @{} }
+    }
+    return @{
+        InspectorID      = "$($metaObj.InspectorID)"
+        InspectorVersion = "$($metaObj.InspectorVersion)"
+        Author           = "$($metaObj.Author)"
+    }
+}
+
+Function Get-FindingField {
+    param ($Finding, [string[]] $Names)
+    foreach ($n in $Names) {
+        if ($Finding.PSObject.Properties.Name -contains $n) {
+            $v = $Finding.$n
+            if ($null -ne $v -and -not [string]::IsNullOrWhiteSpace("$v")) { return $v }
+        }
+    }
+    return $null
+}
+
 Function HTML-Report {
-    # Function that retrieves templating information from
-    function Parse-Template {
-        $template = (Get-Content ".\365InspectDefaultTemplate.html") -join "`n"
-        $template -match '\<!--BEGIN_FINDING_LONG_REPEATER-->([\s\S]*)\<!--END_FINDING_LONG_REPEATER-->'
-        $findings_long_template = $matches[1]
+    $templatePath = Join-Path $(if ($PSScriptRoot) { $PSScriptRoot } elseif ($toolRoot) { $toolRoot } else { (Get-Location).Path }) '365InspectDefaultTemplate.html'
+    if (-not (Test-Path $templatePath)) {
+        Write-Warning "Report template not found at $templatePath; skipping HTML report."
+        return
+    }
 
-        $template -match '\<!--BEGIN_FINDING_SHORT_REPEATER-->([\s\S]*)\<!--END_FINDING_SHORT_REPEATER-->'
-        $findings_short_template = $matches[1]
+    $sortedFindings = $findings | Sort-Object { Switch -Regex ("$($_.Impact)") { 'Critical' { 1 } 'High' { 2 } 'Medium' { 3 } 'Low' { 4 } 'Informational' { 5 } default { 6 } } }, FindingName
 
-        $template -match '\<!--BEGIN_AFFECTED_OBJECTS_REPEATER-->([\s\S]*)\<!--END_AFFECTED_OBJECTS_REPEATER-->'
-        $affected_objects_template = $matches[1]
+    $reportFindings = [System.Collections.Generic.List[Object]]::new()
+    $bySev = @{ CRITICAL = 0; HIGH = 0; MEDIUM = 0; LOW = 0; INFO = 0; REVIEW_REQUIRED = 0 }
 
-        $template -match '\<!--BEGIN_REFERENCES_REPEATER-->([\s\S]*)\<!--END_REFERENCES_REPEATER-->'
-        $references_template = $matches[1]
+    foreach ($finding in $sortedFindings) {
+        if ($null -eq $finding.AffectedObjects) { continue }
+        if (@($finding.AffectedObjects).Count -eq 0) { continue }
 
-        $template -match '\<!--BEGIN_EXECSUM_TEMPLATE-->([\s\S]*)\<!--END_EXECSUM_TEMPLATE-->'
-        $execsum_template = $matches[1]
+        $isGated = ($finding.PSObject.Properties.Name -contains 'LicenseGated') -and $finding.LicenseGated
+        $assessedRating = Get-FindingField -Finding $finding -Names @('RiskRating', 'Impact')
+        $severity = if ($isGated) { 'INFO' } else { ConvertTo-SoteriaSeverity "$assessedRating" }
+        $bySev[$severity]++
 
-        $template -match '\<!--BEGIN_CHART_TEMPLATE-->([\s\S]*)\<!--END_CHART_TEMPLATE-->'
-        $chart_template = $matches[1]
-
-        $template -match '\<!--BEGIN_APPENDIX-->([\s\S]*)\<!--END_APPENDIX-->'
-        $appendix_template = $matches[1]
-
-        return @{
-            FindingShortTemplate    = $findings_short_template;
-            FindingLongTemplate     = $findings_long_template;
-            AffectedObjectsTemplate = $affected_objects_template;
-            ReportTemplate          = $template;
-            ReferencesTemplate      = $references_template;
-            ExecsumTemplate         = $execsum_template;
-            ChartTemplate           = $chart_template;
-            AppendixTemplate        = $appendix_template
+        $entities = [System.Collections.Generic.List[Object]]::new()
+        $rawObjects = $finding.AffectedObjects
+        if ($rawObjects -is [System.Array] -or $rawObjects -is [System.Collections.IList]) {
+            foreach ($item in $rawObjects) {
+                $entity = ConvertTo-SoteriaAffectedEntity $item
+                if ($null -ne $entity) { $entities.Add($entity) | Out-Null }
+            }
         }
-    }
-
-    $templates = Parse-Template
-
-    # Maintain a running list of each finding, represented as HTML
-    $short_findings_html = ""
-    $long_findings_html = ""
-    $selected_inspectors_html = ""
-
-    $findings_count = 0
-
-    #$sortedFindings1 = $findings | Sort-Object {$_.FindingName}
-    $sortedFindings = $findings | Sort-Object { Switch -Regex ($_.Impact) { 'Critical' { 1 }	'High' { 2 }	'Medium' { 3 }	'Low' { 4 }	'Informational' { 5 } }; $_.FindingName }
-
-    $criticalCount = 0
-    $highCount = 0
-    $mediumCount = 0
-    $lowCount = 0
-    $informationalCount = 0
-    $exchangeCount = 0
-    $sharepointCount = 0
-    $teamsCount = 0
-    $intuneCount = 0
-    $aadCount = 0
-    $securitycomplianceCount = 0
-    $tenantCount = 0
-
-    ForEach ($finding in $sortedFindings) {
-        # If the result from the inspector was not $null,
-        # it identified a real finding that we must process.
-        If ($null -NE $finding.AffectedObjects) {
-            # Increment total count of findings
-            $findings_count += 1
-
-            # Keep an HTML variable representing the current finding as HTML
-            $short_finding_html = $templates.FindingShortTemplate
-            $long_finding_html = $templates.FindingLongTemplate
-
-            # Insert finding name and number into template HTML
-            $short_finding_html = $short_finding_html.Replace("{{FINDING_NAME}}", $finding.FindingName)
-            $short_finding_html = $short_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
-            $long_finding_html = $long_finding_html.Replace("{{FINDING_NAME}}", $finding.FindingName)
-            $long_finding_html = $long_finding_html.Replace("{{FINDING_NUMBER}}", $findings_count.ToString())
-
-            # Finding Impact
-            If ($finding.Impact -eq 'Critical') {
-                $criticalCount += 1
-                $htmlImpact = '<span style="color:Crimson;"><strong>Critical</strong></span>'
-                $short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $htmlImpact)
-                $long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $htmlImpact)
-            }
-            ElseIf ($finding.Impact -eq 'High') {
-                $highCount += 1
-                $htmlImpact = '<span style="color:DarkOrange;"><strong>High</strong></span>'
-                $short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $htmlImpact)
-                $long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $htmlImpact)
-            }
-            Else {
-                $short_finding_html = $short_finding_html.Replace("{{IMPACT}}", $finding.Impact)
-                $long_finding_html = $long_finding_html.Replace("{{IMPACT}}", $finding.Impact)
-            }
-
-            If ($finding.Impact -eq 'Medium') {
-                $mediumCount += 1
-            }
-            If ($finding.Impact -eq 'Low') {
-                $lowCount += 1
-            }
-            If ($finding.Impact -eq 'Informational') {
-                $informationalCount += 1
-            }
-
-            Foreach ($service in $finding.Service) {
-                if ($service -match 'Exchange') { $exchangeCount += 1 }
-                elseif ($service -match 'SharePoint') { $sharepointCount += 1 }
-                elseif ($service -match 'Teams') { $teamsCount += 1 }
-                elseif ($service -match 'Intune') { $intuneCount += 1 }
-                elseif ($service -match 'AzureAD') { $aadCount += 1 }
-                elseif ($service -match 'SecurityandCompliance') { $securitycomplianceCount += 1 }
-                elseif ($service -eq 'Tenant') { $tenantCount += 1 }
-            }
-
-            $short_finding_html = $short_finding_html.Replace("{{RISKRATING}}", $finding.RiskRating)
-            $long_finding_html = $long_finding_html.Replace("{{RISKRATING}}", $finding.RiskRating)
-
-            # Finding description
-            $long_finding_html = $long_finding_html.Replace("{{DESCRIPTION}}", $finding.Description)
-
-            # Finding default value
-            $long_finding_html = $long_finding_html.Replace("{{DEFAULTVALUE}}", $finding.DefaultValue)
-
-            # Finding expected value
-            $long_finding_html = $long_finding_html.Replace("{{EXPECTEDVALUE}}", $finding.ExpectedValue)
-
-            # Finding Remediation
-            If ($finding.Remediation.length -GT 300) {
-                $short_finding_text = "Complete remediation advice is provided in the body of the report. Clicking the link to the left will take you there."
-            }
-            Else {
-                $short_finding_text = $finding.Remediation
-            }
-
-            $short_finding_html = $short_finding_html.Replace("{{REMEDIATION}}", $short_finding_text)
-            $long_finding_html = $long_finding_html.Replace("{{REMEDIATION}}", $finding.Remediation)
-
-            # Affected Objects
-            If ($finding.AffectedObjects.Count -GT 25) {
-                $condensed = "<a href='{name}'>{count} Affected Objects Identified<a/>."
-                $condensed = $condensed.Replace("{count}", $finding.AffectedObjects.Count.ToString())
-                $condensed = $condensed.Replace("{name}", "$($finding.FindingName).txt")
-                $affected_object_html = $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $condensed)
-                $fname = $finding.FindingName
-                $finding.AffectedObjects | Out-File -FilePath "$out_path\$fname.txt"
-            }
-            Else {
-                $affected_object_html = ''
-                ForEach ($affected_object in $finding.AffectedObjects) {
-                    $affected_object_html += $templates.AffectedObjectsTemplate.Replace("{{AFFECTED_OBJECT}}", $affected_object)
-                }
-            }
-
-            $long_finding_html = $long_finding_html.Replace($templates.AffectedObjectsTemplate, $affected_object_html)
-
-            # Finding PowerShell example
-            $long_finding_html = $long_finding_html.Replace("{{POWERSHELL}}", $finding.PowerShell)
-
-            # References
-            $reference_html = ''
-            ForEach ($reference in $finding.References) {
-                $this_reference = $templates.ReferencesTemplate.Replace("{{REFERENCE_URL}}", $reference.Url)
-                $this_reference = $this_reference.Replace("{{REFERENCE_TEXT}}", $reference.Text)
-                $reference_html += $this_reference
-            }
-
-            $long_finding_html = $long_finding_html.Replace($templates.ReferencesTemplate, $reference_html)
-
-            # Add the completed short and long findings to the running list of findings (in HTML)
-            $short_findings_html += $short_finding_html
-            $long_findings_html += $long_finding_html
+        else {
+            $entity = ConvertTo-SoteriaAffectedEntity $rawObjects
+            if ($null -ne $entity) { $entities.Add($entity) | Out-Null }
         }
+
+        $psRemediation = Get-FindingField -Finding $finding -Names @('PowerShellRemediation', 'PowerShell')
+        $meta = Get-SoteriaInspectorMetadata (Get-FindingField -Finding $finding -Names @('metadata'))
+        $effort = Get-FindingField -Finding $finding -Names @('RemediationEffort')
+
+        $reportFindings.Add([ordered]@{
+                inspector_id           = if ($meta.InspectorID) { $meta.InspectorID } else { '' }
+                inspector_name         = "$($finding.InspectorScript)"
+                inspector_version      = if ($meta.InspectorVersion) { "v$($meta.InspectorVersion)" } else { '' }
+                title                  = "$($finding.FindingName)"
+                description            = "$($finding.Description)"
+                severity               = $severity
+                impact                 = "$($finding.Impact)"
+                risk_rating            = "$(Get-FindingField -Finding $finding -Names @('RiskRating'))"
+                services               = (ConvertTo-SoteriaServiceList ([string]$finding.Service))
+                default_value          = "$($finding.DefaultValue)"
+                expected_value         = "$($finding.ExpectedValue)"
+                remediation            = "$($finding.Remediation)"
+                powershell_remediation = (@($psRemediation) -join "`n")
+                user_impact            = "$(Get-FindingField -Finding $finding -Names @('UserImpact'))"
+                remediation_effort     = if ($null -eq $effort) { 'MEDIUM' } else { "$effort".ToUpper() }
+                license_gated          = [bool]$isGated
+                license_requirement    = "$(Get-FindingField -Finding $finding -Names @('LicenseRequirement'))"
+                affected_entities      = $entities.ToArray()
+                frameworks             = (ConvertTo-SoteriaFrameworks (Get-FindingField -Finding $finding -Names @('Frameworks')))
+                references             = (ConvertTo-SoteriaReferences $finding.References)
+                admin_center           = "$(Get-FindingField -Finding $finding -Names @('AdminCenter'))"
+                admin_uri              = (ConvertTo-SoteriaAdminUri (Get-FindingField -Finding $finding -Names @('AdminUri')))
+            }) | Out-Null
     }
 
-    # Insert command line execution information. This is coupled kinda badly, as is the Affected Objects html.
-    $flags = "<b>Prepared for organization:</b><b> $tenantDisplayName - $org_name</b><br/><br/>"
-    $flags = $flags + "<b>Prepared by:</b><b> $UserPrincipalName </b><br/><br/>"
-    $flags = $flags + "<b>Stats</b>:<br/> <b>" + $findings_count + "</b> opportunities for improvement identified from <b>" + $inspectors.Count + "</b> points of inspection.<br/><br/>"
-    #$flags = $flags + "<b>Inspector Modules Executed</b>:<br/>" + [String]::Join("<br/>", $selected_inspectors)
+    $auditor = if (-not [string]::IsNullOrWhiteSpace("$UserPrincipalName")) { "$UserPrincipalName" } else { "$appId" }
+    $titleOrg = if (-not [string]::IsNullOrWhiteSpace("$org_name")) { "$org_name" } else { "$Domain" }
 
-    # Add Risk Count for Charts
-    $chart_template_html = $templates.ChartTemplate
-    $chart_template_html = $chart_template_html.Replace("{{TOTAL_COUNT}}", $findings_count)
-    $chart_template_html = $chart_template_html.Replace("{{CRITICAL_COUNT}}", $criticalCount<#.ToString()#>)
-    $chart_template_html = $chart_template_html.Replace("{{HIGH_COUNT}}", $highCount<#.ToString()#>)
-    $chart_template_html = $chart_template_html.Replace("{{MEDIUM_COUNT}}", $mediumCount<#.ToString()#>)
-    $chart_template_html = $chart_template_html.Replace("{{LOW_COUNT}}", $lowCount<#.ToString()#>)
-    $chart_template_html = $chart_template_html.Replace("{{INFORMATIONAL_COUNT}}", $informationalCount<#.ToString()#>)
-    $chart_template_html = $chart_template_html.Replace("{{EXCHANGE}}", $exchangeCount.ToString())
-    $chart_template_html = $chart_template_html.Replace("{{SHAREPOINT}}", $sharepointCount.ToString())
-    $chart_template_html = $chart_template_html.Replace("{{TEAMS}}", $teamsCount.ToString())
-    $chart_template_html = $chart_template_html.Replace("{{INTUNE}}", $intuneCount.ToString())
-    $chart_template_html = $chart_template_html.Replace("{{AAD}}", $aadCount.ToString())
-    $chart_template_html = $chart_template_html.Replace("{{SECCOMP}}", $securitycomplianceCount.ToString())
-    $chart_template_html = $chart_template_html.Replace("{{TENANT}}", $tenantCount.ToString())
-
-    # Add Appendix of Inspectors run
-    $appendix_template_html = $templates.AppendixTemplate
-    foreach ($selInspector in $selected_inspectors) {
-        $selected_inspectors_html += "$selInspector,"
+    $reportData = [ordered]@{
+        generated_at = (Get-Date).ToString('u')
+        accounts     = @("$Domain")
+        meta_pairs   = @(
+            , @('Tenant', "$Domain")
+            , @('Auditor', $auditor)
+            , @('Inspectors run', "$(@($inspectorRuns).Count)")
+            , @('Findings', "$($reportFindings.Count)")
+        )
+        summary      = [ordered]@{
+            total       = $reportFindings.Count
+            by_severity = $bySev
+            score       = $assessmentScore
+        }
+        findings     = $reportFindings.ToArray()
     }
-    $appendix_template_html = $appendix_template_html.Replace("{{SELECTED_INSPECTORS}}", $selected_inspectors_html)
 
+    $jsonPayload = $reportData | ConvertTo-Json -Depth 50 -Compress
 
-    $output = $templates.ReportTemplate.Replace($templates.FindingShortTemplate, $short_findings_html)
-    $output = $output.Replace($templates.FindingLongTemplate, $long_findings_html)
-    $output = $output.Replace($templates.ChartTemplate, $chart_template_html)
-    $output = $output.Replace($templates.AppendixTemplate, $appendix_template_html)
-    $output = $output.Replace($templates.ExecsumTemplate, $templates.ExecsumTemplate.Replace("{{CMDLINEFLAGS}}", $flags))
+    $template = Get-Content $templatePath -Raw
+    $rendered = $template.Replace('{{REPORT_TITLE}}', "365Inspect Security Assessment - $titleOrg")
+    $rendered = $rendered.Replace('{{REPORT_DATA_JSON}}', $jsonPayload)
 
-    $output | Out-File -FilePath $out_path\Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss").html
+    $outFile = "$out_path\Report_$(Get-Date -Format 'yyyy-MM-dd_hh-mm-ss').html"
+    $rendered | Out-File $outFile -Encoding utf8
+    Write-Output "Generated HTML report: $outFile"
 }
 
 Function CSV-Report {
