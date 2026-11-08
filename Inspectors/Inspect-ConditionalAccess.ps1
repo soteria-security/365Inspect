@@ -6,6 +6,42 @@ $errorHandling = "$((Get-Item $PSScriptRoot).Parent.FullName)\Write-ErrorLog.ps1
 
 $path = @($out_path)
 
+# Resolves an ID referenced by a Conditional Access policy to a display name.
+# - Roles in CA policies are role TEMPLATE / definition IDs, not directory object IDs,
+#   so /directoryObjects/{id} returns 404 for them. Look them up as role definitions.
+# - Users/groups that were deleted but are still referenced by a policy also return 404.
+#   Report them instead of failing the whole inspector (a stale reference is worth seeing).
+function Resolve-CAPrincipal {
+    param (
+        [Parameter(Mandatory)] [string] $Id,
+        [Parameter(Mandatory)] [ValidateSet('User', 'Group', 'Role')] [string] $Kind
+    )
+
+    # Keywords CA uses in place of IDs
+    If ($Id -in @('All', 'None', 'GuestsOrExternalUsers')) { return $Id }
+
+    $base = "https://$(@($global:graphURI))"
+    $uris = switch ($Kind) {
+        'Role' {
+            "$base/v1.0/directoryRoleTemplates/$Id",                  # built-in roles
+            "$base/v1.0/roleManagement/directory/roleDefinitions/$Id" # custom roles
+        }
+        default { "$base/beta/directoryObjects/$Id" }
+    }
+
+    foreach ($uri in $uris) {
+        Try {
+            $obj = Invoke-GraphRequest -Method Get -Uri $uri -ErrorAction Stop
+            If ($obj.displayName) { return $obj.displayName }
+        }
+        Catch {
+            # 404: try the next lookup, or fall through to the not-found label
+        }
+    }
+
+    return "$Id ($Kind not found: deleted or stale reference)"
+}
+
 function Inspect-CAPolicies {
     Try {
         $tenantLicense = ((Invoke-GraphRequest -method get -uri "https://$(@($global:graphURI))/beta/subscribedSkus").Value).ServicePlans
@@ -33,89 +69,13 @@ function Inspect-CAPolicies {
 
                     $name = $name -replace $pattern, '-'
 
-                    $IncludedUsers = @()
-
-                    $ExcludedUsers = @()
-
-                    $IncludedGroups = @()
-
-                    $ExcludedGroups = @()
-
-                    $IncludedRoles = @()
-
-                    $ExcludedRoles = @()
-
-                    If ($policy.conditions.users.includeusers -eq "All") {
-                        $IncludedUsers = "All"
-                    }
-                    Elseif ($policy.conditions.users.includeusers -eq "None") {
-                        $IncludedUsers = "None"
-                    }
-                    Elseif ($policy.conditions.users.includeusers -eq "GuestsOrExternalUsers") {
-                        $IncludedUsers = "GuestsOrExternalUsers"
-                    }
-                    Elseif ($policy.conditions.users.includeusers) {
-                        $IncludedUsers = @()
-                        Foreach ($user in $policy.conditions.users.includeusers) {
-                            $IncludedUsers += (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryObjects/$user").DisplayName
-                        }
-                    }
-                    
-                    If ($policy.conditions.users.excludeusers -eq "All") {
-                        $ExcludedUsers = "All"
-                    }
-                    Elseif ($policy.conditions.users.excludeusers -eq "None") {
-                        $ExcludedUsers = "None"
-                    }
-                    Elseif ($policy.conditions.users.excludeusers -eq "GuestsOrExternalUsers") {
-                        $ExcludedUsers = "GuestsOrExternalUsers"
-                    }
-                    Elseif ($policy.conditions.users.excludeusers) {
-                        $ExcludedUsers = @()
-                        Foreach ($user in $policy.conditions.users.excludeusers) {
-                            $ExcludedUsers += (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryObjects/$user").DisplayName
-                        }
-                    }
-                    
-                    If ($policy.conditions.users.includegroups -eq "All") {
-                        $IncludedGroups = "All"
-                    }
-                    Elseif ($policy.conditions.users.includegroups) {
-                        $IncludedGroups = @()
-                        Foreach ($group in $policy.conditions.users.includegroups) {
-                            $IncludedGroups += (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryObjects/$group").DisplayName
-                        }
-                    }
-                    
-                    If ($policy.conditions.users.excludegroups -eq "All") {
-                        $ExcludedGroups = "All"
-                    }
-                    Elseif ($policy.conditions.users.excludegroups) {
-                        $ExcludedGroups = @()
-                        Foreach ($group in $policy.conditions.users.excludegroups) {
-                            $ExcludedGroups += (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryObjects/$group").DisplayName
-                        }
-                    }
-                    
-                    If ($policy.conditions.users.includeroles -eq "All") {
-                        $IncludedRoles = "All"
-                    }
-                    Elseif ($policy.conditions.users.includeroles) {
-                        $IncludedRoles = @()
-                        Foreach ($role in $policy.conditions.users.includeroles) {
-                            $IncludedRoles += (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryObjects/$role").DisplayName
-                        }
-                    }
-                    
-                    If ($policy.conditions.users.excluderoles -eq "All") {
-                        $ExcludedRoles = "All"
-                    }
-                    Elseif ($policy.conditions.users.excluderoles) {
-                        $ExcludedRoles = @()
-                        Foreach ($role in $policy.conditions.users.excluderoles) {
-                            $ExcludedRoles += (Invoke-GraphRequest -Method Get -Uri "https://$(@($global:graphURI))/beta/directoryObjects/$role").DisplayName
-                        }
-                    }
+                    $u = $policy.conditions.users
+                    $IncludedUsers = @($u.includeUsers  | ForEach-Object { Resolve-CAPrincipal -Id $_ -Kind User })
+                    $ExcludedUsers = @($u.excludeUsers  | ForEach-Object { Resolve-CAPrincipal -Id $_ -Kind User })
+                    $IncludedGroups = @($u.includeGroups | ForEach-Object { Resolve-CAPrincipal -Id $_ -Kind Group })
+                    $ExcludedGroups = @($u.excludeGroups | ForEach-Object { Resolve-CAPrincipal -Id $_ -Kind Group })
+                    $IncludedRoles = @($u.includeRoles  | ForEach-Object { Resolve-CAPrincipal -Id $_ -Kind Role })
+                    $ExcludedRoles = @($u.excludeRoles  | ForEach-Object { Resolve-CAPrincipal -Id $_ -Kind Role })
 
                     $sessionControls = $policy.sessioncontrols
 
