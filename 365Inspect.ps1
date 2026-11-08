@@ -104,29 +104,7 @@ If ($PSVersionTable.PSVersion.Major -ge 7 -and $PSVersionTable.PSVersion.Minor -
 Function Connect-Services {
     # Log into every service prior to the analysis.
     If ($auth -EQ "MFA") {
-        Try {
-            switch ($Environment) {
-                "USGovGCCHigh" { $connEnvironment = 'USGov' }
-                "USGovDoD" { $connEnvironment = 'USGovDoD' }
-                "GermanyCloud" { $connEnvironment = 'Global' }
-                "China" { $connEnvironment = 'China' }
-                default { $connEnvironment = 'Global' }
-            }
 
-            Write-Output "Connecting to Microsoft Graph"
-
-            # National Cloud deployments - Valid environments: 'Global', 'USGov', 'USGovDoD', 'China'
-            Connect-MgGraph -Environment $connEnvironment -ContextScope Process -Scopes "AuditLog.Read.All", "Reports.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "Mail.Read", "MailboxSettings.Read", "DeviceManagementManagedDevices.Read.All", "DeviceManagementApps.Read.All", "UserAuthenticationMethod.ReadWrite.All", "DeviceManagementServiceConfig.Read.All", "DeviceManagementConfiguration.Read.All", "SharePointTenantSettings.Read.All"
-
-            $global:orgInfo = Get-MgOrganization
-            $global:tenantDomain = (($global:orgInfo).VerifiedDomains | Where-Object { ($_.Name -like "*.onmicrosoft.com") -and ($_.Name -notlike "*mail.onmicrosoft.com") }).Name
-            Write-Output "Connected via Graph to $((Get-MgOrganization).DisplayName)"
-        }
-        Catch {
-            Write-Output "Connecting to Microsoft Graph Failed."
-            Write-Error $_.Exception.Message
-            Break
-        }
         Try {
             Write-Output "Connecting to Security and Compliance Center"
 
@@ -150,6 +128,7 @@ Function Connect-Services {
             Write-Error $_.Exception.Message
             Break
         }
+
         Try {
             switch ($Environment) {
                 "USGovGCCHigh" { $connEnvironment = 'O365USGovGCCHigh' }
@@ -167,6 +146,30 @@ Function Connect-Services {
             Write-Error $_.Exception.Message
             Break
         }
+        Try {
+            switch ($Environment) {
+                "USGovGCCHigh" { $connEnvironment = 'USGov' }
+                "USGovDoD" { $connEnvironment = 'USGovDoD' }
+                "GermanyCloud" { $connEnvironment = 'Global' }
+                "China" { $connEnvironment = 'China' }
+                default { $connEnvironment = 'Global' }
+            }
+
+            Write-Output "Connecting to Microsoft Graph"
+
+            # National Cloud deployments - Valid environments: 'Global', 'USGov', 'USGovDoD', 'China'
+            Connect-MgGraph -Environment $connEnvironment -ContextScope Process -Scopes "AuditLog.Read.All", "Reports.Read.All", "Policy.Read.All", "Directory.Read.All", "IdentityProvider.Read.All", "Organization.Read.All", "Securityevents.Read.All", "ThreatIndicators.Read.All", "SecurityActions.Read.All", "User.Read.All", "UserAuthenticationMethod.Read.All", "Mail.Read", "MailboxSettings.Read", "DeviceManagementManagedDevices.Read.All", "DeviceManagementApps.Read.All", "UserAuthenticationMethod.ReadWrite.All", "DeviceManagementServiceConfig.Read.All", "DeviceManagementConfiguration.Read.All", "SharePointTenantSettings.Read.All"
+
+            $global:orgInfo = Get-MgOrganization
+            $global:tenantDomain = (($global:orgInfo).VerifiedDomains | Where-Object { ($_.Name -like "*.onmicrosoft.com") -and ($_.Name -notlike "*mail.onmicrosoft.com") }).Name
+            Write-Output "Connected via Graph to $((Get-MgOrganization).DisplayName)"
+        }
+        Catch {
+            Write-Output "Connecting to Microsoft Graph Failed."
+            Write-Error $_.Exception.Message
+            Break
+        }
+
         Try {
             switch ($Environment) {
                 "USGovGCCHigh" { $connEnvironment = 'USGovernmentHigh' }
@@ -493,45 +496,15 @@ Function Confirm-InstalledModules {
     $MSTeams = @{ Name = "MicrosoftTeams"; MinimumVersion = "4.4.1" }
     $psGet = @{ Name = "PowerShellGet"; RequiredVersion = "2.2.5" }
 
-    Try {
-        $psGetVersion = Get-InstalledModule -Name PowerShellGet -ErrorAction Stop
+    $psGetVersion = (Get-Module -ListAvailable -Name PowerShellGet |
+        Sort-Object Version -Descending | Select-Object -First 1).Version
 
-        If ($psGetVersion.Version -lt '2.2.5') {
-            Write-Host "[-] " -ForegroundColor Red -NoNewline
-            Write-Warning "PowerShellGet is not the correct version. Please install using the following command:"
-            Write-Host "Update-Module " -ForegroundColor Yellow -NoNewline
-            Write-Host "-Name " -ForegroundColor Gray -NoNewline
-            Write-Host "PowerShellGet " -ForegroundColor White -NoNewline
-            Write-Host '-Force' -ForegroundColor Gray
-            $IsAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")
-            if (-not $IsAdmin) {
-                Write-Warning "PowerShellGet is not the correct version. Please install using the following command:"
-                Write-Host "Update-Module " -ForegroundColor Yellow -NoNewline
-                Write-Host "-Name " -ForegroundColor Gray -NoNewline
-                Write-Host "PowerShellGet " -ForegroundColor White -NoNewline
-                Write-Host '-Force' -ForegroundColor Gray
-            }
-            Else {
-                Write-Host "Installing PowerShellGet`n" -ForegroundColor Magenta
-                Install-Module -Name 'PowerShellGet' -AllowPrerelease -AllowClobber -Force -MinimumVersion '2.2.5'
-            }
-        }
-    }
-    Catch {
-        $exc = $_
-        if ($exc -like "*No match was found for the specified search criteria and module names 'powershellget'*") {
-            Write-Host "[-] " -ForegroundColor Red -NoNewline
-            Write-Warning "PowerShellGet was not installed via PowerShell Gallery. Please install using the following command:"
-            Write-Host "Install-Module " -ForegroundColor Yellow -NoNewline
-            Write-Host "-Name " -ForegroundColor Gray -NoNewline
-            Write-Host "PowerShellGet " -ForegroundColor White -NoNewline
-            Write-Host "-RequiredVersion " -ForegroundColor Gray -NoNewline
-            Write-Host '2.2.5 ' -ForegroundColor White -NoNewline
-            Write-Host '-Force' -ForegroundColor Gray
-        }
+    If (-not $psGetVersion -or $psGetVersion -lt [Version]'2.2.5') {
+        Write-Host "[-] " -ForegroundColor Red -NoNewline
+        Write-Warning "PowerShellGet 2.2.5 or later is required. Run: Install-Module PowerShellGet -MinimumVersion 2.2.5 -Scope CurrentUser -Force"
     }
 
-    $modules = @($psGet, $ExchangeOnlineManagement, $Graph, $SharePoint, $MSTeams)
+    $modules = @($ExchangeOnlineManagement, $Graph, $SharePoint, $MSTeams)
     $count = 0
 
     Write-Output "Verifying environment. `n"
@@ -544,12 +517,26 @@ Function Confirm-InstalledModules {
                 Write-Host "Environment is $($PSVersionTable.PSVersion)" -ForegroundColor Yellow
                 Write-Host "`t[+] " -NoNewline -ForegroundColor Green
                 Write-Output "$($module.Name) is installed."
+                If ($installedVersion -ge [Version]'3.4.0') {
+                    Write-Warning "PnP.PowerShell $installedVersion crashes when signing in after Exchange/Teams (pnp/powershell #5480). Install 3.3.0 and uninstall newer versions:"
+                    Write-Host "  Install-Module PnP.PowerShell -RequiredVersion 3.3.0 -Scope CurrentUser" -ForegroundColor Yellow
+                    Write-Host "  Get-InstalledModule PnP.PowerShell -AllVersions | Where-Object Version -ne '3.3.0' | Uninstall-Module" -ForegroundColor Yellow
+                    Confirm-Close
+                }
+                $count++
             }
             Elseif (($PSVersionTable.PSVersion.Major -ge 6) -and ($installedVersion -ge '1.12.0')) {
                 If ($IsWindows) {
                     Write-Host "Environment is $($PSVersionTable.PSVersion)" -ForegroundColor Yellow
                     Write-Host "`t[+] " -NoNewline -ForegroundColor Green
                     Write-Output "$($module.Name) is installed."
+                    If ($installedVersion -ge [Version]'3.4.0') {
+                        Write-Warning "PnP.PowerShell $installedVersion crashes when signing in after Exchange/Teams (pnp/powershell #5480). Install 3.3.0 and uninstall newer versions:"
+                        Write-Host "  Install-Module PnP.PowerShell -RequiredVersion 3.3.0 -Scope CurrentUser" -ForegroundColor Yellow
+                        Write-Host "  Get-InstalledModule PnP.PowerShell -AllVersions | Where-Object Version -ne '3.3.0' | Uninstall-Module" -ForegroundColor Yellow
+                        Confirm-Close
+                    }
+                    $count++
                 }
                 Else {
                     Write-Host "We're sorry, due to various module dependency requirements, this tool will not work on a non-Windows operating system." -ForegroundColor Yellow
@@ -580,52 +567,8 @@ Function Confirm-InstalledModules {
                     Write-Host "Environment is $($PSVersionTable.PSVersion)" -ForegroundColor Yellow
                     Write-Host "`t[+] " -NoNewline -ForegroundColor Green
                     Write-Output "$($module.Name) is installed."
-
-                    If (($module.Name -ne 'Microsoft.Graph') -and ($module.Name -ne 'ExchangeOnlineManagement')) {
-                        Try {
-                            Write-Host "`tImporting $($module.Name)" -ForegroundColor Green
-                            Import-Module -Name $module.Name -UseWindowsPowerShell -WarningAction SilentlyContinue | Out-Null
-                        }
-                        Catch {
-                            Write-Warning "Error message: $_"
-                            $message = $_.ToString()
-                            $exception = $_.Exception
-                            $strace = $_.ScriptStackTrace
-                            $failingline = $_.InvocationInfo.Line
-                            $positionmsg = $_.InvocationInfo.PositionMessage
-                            $pscommandpath = $_.InvocationInfo.PSCommandPath
-                            $failinglinenumber = $_.InvocationInfo.ScriptLineNumber
-                            $scriptname = $_.InvocationInfo.ScriptName
-                            Write-Verbose "Write to log"
-                            Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
-                            Write-Verbose "Errors written to log"
-                        }
-                    }
-                    Else {
-                        Try {
-                            Write-Host "`tInporting ExchangeOnlineManagement"
-                            Import-Module -Name ExchangeOnlineManagement | Out-Null
-                            Write-Host "`tImporting Microsoft.Graph" -ForegroundColor Green
-                            Import-Module -Name Microsoft.Graph.Identity.DirectoryManagement | Out-Null
-                            Import-Module -Name Microsoft.Graph.Identity.SignIns | Out-Null
-                            Import-Module -Name Microsoft.Graph.Users | Out-Null
-                            Import-Module -Name Microsoft.Graph.Applications | Out-Null
-                        }
-                        Catch {
-                            Write-Warning "Error message: $_"
-                            $message = $_.ToString()
-                            $exception = $_.Exception
-                            $strace = $_.ScriptStackTrace
-                            $failingline = $_.InvocationInfo.Line
-                            $positionmsg = $_.InvocationInfo.PositionMessage
-                            $pscommandpath = $_.InvocationInfo.PSCommandPath
-                            $failinglinenumber = $_.InvocationInfo.ScriptLineNumber
-                            $scriptname = $_.InvocationInfo.ScriptName
-                            Write-Verbose "Write to log"
-                            Write-ErrorLog -message $message -exception $exception -scriptname $scriptname -failinglinenumber $failinglinenumber -failingline $failingline -pscommandpath $pscommandpath -positionmsg $pscommandpath -stacktrace $strace
-                            Write-Verbose "Errors written to log"
-                        }
-                    }
+                    # No Import-Module here. Modules load on first use. Importing early loads each
+                    # module's copy of Microsoft.Identity.Client in the wrong order and breaks sign-in.
                 }
                 Else {
                     Write-Host "We're sorry, due to various module dependency requirements, this tool will not work on a non-Windows operating system." -ForegroundColor Yellow
@@ -889,137 +832,268 @@ $assessmentScore = Get-AssessmentScore -InspectorRuns $inspectorRuns.ToArray() -
 $assessmentScore | ConvertTo-Json -Depth 10 | Out-File "$out_path\Score_$(Get-Date -Format 'yyyy-MM-dd_hh-mm-ss').json"
 Write-Output "Assessment score: $($assessmentScore.overall)/100 ($($assessmentScore.band)) - $($assessmentScore.scored_inspectors) inspectors scored"
 
-function ConvertTo-SoteriaSeverity([string]$value) {
-    switch -Regex ($value) {
-        '^Critical$' { 'CRITICAL'; break }
-        '^High$' { 'HIGH'; break }
-        '^Medium$' { 'MEDIUM'; break }
-        '^Low$' { 'LOW'; break }
-        '^Informational$' { 'INFO'; break }
-        '^Review Required$' { 'REVIEW_REQUIRED'; break }
-        default { 'INFO' }
-    }
-}
-
-function ConvertTo-SoteriaServiceList($value) {
-    if ([string]::IsNullOrWhiteSpace($value)) { return ,@() }
-    $items = @($value -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
-    return ,$items
-}
-
-function ConvertTo-SoteriaValueString($v) {
-    if ($null -eq $v) { return 'null' }
-    if ($v -is [bool]) { return $v.ToString().ToLower() }
-    if (($v -is [System.Array]) -or (($v -is [System.Collections.IList]) -and ($v -isnot [string]))) { return (@($v) -join ', ') }
-    return "$v"
-}
-
-function ConvertTo-SoteriaPropPairs([System.Object]$obj) {
-    if ($null -eq $obj) { return @() }
-    $pairs = [System.Collections.Generic.List[Object]]::new()
-    foreach ($p in $obj.PSObject.Properties) {
-        $pairs.Add(@($p.Name, (ConvertTo-SoteriaValueString $p.Value))) | Out-Null
-    }
-    return , $pairs.ToArray()
-}
-
-function ConvertTo-SoteriaAffectedEntity($item) {
-    if ($null -eq $item) { return $null }
-    if ($item -is [bool] -or $item -is [int] -or $item -is [long] -or $item -is [double]) {
-        return [ordered]@{ kind = 'value'; value = $item.ToString() }
-    }
-    if ($item -is [string]) {
-        return [ordered]@{ kind = 'value'; value = $item }
-    }
-    $propNames = @($item.PSObject.Properties.Name)
-    if ($propNames -contains 'Name' -and $propNames -contains 'Prop') {
-        $name = "$($item.Name)"
-        $prop = $item.Prop
-        if ($null -eq $prop) {
-            return [ordered]@{ kind = 'object'; name = $name; props = @() }
-        }
-        if ($prop -is [System.Array] -or $prop -is [System.Collections.IList]) {
-            $groups = [System.Collections.Generic.List[Object]]::new()
-            $i = 0
-            foreach ($g in $prop) {
-                $i++
-                $label = if ($g.PSObject.Properties.Name -contains 'CredentialName') { "$($g.CredentialName)" }
-                         elseif ($g.PSObject.Properties.Name -contains 'Name') { "$($g.Name)" }
-                         else { "Item $i" }
-                $groups.Add([ordered]@{ label = $label; props = (ConvertTo-SoteriaPropPairs $g) }) | Out-Null
-            }
-            return [ordered]@{ kind = 'group'; name = $name; groups = $groups.ToArray() }
-        }
-        return [ordered]@{ kind = 'object'; name = $name; props = (ConvertTo-SoteriaPropPairs $prop) }
-    }
-    if ($propNames -contains 'Name') {
-        return [ordered]@{ kind = 'object'; name = "$($item.Name)"; props = (ConvertTo-SoteriaPropPairs $item) }
-    }
-    return [ordered]@{ kind = 'object'; name = '(unstructured)'; props = (ConvertTo-SoteriaPropPairs $item) }
-}
-
-function ConvertTo-SoteriaFrameworks($frameworks) {
-    if ($null -eq $frameworks) { return @() }
-    $items = if ($frameworks -is [System.Array] -or $frameworks -is [System.Collections.IList]) { $frameworks } else { @($frameworks) }
-    $result = [System.Collections.Generic.List[Object]]::new()
-    foreach ($fw in $items) {
-        if ($null -eq $fw) { continue }
-        $controls = [System.Collections.Generic.List[Object]]::new()
-        foreach ($c in @($fw.Controls)) {
-            if ($null -eq $c) { continue }
-            $controls.Add([ordered]@{
-                control            = "$($c.Control)"
-                controlName        = "$($c.ControlName)"
-                controlDescription = "$($c.ControlDescription)"
-                category           = "$($c.Category)"
-            }) | Out-Null
-        }
-        $result.Add([ordered]@{
-            name     = "$($fw.Name)"
-            version  = "$($fw.Version)"
-            controls = $controls.ToArray()
-        }) | Out-Null
-    }
-    return ,$result.ToArray()
-}
-
-function ConvertTo-SoteriaReferences($references) {
-    if ($null -eq $references) { return @() }
-    $items = if ($references -is [System.Array] -or $references -is [System.Collections.IList]) { $references } else { @($references) }
-    $result = [System.Collections.Generic.List[Object]]::new()
-    foreach ($r in $items) {
-        if ($null -eq $r) { continue }
-        if ([string]::IsNullOrWhiteSpace("$($r.Url)") -and [string]::IsNullOrWhiteSpace("$($r.Text)")) { continue }
-        $result.Add([ordered]@{
-            url  = "$($r.Url)"
-            text = if ($r.Text) { "$($r.Text)" } else { "$($r.Url)" }
-        }) | Out-Null
-    }
-    return ,$result.ToArray()
-}
-
-function ConvertTo-SoteriaAdminUri($adminUri) {
-    if ($null -eq $adminUri) { return ,@() }
-    $items = if ($adminUri -is [System.Array] -or $adminUri -is [System.Collections.IList]) { $adminUri } else { @($adminUri) }
-    $result = [System.Collections.Generic.List[Object]]::new()
-    foreach ($a in $items) {
-        if ($null -eq $a) { continue }
-        $result.Add([ordered]@{ name = "$($a.name)"; url = "$($a.url)" }) | Out-Null
-    }
-    return ,$result.ToArray()
-}
-
-function Get-SoteriaInspectorMetadata($metaObj) {
-    if ($null -eq $metaObj) { return @{} }
-    if ($metaObj -is [string]) {
-        if ([string]::IsNullOrWhiteSpace($metaObj)) { return @{} }
-        try { $metaObj = $metaObj | ConvertFrom-Json -ErrorAction Stop } catch { return @{} }
-    }
-    return @{
-        InspectorID      = "$($metaObj.InspectorID)"
-        InspectorVersion = "$($metaObj.InspectorVersion)"
-        Author           = "$($metaObj.Author)"
-    }
+function ConvertTo-SoteriaSeverity([string]$value) {
+
+    switch -Regex ($value) {
+
+        '^Critical$' { 'CRITICAL'; break }
+
+        '^High$' { 'HIGH'; break }
+
+        '^Medium$' { 'MEDIUM'; break }
+
+        '^Low$' { 'LOW'; break }
+
+        '^Informational$' { 'INFO'; break }
+
+        '^Review Required$' { 'REVIEW_REQUIRED'; break }
+
+        default { 'INFO' }
+
+    }
+
+}
+
+
+
+function ConvertTo-SoteriaServiceList($value) {
+
+    if ([string]::IsNullOrWhiteSpace($value)) { return , @() }
+
+    $items = @($value -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+
+    return , $items
+
+}
+
+
+
+function ConvertTo-SoteriaValueString($v) {
+
+    if ($null -eq $v) { return 'null' }
+
+    if ($v -is [bool]) { return $v.ToString().ToLower() }
+
+    if (($v -is [System.Array]) -or (($v -is [System.Collections.IList]) -and ($v -isnot [string]))) { return (@($v) -join ', ') }
+
+    return "$v"
+
+}
+
+
+
+function ConvertTo-SoteriaPropPairs([System.Object]$obj) {
+
+    if ($null -eq $obj) { return @() }
+
+    $pairs = [System.Collections.Generic.List[Object]]::new()
+
+    foreach ($p in $obj.PSObject.Properties) {
+
+        $pairs.Add(@($p.Name, (ConvertTo-SoteriaValueString $p.Value))) | Out-Null
+
+    }
+
+    return , $pairs.ToArray()
+
+}
+
+
+
+function ConvertTo-SoteriaAffectedEntity($item) {
+
+    if ($null -eq $item) { return $null }
+
+    if ($item -is [bool] -or $item -is [int] -or $item -is [long] -or $item -is [double]) {
+
+        return [ordered]@{ kind = 'value'; value = $item.ToString() }
+
+    }
+
+    if ($item -is [string]) {
+
+        return [ordered]@{ kind = 'value'; value = $item }
+
+    }
+
+    $propNames = @($item.PSObject.Properties.Name)
+
+    if ($propNames -contains 'Name' -and $propNames -contains 'Prop') {
+
+        $name = "$($item.Name)"
+
+        $prop = $item.Prop
+
+        if ($null -eq $prop) {
+
+            return [ordered]@{ kind = 'object'; name = $name; props = @() }
+
+        }
+
+        if ($prop -is [System.Array] -or $prop -is [System.Collections.IList]) {
+
+            $groups = [System.Collections.Generic.List[Object]]::new()
+
+            $i = 0
+
+            foreach ($g in $prop) {
+
+                $i++
+
+                $label = if ($g.PSObject.Properties.Name -contains 'CredentialName') { "$($g.CredentialName)" }
+
+                elseif ($g.PSObject.Properties.Name -contains 'Name') { "$($g.Name)" }
+
+                else { "Item $i" }
+
+                $groups.Add([ordered]@{ label = $label; props = (ConvertTo-SoteriaPropPairs $g) }) | Out-Null
+
+            }
+
+            return [ordered]@{ kind = 'group'; name = $name; groups = $groups.ToArray() }
+
+        }
+
+        return [ordered]@{ kind = 'object'; name = $name; props = (ConvertTo-SoteriaPropPairs $prop) }
+
+    }
+
+    if ($propNames -contains 'Name') {
+
+        return [ordered]@{ kind = 'object'; name = "$($item.Name)"; props = (ConvertTo-SoteriaPropPairs $item) }
+
+    }
+
+    return [ordered]@{ kind = 'object'; name = '(unstructured)'; props = (ConvertTo-SoteriaPropPairs $item) }
+
+}
+
+
+
+function ConvertTo-SoteriaFrameworks($frameworks) {
+
+    if ($null -eq $frameworks) { return @() }
+
+    $items = if ($frameworks -is [System.Array] -or $frameworks -is [System.Collections.IList]) { $frameworks } else { @($frameworks) }
+
+    $result = [System.Collections.Generic.List[Object]]::new()
+
+    foreach ($fw in $items) {
+
+        if ($null -eq $fw) { continue }
+
+        $controls = [System.Collections.Generic.List[Object]]::new()
+
+        foreach ($c in @($fw.Controls)) {
+
+            if ($null -eq $c) { continue }
+
+            $controls.Add([ordered]@{
+
+                    control            = "$($c.Control)"
+
+                    controlName        = "$($c.ControlName)"
+
+                    controlDescription = "$($c.ControlDescription)"
+
+                    category           = "$($c.Category)"
+
+                }) | Out-Null
+
+        }
+
+        $result.Add([ordered]@{
+
+                name     = "$($fw.Name)"
+
+                version  = "$($fw.Version)"
+
+                controls = $controls.ToArray()
+
+            }) | Out-Null
+
+    }
+
+    return , $result.ToArray()
+
+}
+
+
+
+function ConvertTo-SoteriaReferences($references) {
+
+    if ($null -eq $references) { return @() }
+
+    $items = if ($references -is [System.Array] -or $references -is [System.Collections.IList]) { $references } else { @($references) }
+
+    $result = [System.Collections.Generic.List[Object]]::new()
+
+    foreach ($r in $items) {
+
+        if ($null -eq $r) { continue }
+
+        if ([string]::IsNullOrWhiteSpace("$($r.Url)") -and [string]::IsNullOrWhiteSpace("$($r.Text)")) { continue }
+
+        $result.Add([ordered]@{
+
+                url  = "$($r.Url)"
+
+                text = if ($r.Text) { "$($r.Text)" } else { "$($r.Url)" }
+
+            }) | Out-Null
+
+    }
+
+    return , $result.ToArray()
+
+}
+
+
+
+function ConvertTo-SoteriaAdminUri($adminUri) {
+
+    if ($null -eq $adminUri) { return , @() }
+
+    $items = if ($adminUri -is [System.Array] -or $adminUri -is [System.Collections.IList]) { $adminUri } else { @($adminUri) }
+
+    $result = [System.Collections.Generic.List[Object]]::new()
+
+    foreach ($a in $items) {
+
+        if ($null -eq $a) { continue }
+
+        $result.Add([ordered]@{ name = "$($a.name)"; url = "$($a.url)" }) | Out-Null
+
+    }
+
+    return , $result.ToArray()
+
+}
+
+
+
+function Get-SoteriaInspectorMetadata($metaObj) {
+
+    if ($null -eq $metaObj) { return @{} }
+
+    if ($metaObj -is [string]) {
+
+        if ([string]::IsNullOrWhiteSpace($metaObj)) { return @{} }
+
+        try { $metaObj = $metaObj | ConvertFrom-Json -ErrorAction Stop } catch { return @{} }
+
+    }
+
+    return @{
+
+        InspectorID      = "$($metaObj.InspectorID)"
+
+        InspectorVersion = "$($metaObj.InspectorVersion)"
+
+        Author           = "$($metaObj.Author)"
+
+    }
+
 }
 
 Function Get-FindingField {
